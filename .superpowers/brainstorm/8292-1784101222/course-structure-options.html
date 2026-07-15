@@ -1,0 +1,72 @@
+<h2>NodePath 完整课程应该怎样组织？</h2>
+<p class="subtitle">三种方案都覆盖 Node.js 官方 Learn 的实用主线；区别在于知识排序和项目串联方式。点击卡片可选择。</p>
+
+<div class="cards">
+  <div class="card" data-choice="b-progressive" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:20px; min-height:230px; background:linear-gradient(145deg,#10251c,#142033); color:#e8fff0;">
+      <div class="label" style="color:#76e39a; margin-bottom:14px;">B · 推荐</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:7px;font-size:11px;text-align:center;">
+        <div style="padding:9px 4px;background:#21613b;border-radius:8px;">基础</div>
+        <div style="padding:9px 4px;background:#21613b;border-radius:8px;">模块</div>
+        <div style="padding:9px 4px;background:#21613b;border-radius:8px;">异步</div>
+        <div style="padding:9px 4px;background:#21613b;border-radius:8px;">文件流</div>
+        <div style="padding:9px 4px;background:#21613b;border-radius:8px;">CLI</div>
+        <div style="padding:9px 4px;background:#244c72;border-radius:8px;">HTTP</div>
+        <div style="padding:9px 4px;background:#244c72;border-radius:8px;">API</div>
+        <div style="padding:9px 4px;background:#244c72;border-radius:8px;">安全</div>
+        <div style="padding:9px 4px;background:#6b4f1d;border-radius:8px;">并发</div>
+        <div style="padding:9px 4px;background:#6b4f1d;border-radius:8px;">质量</div>
+      </div>
+      <div style="margin-top:20px;padding:12px;border:1px solid #487861;border-radius:9px;font-size:12px;">
+        依赖递进：先建立运行时心智模型，再进入真实后端工程
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>能力递进式课程地图</h3>
+      <p>按“理解运行时 → 操作数据 → 构建服务 → 保证质量”的依赖顺序重组官方知识。最适合系统学习和记忆。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="a-official" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:20px; min-height:230px; background:#151b26; color:#e9edf5;">
+      <div class="label" style="color:#88a8d8; margin-bottom:14px;">A · 官方目录映射</div>
+      <div style="display:flex;flex-direction:column;gap:7px;font-size:12px;">
+        <div style="padding:8px 12px;background:#26334a;border-radius:7px;">Getting Started · Command Line</div>
+        <div style="padding:8px 12px;background:#26334a;border-radius:7px;">HTTP · File System · Async Work</div>
+        <div style="padding:8px 12px;background:#26334a;border-radius:7px;">Concurrency · TypeScript · Packages</div>
+        <div style="padding:8px 12px;background:#26334a;border-radius:7px;">Diagnostics · Testing · Security</div>
+      </div>
+      <div style="margin-top:16px;font-size:12px;color:#aeb9ca;">优点：与官方文档一一对应，方便查阅和维护</div>
+    </div>
+    <div class="card-body">
+      <h3>官方目录镜像式</h3>
+      <p>最大程度保持 Node.js Learn 原始分类。覆盖关系最清晰，但有些章节之间的学习依赖不够顺滑。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c-project-spiral" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:20px; min-height:230px; background:linear-gradient(150deg,#251a32,#1a2431); color:#f5eaff;">
+      <div class="label" style="color:#d8a7ff; margin-bottom:14px;">C · 项目螺旋</div>
+      <div style="width:180px;height:180px;margin:auto;border:2px solid #865eb0;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;">
+        <div style="width:125px;height:125px;border:2px solid #5e86b0;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <div style="width:72px;height:72px;background:#5f3475;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;">协作任务<br>平台</div>
+        </div>
+        <span style="position:absolute;top:8px;font-size:11px;">模块</span>
+        <span style="position:absolute;right:-5px;font-size:11px;">HTTP</span>
+        <span style="position:absolute;bottom:8px;font-size:11px;">测试</span>
+        <span style="position:absolute;left:-8px;font-size:11px;">并发</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>单一项目螺旋式</h3>
+      <p>每阶段都扩展同一个协作平台，连贯性最强；但初学者较早接触复杂业务，单知识点边界会变弱。</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:24px;">
+  <div class="pros-cons">
+    <div class="pros"><h4>我的推荐：B</h4><ul><li>保留官方覆盖度</li><li>按知识依赖重新排序</li><li>每阶段有独立小项目，最终再汇入协作平台</li></ul></div>
+    <div class="cons"><h4>设计约束</h4><ul><li>每个知识点必须记录官方来源</li><li>高级主题进入选修轨道</li><li>课程地图需要内容版本管理</li></ul></div>
+  </div>
+</div>

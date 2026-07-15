@@ -1,0 +1,78 @@
+<h2>设计第 2 节：题库与单课学习闭环</h2>
+<p class="subtitle">目标不是把 4 道题扩成一长串按钮，而是建立可维护、可复习、可验证的课程内容系统。</p>
+
+<div class="mockup">
+  <div class="mockup-header">每个知识点的完整学习路径</div>
+  <div class="mockup-body">
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center;font-size:12px;align-items:stretch;">
+      <div style="padding:12px 6px;background:#21342b;border-radius:8px;">① 概念<br>与记忆钩子</div>
+      <div style="padding:12px 6px;background:#21342b;border-radius:8px;">② 阅读<br>可运行案例</div>
+      <div style="padding:12px 6px;background:#21342b;border-radius:8px;">③ 预测<br>运行结果</div>
+      <div style="padding:12px 6px;background:#3c2b2b;border-radius:8px;">④ 错误时<br>定向提示</div>
+      <div style="padding:12px 6px;background:#23354a;border-radius:8px;">⑤ 正确后<br>执行案例</div>
+      <div style="padding:12px 6px;background:#23354a;border-radius:8px;">⑥ 可视化<br>过程与日志</div>
+      <div style="padding:12px 6px;background:#483d22;border-radius:8px;">⑦ 总结<br>加入复习</div>
+    </div>
+  </div>
+</div>
+
+<div class="split" style="margin-top:18px;">
+  <div class="mockup">
+    <div class="mockup-header">题库规模</div>
+    <div class="mockup-body">
+      <h3>每个知识点至少 3 道变体</h3>
+      <ul>
+        <li><strong>预测题：</strong>先判断代码输出或运行状态</li>
+        <li><strong>诊断题：</strong>定位错误原因或不安全写法</li>
+        <li><strong>迁移题：</strong>把规则应用到新场景</li>
+      </ul>
+      <p><strong>总量：</strong>70–90 个知识点，对应约 240–320 道题；另含 10 个阶段项目和 1 个综合项目。</p>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">答题反馈规则</div>
+    <div class="mockup-body">
+      <h3>错误答案也承担教学职责</h3>
+      <ul>
+        <li>每个错误选项绑定独立误区说明</li>
+        <li>首次错误只给提示，不直接暴露答案</li>
+        <li>第二次错误展示相关运行步骤</li>
+        <li>正确后解释“为什么正确、其他项为什么错”</li>
+      </ul>
+      <p>替换当前所有课程共用的一条 Event Loop 提示，避免答非所问。</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <div class="label">可视化注册表</div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px;font-size:12px;text-align:center;">
+    <div style="padding:10px;background:#1b2938;border-radius:8px;">模块依赖图</div>
+    <div style="padding:10px;background:#1b2938;border-radius:8px;">事件循环队列</div>
+    <div style="padding:10px;background:#1b2938;border-radius:8px;">Buffer / Stream</div>
+    <div style="padding:10px;background:#1b2938;border-radius:8px;">HTTP 生命周期</div>
+    <div style="padding:10px;background:#1b2938;border-radius:8px;">进程与 Worker</div>
+    <div style="padding:10px;background:#1b2938;border-radius:8px;">实时连接状态</div>
+    <div style="padding:10px;background:#1b2938;border-radius:8px;">测试结果与覆盖率</div>
+    <div style="padding:10px;background:#1b2938;border-radius:8px;">内存与性能曲线</div>
+    <div style="padding:10px;background:#1b2938;border-radius:8px;">终端日志</div>
+    <div style="padding:10px;background:#1b2938;border-radius:8px;">应用预览</div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <div class="label">内容从 UI 中解耦</div>
+  <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center;text-align:center;margin-top:12px;">
+    <div style="padding:14px;background:#202c25;border-radius:9px;"><strong>课程索引</strong><br><small>阶段、顺序、先修关系</small></div>
+    <div>→</div>
+    <div style="padding:14px;background:#202c25;border-radius:9px;"><strong>课程规格</strong><br><small>讲解、题目、误区、来源</small></div>
+    <div>→</div>
+    <div style="padding:14px;background:#202c25;border-radius:9px;"><strong>渲染与运行器</strong><br><small>交互、执行、可视化</small></div>
+  </div>
+  <p style="margin-top:12px;">每课必须记录官方来源 URL、适用 Node.js 版本、最后核验日期、学习目标和先修知识；新增课程不再修改页面组件。</p>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="approve-content-model" onclick="toggleSelect(this)"><div class="letter">✓</div><div class="content"><h3>题库与学习闭环通过</h3><p>继续设计混合运行架构。</p></div></div>
+  <div class="option" data-choice="adjust-content-model" onclick="toggleSelect(this)"><div class="letter">↻</div><div class="content"><h3>需要调整</h3><p>请说明题量、反馈方式或可视化类型上的修改。</p></div></div>
+</div>

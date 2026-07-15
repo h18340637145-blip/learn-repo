@@ -1,0 +1,88 @@
+<h2>设计第 3 节：混合执行与可视化数据流</h2>
+<p class="subtitle">普通课程追求确定性和教学表达；项目课程追求真实运行。两条路径最后统一输出结构化事件。</p>
+
+<div class="mockup">
+  <div class="mockup-header">统一执行入口</div>
+  <div class="mockup-body">
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;">
+      <div style="padding:16px;background:#203028;border-radius:10px;text-align:center;"><strong>学习者提交答案</strong><br><small>lessonId + answerId + attemptId</small></div>
+      <div style="font-size:22px;">→</div>
+      <div style="padding:16px;background:#203048;border-radius:10px;text-align:center;"><strong>课程控制器</strong><br><small>校验答案并读取 executionMode</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="split" style="margin-top:18px;">
+  <div class="mockup">
+    <div class="mockup-header">路径 A · 普通知识点</div>
+    <div class="mockup-body">
+      <div class="label" style="color:#79dba0;">AUTHOR TRACE</div>
+      <h3>经过验证的预设运行轨迹</h3>
+      <ol>
+        <li>读取课程内的结构化 frames</li>
+        <li>按时间线播放队列、模块、流等状态</li>
+        <li>同步输出终端日志和解释</li>
+      </ol>
+      <p><strong>优势：</strong>无网络依赖、速度快、结果稳定，教师可以精准强调关键步骤。</p>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">路径 B · 阶段与综合项目</div>
+    <div class="mockup-body">
+      <div class="label" style="color:#8dbdff;">ISOLATED SANDBOX</div>
+      <h3>隔离环境真实执行</h3>
+      <ol>
+        <li>服务端按 lessonId 加载可信项目模板</li>
+        <li>应用学习者选择的受控代码补丁</li>
+        <li>放入独立沙箱执行并收集事件</li>
+      </ol>
+      <p><strong>边界：</strong>浏览器不上传任意 Node.js 源码；Next.js 进程不直接执行课程代码。</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <div class="label">项目执行链路</div>
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:10px;text-align:center;font-size:11px;align-items:stretch;">
+    <div style="padding:12px 5px;background:#202c36;border-radius:8px;">API<br>请求校验</div>
+    <div style="padding:12px 5px;background:#202c36;border-radius:8px;">可信模板<br>与补丁</div>
+    <div style="padding:12px 5px;background:#332b20;border-radius:8px;">隔离任务<br>排队执行</div>
+    <div style="padding:12px 5px;background:#332b20;border-radius:8px;">Node.js<br>沙箱进程</div>
+    <div style="padding:12px 5px;background:#203328;border-radius:8px;">事件<br>标准化</div>
+    <div style="padding:12px 5px;background:#203328;border-radius:8px;">SSE 流<br>视觉呈现</div>
+  </div>
+  <p>统一事件格式包含：时间、阶段、事件类型、可视化通道、状态数据、日志和教学注释。前端不需要知道事件来自预设轨迹还是真实沙箱。</p>
+</div>
+
+<div class="pros-cons" style="margin-top:20px;">
+  <div class="pros">
+    <h4>沙箱安全约束</h4>
+    <ul>
+      <li>默认禁止访问外部网络，仅开放必要的内部回环</li>
+      <li>临时工作目录、只读运行时、任务结束立即清理</li>
+      <li>限制 CPU、内存、运行时间、进程数和输出大小</li>
+      <li>依赖包预安装并使用白名单，不在运行时执行 npm install</li>
+      <li>所有密钥与宿主环境变量对沙箱不可见</li>
+    </ul>
+  </div>
+  <div class="cons">
+    <h4>错误与降级策略</h4>
+    <ul>
+      <li>错误答案不触发沙箱，只进入定向教学反馈</li>
+      <li>语法或运行错误作为可学习事件展示堆栈位置</li>
+      <li>超时、内存超限、输出超限分别显示明确原因</li>
+      <li>沙箱服务不可用时回退到标记为“模拟”的验证轨迹</li>
+      <li>切换课程或取消运行时终止任务并丢弃迟到事件</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <div class="label">实现边界</div>
+  <p><strong>首期：</strong>只执行官方课程提供的项目模板和有限补丁。<strong>以后：</strong>若增加自由代码编辑器，必须作为独立安全项目重新设计，不复用当前受控补丁接口。</p>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="approve-runtime" onclick="toggleSelect(this)"><div class="letter">✓</div><div class="content"><h3>混合运行架构通过</h3><p>继续设计验证、内容治理和交付边界。</p></div></div>
+  <div class="option" data-choice="adjust-runtime" onclick="toggleSelect(this)"><div class="letter">↻</div><div class="content"><h3>需要调整</h3><p>请说明真实执行范围、安全限制或降级方式上的修改。</p></div></div>
+</div>

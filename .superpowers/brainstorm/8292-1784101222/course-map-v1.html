@@ -1,0 +1,72 @@
+<h2>设计第 1 节：10 阶段能力递进课程地图</h2>
+<p class="subtitle">主线约 80 个知识点，每阶段 7–9 课 + 1 个项目。官方主题被重新按依赖顺序编排，高级内容进入选修轨道。</p>
+
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;">
+  <div style="padding:16px;border:1px solid #365c48;border-radius:12px;background:#13251c;">
+    <div class="label" style="color:#75dfa0;">01 · 运行时与命令行</div><h3>认识 Node.js</h3>
+    <p>运行时、浏览器差异、V8、版本管理、脚本、REPL、process、环境变量</p>
+    <p><strong>项目：</strong>CLI 系统信息探测器</p>
+  </div>
+  <div style="padding:16px;border:1px solid #365c48;border-radius:12px;background:#13251c;">
+    <div class="label" style="color:#75dfa0;">02 · 模块与包</div><h3>组织可维护代码</h3>
+    <p>ESM、解析规则、package.json、npm、语义化版本、CommonJS、缓存、TypeScript 入门</p>
+    <p><strong>项目：</strong>依赖与配置检查器</p>
+  </div>
+  <div style="padding:16px;border:1px solid #365c48;border-radius:12px;background:#13251c;">
+    <div class="label" style="color:#75dfa0;">03 · 异步与事件</div><h3>建立事件循环心智模型</h3>
+    <p>回调、Promise、async/await、计时器、微任务、nextTick、EventEmitter、取消任务</p>
+    <p><strong>项目：</strong>并发任务调度器</p>
+  </div>
+  <div style="padding:16px;border:1px solid #3b5571;border-radius:12px;background:#142131;">
+    <div class="label" style="color:#8fc5ff;">04 · 文件、Buffer 与 Stream</div><h3>高效处理本地数据</h3>
+    <p>path、URL、fs/promises、目录与元数据、Buffer、编码、流、pipe、背压、readline</p>
+    <p><strong>项目：</strong>CLI 日志分析器</p>
+  </div>
+  <div style="padding:16px;border:1px solid #3b5571;border-radius:12px;background:#142131;">
+    <div class="label" style="color:#8fc5ff;">05 · HTTP 基础</div><h3>理解一次网络事务</h3>
+    <p>Server、请求响应、Header、状态码、路由、查询参数、请求体、流式响应、Fetch</p>
+    <p><strong>项目：</strong>流式静态文件服务器</p>
+  </div>
+  <div style="padding:16px;border:1px solid #3b5571;border-radius:12px;background:#142131;">
+    <div class="label" style="color:#8fc5ff;">06 · API 与服务设计</div><h3>构建可靠后端接口</h3>
+    <p>REST、输入验证、错误模型、配置边界、日志、超时、AbortSignal、优雅关闭</p>
+    <p><strong>项目：</strong>任务管理 REST API</p>
+  </div>
+  <div style="padding:16px;border:1px solid #604b74;border-radius:12px;background:#241a2e;">
+    <div class="label" style="color:#d8a8ff;">07 · 进程与并发</div><h3>突破单主线程边界</h3>
+    <p>阻塞识别、libuv 线程池、child_process、worker_threads、消息传递、Cluster、并发模型选择</p>
+    <p><strong>项目：</strong>Worker Pool 报表生成器</p>
+  </div>
+  <div style="padding:16px;border:1px solid #604b74;border-radius:12px;background:#241a2e;">
+    <div class="label" style="color:#d8a8ff;">08 · 实时通信</div><h3>把服务变成实时系统</h3>
+    <p>长轮询、SSE、WebSocket、心跳、连接状态、广播、背压、断线恢复</p>
+    <p><strong>项目：</strong>实时任务通知服务</p>
+  </div>
+  <div style="padding:16px;border:1px solid #6c562d;border-radius:12px;background:#2b2315;">
+    <div class="label" style="color:#ffd07b;">09 · 测试与安全</div><h3>用证据保证正确性</h3>
+    <p>node:test、断言、Mock、覆盖率、集成测试、权限模型、依赖安全、常见攻击防护</p>
+    <p><strong>项目：</strong>经过测试的鉴权服务</p>
+  </div>
+  <div style="padding:16px;border:1px solid #6c562d;border-radius:12px;background:#2b2315;">
+    <div class="label" style="color:#ffd07b;">10 · 诊断与生产工程</div><h3>让服务可观测、可上线</h3>
+    <p>Inspector、性能分析、内存快照、GC、火焰图、健康检查、指标、生产配置、发布检查</p>
+    <p><strong>项目：</strong>生产故障诊断实验室</p>
+  </div>
+</div>
+
+<div class="mockup" style="margin-top:20px;">
+  <div class="mockup-header">最终综合项目 · 实时协作任务平台</div>
+  <div class="mockup-body">
+    <p>模块边界 → REST API → 实时同步 → Worker 任务 → 鉴权安全 → 自动化测试 → 性能诊断 → 生产运行</p>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <div class="label">选修轨道</div>
+  <p>Node-API 原生扩展、WebAssembly、HTTP/2 与 TLS 深入、Linux perf、高级内存诊断。选修不阻塞主线毕业。</p>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="approve-map" onclick="toggleSelect(this)"><div class="letter">✓</div><div class="content"><h3>课程地图通过</h3><p>按此进入题库与学习交互设计。</p></div></div>
+  <div class="option" data-choice="adjust-map" onclick="toggleSelect(this)"><div class="letter">↻</div><div class="content"><h3>需要调整</h3><p>请在对话中说明希望增加、删除或移动的阶段。</p></div></div>
+</div>

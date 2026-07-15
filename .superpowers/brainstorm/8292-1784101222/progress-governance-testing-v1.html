@@ -1,0 +1,86 @@
+<h2>设计第 4 节：学习进度、内容治理与验收</h2>
+<p class="subtitle">完整课程不仅要“内容多”，还要知道学到哪里、哪些内容仍可信，以及每次更新有没有破坏学习体验。</p>
+
+<div class="mockup">
+  <div class="mockup-header">学习状态与解锁规则</div>
+  <div class="mockup-body">
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;text-align:center;font-size:12px;align-items:stretch;">
+      <div style="padding:12px 5px;background:#24313f;border-radius:8px;">课程<br>可学习</div>
+      <div style="padding:12px 5px;background:#24313f;border-radius:8px;">完成<br>主预测题</div>
+      <div style="padding:12px 5px;background:#284533;border-radius:8px;">观察运行<br>阅读总结</div>
+      <div style="padding:12px 5px;background:#284533;border-radius:8px;">知识点<br>已完成</div>
+      <div style="padding:12px 5px;background:#4b3c22;border-radius:8px;">阶段项目<br>解锁</div>
+      <div style="padding:12px 5px;background:#4b3c22;border-radius:8px;">进入下一阶段<br>加入复习队列</div>
+    </div>
+    <p style="margin-top:12px;">10 个阶段项目全部完成后解锁最终项目。复习题用于巩固，不阻塞继续学习；错题和薄弱知识点进入个人复习队列。</p>
+  </div>
+</div>
+
+<div class="split" style="margin-top:18px;">
+  <div class="mockup">
+    <div class="mockup-header">官方内容治理</div>
+    <div class="mockup-body">
+      <h3>每课都能追溯和重新核验</h3>
+      <ul>
+        <li>记录 Node.js 官方来源 URL 与官方主题映射</li>
+        <li>记录适用 Node.js 版本和最后核验日期</li>
+        <li>必修主题覆盖矩阵不得出现缺口</li>
+        <li>失效链接、过期版本和未核验课程在 CI 中告警</li>
+        <li>官方语义与教学解释分开存储，便于更新</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">内容规格自动检查</div>
+    <div class="mockup-body">
+      <h3>课程数据进入 UI 前先通过验证</h3>
+      <ul>
+        <li>课程 ID、顺序和先修关系合法且无环</li>
+        <li>正确答案必须存在，错误项必须有误区反馈</li>
+        <li>运行轨迹、期望日志和总结字段完整</li>
+        <li>阶段题量符合 7–9 个知识点和项目约束</li>
+        <li>课程示例在声明的 Node.js 版本下产生预期结果</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <div class="label">四层验证体系</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px;">
+    <div style="padding:14px;background:#1d2e25;border-radius:9px;"><strong>① 内容测试</strong><br><small>Schema、来源、答案、依赖图、覆盖矩阵</small></div>
+    <div style="padding:14px;background:#1d2b38;border-radius:9px;"><strong>② 逻辑测试</strong><br><small>答题状态、进度、解锁、取消、事件播放</small></div>
+    <div style="padding:14px;background:#30281b;border-radius:9px;"><strong>③ 集成测试</strong><br><small>沙箱限制、SSE、超时、回退与资源清理</small></div>
+    <div style="padding:14px;background:#30201f;border-radius:9px;"><strong>④ 端到端</strong><br><small>桌面与移动端完整学习、阶段项目、最终解锁</small></div>
+  </div>
+</div>
+
+<div class="pros-cons" style="margin-top:20px;">
+  <div class="pros">
+    <h4>首版进度存储</h4>
+    <ul>
+      <li>先采用浏览器本地持久化，刷新后不丢进度</li>
+      <li>进度接口与存储实现分离，UI 不直接依赖 localStorage</li>
+      <li>后续增加登录时可切换到 Supabase，不改课程组件</li>
+    </ul>
+  </div>
+  <div class="cons">
+    <h4>明确不在本轮</h4>
+    <ul>
+      <li>任意代码编辑和任意 npm 依赖安装</li>
+      <li>教师可视化课程编辑器</li>
+      <li>排行榜、社交、证书和付费体系</li>
+      <li>Node-API 等选修内容的首期完整制作</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <div class="label">完成标准</div>
+  <p>10 个阶段、70–90 个必修知识点、240–320 道题、10 个阶段项目和 1 个综合项目全部可导航；每课有官方来源、版本、定向反馈和视觉结果；项目真实运行失败时有明确降级；桌面和移动端均能恢复进度并完成整条学习路线。</p>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="approve-final-design" onclick="toggleSelect(this)"><div class="letter">✓</div><div class="content"><h3>完整设计通过</h3><p>下一步将设计写入规格文档并提交。</p></div></div>
+  <div class="option" data-choice="adjust-final-design" onclick="toggleSelect(this)"><div class="letter">↻</div><div class="content"><h3>需要调整</h3><p>请说明进度、治理、测试或范围边界上的修改。</p></div></div>
+</div>
