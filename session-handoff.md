@@ -10,7 +10,7 @@ Current branch:
 codex/nodepath-curriculum-foundation
 ```
 
-The app is now a curriculum-backed learning prototype. The UI still renders the same learning studio on `/`, but course data, curriculum structure, authored trace execution, validation, and progress storage have been split into focused modules.
+The app is now a curriculum-backed learning prototype. The UI still renders the same learning studio on `/`, but course data, curriculum structure, authored trace execution, validation, and progress storage have been split into focused modules. Stages 01–03 are now fully populated with published Node.js learning content and stage projects.
 
 Expected dirty state after this session:
 
@@ -26,12 +26,13 @@ Curriculum foundation:
 - 10 required stages.
 - 80 planned knowledge points.
 - 10 planned stage projects.
-- 4 currently published playable cases.
+- 29 currently published playable cases.
 
 Published cases:
 
-- CommonJS `require` cache.
-- Event Loop output order.
+- Stage 01: 8 runtime/CLI lessons plus the CLI system inspector project.
+- Stage 02: 8 modules/packages/TypeScript lessons plus the dependency inspector project.
+- Stage 03: 8 async/events lessons plus the task scheduler project.
 - Stream backpressure.
 - Stage project: CLI log analyzer.
 
@@ -55,7 +56,11 @@ Important product boundary:
 
 - `content/curriculum.ts`: 10-stage/80-point master curriculum catalog.
 - `content/legacy-lessons.ts`: migrated original 4 prototype cases.
-- `content/lesson-registry.ts`: published lesson registry and migration metadata.
+- `content/lessons/lesson-factory.ts`: helper for standard LessonSpec creation.
+- `content/lessons/stage-01-runtime-cli.ts`: complete stage 01 content.
+- `content/lessons/stage-02-modules-packages.ts`: complete stage 02 content.
+- `content/lessons/stage-03-async-events.ts`: complete stage 03 content.
+- `content/lesson-registry.ts`: published lesson registry, stage 01–03 aggregation, and stage 04 migration metadata.
 - `lib/curriculum/types.ts`: shared curriculum and lesson types.
 - `lib/curriculum/validate.ts`: catalog and lesson validators.
 - `lib/curriculum/view-model.ts`: roadmap view model.
@@ -79,10 +84,10 @@ npm run build
 git diff --check
 ```
 
-Expected `validate:curriculum` output:
+Expected `validate:curriculum` output after the stage 01–03 fill:
 
 ```text
-课程校验通过：10 个阶段，4 个已发布案例。
+课程校验通过：10 个阶段，29 个已发布案例。
 ```
 
 Notes:
@@ -91,7 +96,14 @@ Notes:
 - `npm run build` may need permission because Turbopack can bind a local port for CSS processing.
 - Next may warn about multiple lockfiles and infer a workspace root above this project. That warning has not blocked successful builds.
 
-Final stage 1 acceptance was run on this branch:
+Latest targeted curriculum acceptance during the stage 01–03 fill:
+
+```text
+npx tsc --noEmit -> pass.
+npm test -- tests/curriculum/registry.test.ts tests/curriculum/catalog.test.ts tests/curriculum/validate.test.ts tests/curriculum/view-model.test.ts -> 19 tests, 19 pass, 0 fail.
+```
+
+Previous stage 1 acceptance was run on this branch:
 
 ```text
 npm run validate:curriculum -> 课程校验通过：10 个阶段，4 个已发布案例。
@@ -116,9 +128,9 @@ Manual browser acceptance on `http://localhost:55460/`:
 
 Highest-value next plan:
 
-1. Build stages 01–03 content from official Node.js learning docs.
+1. Build stages 04–06 content from official Node.js learning docs.
 2. Add at least 3 question variants per knowledge point.
-3. Add visualizers beyond `lane-flow` for module resolution and event loop flow.
+3. Add visualizers beyond `lane-flow` for module resolution, event loop flow, Stream/HTTP flow and concurrency.
 4. Keep normal lessons on authored traces.
 5. Design the first real sandbox separately for later stage projects.
 

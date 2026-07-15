@@ -44,10 +44,22 @@ content/curriculum.ts
 content/legacy-lessons.ts
   -> 从原型迁移来的 4 个旧案例原始内容
 
+content/lessons/lesson-factory.ts
+  -> 生成标准 LessonSpec，统一 nodeVersion、题目结构、authored trace 和来源日期
+
+content/lessons/stage-01-runtime-cli.ts
+  -> 阶段 01：运行时、浏览器差异、V8、LTS、CLI、REPL、argv、env/console 和 CLI 系统探测器
+
+content/lessons/stage-02-modules-packages.ts
+  -> 阶段 02：ESM、模块解析、package type、node: 前缀、依赖类型、SemVer/scripts、require 缓存、TypeScript 和依赖检查器
+
+content/lessons/stage-03-async-events.ts
+  -> 阶段 03：callback、Promise、async/await、异步错误、事件循环、nextTick、setImmediate、EventEmitter/Abort 和任务调度器
+
 content/lesson-registry.ts
   -> 已发布课程注册表
-  -> 旧案例到 LessonSpec 的迁移适配
-  -> 课程来源、记忆钩子、定向反馈
+  -> 聚合阶段 01–03 正式课程
+  -> 保留阶段 04 旧案例到 LessonSpec 的迁移适配
 
 lib/curriculum/types.ts
   -> 课程目录、课程规格、题目、来源、运行帧类型
@@ -76,7 +88,7 @@ lib/progress/*
 - 终端面板显示课程内预设日志。
 - 完整运行结束后写入本地进度仓储。
 
-当前没有后端 API、数据库、认证或任意代码执行。
+当前没有后端 API、数据库、认证或任意代码执行。阶段 01–03 虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
 
 ## Data Model
 
@@ -88,6 +100,15 @@ lib/progress/*
 - `questions`: 题目、选项、正确答案和定向反馈。
 - `execution`: authored trace 可视化配置。
 - `sources`: 官方来源和校验日期。
+
+已发布课程的质量约束：
+
+- 至少 1 个代码文件，且入口文件必须存在。
+- 至少 1 道选择题，正确答案必须存在于选项中。
+- 每个选项都必须提供定向反馈。
+- 至少 3 个 authored trace 运行帧。
+- 至少 3 条知识总结。
+- 至少 1 个官方来源。
 
 课程目录使用 `CurriculumStage`：
 
