@@ -14,7 +14,7 @@ test("阶段展示计划总数和已发布数量", () => {
   });
 
   assert.equal(roadmap[1].totalLessons, 8);
-  assert.equal(roadmap[1].publishedLessons, 1);
+  assert.equal(roadmap[1].publishedLessons, 8);
   assert.equal(roadmap[1].completedLessons, 1);
   assert.equal(roadmap[1].state, "active");
 });

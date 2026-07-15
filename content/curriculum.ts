@@ -1,8 +1,33 @@
 import type { CatalogLesson, CurriculumStage, StageId } from "../lib/curriculum/types";
 
 const publishedIds = new Set([
+  "runtime-introduction",
+  "runtime-browser-differences",
+  "runtime-v8",
+  "runtime-lts",
+  "cli-run-scripts",
+  "cli-repl",
+  "cli-process-arguments",
+  "cli-env-console",
+  "project-cli-system-inspector",
+  "modules-esm",
+  "modules-resolution",
+  "modules-package-type",
+  "modules-node-prefix",
+  "packages-dependency-types",
+  "packages-semver-scripts",
   "modules-require-cache",
+  "typescript-node",
+  "project-dependency-inspector",
+  "async-callbacks",
+  "async-promises",
+  "async-await",
+  "async-error-propagation",
   "event-loop-order",
+  "async-microtasks-nexttick",
+  "async-immediate-timers",
+  "events-emitter-abort",
+  "project-task-scheduler",
   "stream-backpressure",
   "project-cli-log-analyzer"
 ]);

@@ -1,5 +1,8 @@
 import type { LessonSpec, StageId } from "../lib/curriculum/types";
 import { legacyLessons, type LegacyLesson } from "./legacy-lessons";
+import { stageOneRuntimeCliLessons } from "./lessons/stage-01-runtime-cli";
+import { stageTwoModulesPackagesLessons } from "./lessons/stage-02-modules-packages";
+import { stageThreeAsyncEventsLessons } from "./lessons/stage-03-async-events";
 
 type MigrationMetadata = {
   id: string;
@@ -127,7 +130,16 @@ function migrateLesson(legacy: LegacyLesson): LessonSpec {
   };
 }
 
-export const publishedLessons = legacyLessons.map(migrateLesson) satisfies LessonSpec[];
+const legacyStageFourLessons = legacyLessons
+  .filter((legacy) => legacy.id === "streams" || legacy.id === "stage-project")
+  .map(migrateLesson);
+
+export const publishedLessons = [
+  stageOneRuntimeCliLessons,
+  stageTwoModulesPackagesLessons,
+  stageThreeAsyncEventsLessons,
+  legacyStageFourLessons
+].flat() satisfies LessonSpec[];
 const lessonById = new Map(publishedLessons.map((lesson) => [lesson.id, lesson]));
 
 export function getLesson(id: string): LessonSpec | undefined {
