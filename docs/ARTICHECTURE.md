@@ -75,6 +75,12 @@ lib/execution/authored-trace.ts
 
 lib/progress/*
   -> 与 UI 解耦的本地进度仓储
+
+lib/immersive/visual-state.ts
+  -> 学习状态到沉浸式视觉状态的纯函数映射
+
+components/immersive/*
+  -> Runtime Cockpit、Knowledge Nebula、EnergyRunway 和 CompletionBurst 视觉组件
 ```
 
 ## Runtime Boundaries
@@ -89,6 +95,10 @@ lib/progress/*
 - 完整运行结束后写入本地进度仓储。
 
 当前没有后端 API、数据库、认证或任意代码执行。阶段 01–03 虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
+
+沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId` 和 `lesson.kind`。它不写入学习进度，不触发课程切换，也不执行学习者代码。
+
+`ImmersiveBackdrop` 是当前唯一直接使用 Canvas 和 `window` 的 Client Component。其他沉浸式组件保持展示职责，只消费上层传入的视觉状态。
 
 ## Data Model
 

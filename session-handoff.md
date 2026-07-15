@@ -7,10 +7,10 @@ Project: NodePath, a visual Node.js learning website built on Next.js 16.
 Current branch:
 
 ```text
-codex/nodepath-curriculum-foundation
+codex/nodepath-immersive-learning
 ```
 
-The app is now a curriculum-backed learning prototype. The UI still renders the same learning studio on `/`, but course data, curriculum structure, authored trace execution, validation, and progress storage have been split into focused modules. Stages 01–03 are now fully populated with published Node.js learning content and stage projects.
+当前应用是带沉浸式视觉层的课程驱动学习原型。UI 仍在 `/` 渲染学习工作台，但课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。阶段 01–03 已完整发布 Node.js 学习内容和阶段项目。
 
 Expected dirty state after this session:
 
@@ -42,9 +42,12 @@ Core interaction:
 - Learner chooses an answer.
 - Wrong answer shows option-specific feedback.
 - Correct answer starts a cancellable authored trace.
+- 已实现 Runtime Cockpit + Knowledge Nebula 沉浸式视觉层。
+- Runtime Cockpit、Knowledge Nebula、EnergyRunway 和 CompletionBurst 会响应答题正确、运行中和完成状态。
 - Terminal panel shows simulated logs.
 - Summary appears after completion.
 - Completion is saved to browser local progress and restored after refresh.
+- 支持 `prefers-reduced-motion` 降级。
 
 Important product boundary:
 
@@ -65,7 +68,9 @@ Important product boundary:
 - `lib/curriculum/validate.ts`: catalog and lesson validators.
 - `lib/curriculum/view-model.ts`: roadmap view model.
 - `lib/execution/authored-trace.ts`: cancellable authored trace runner.
+- `lib/immersive/visual-state.ts`: 学习状态到沉浸式视觉状态的纯函数映射。
 - `lib/progress/*`: local progress repository boundary.
+- `components/immersive/*`: Runtime Cockpit、Knowledge Nebula、EnergyRunway、CompletionBurst 和相关视觉组件。
 - `scripts/validate-curriculum.ts`: curriculum validation CLI.
 - `app/learning-studio.tsx`: client learning studio consuming registry, roadmap, runner, and progress.
 - `app/globals.css`: visual system and responsive behavior.
@@ -74,21 +79,20 @@ Important product boundary:
 
 ## Validation History
 
-Latest automatic validation for the curriculum foundation:
+Latest automatic validation for the immersive learning layer:
 
 ```bash
-npm run validate:curriculum
-npm test
-npm run lint
-npm run build
-git diff --check
+npm run validate:curriculum -> pass. 输出：课程校验通过：10 个阶段，29 个已发布案例。
+npm test -> pass. 29 tests, 29 pass, 0 fail。包含 tests/**/*.test.tsx 组件测试。
+npm run lint -> pass.
+npm run build -> pass. 仅出现已有 multiple lockfiles warning。
+git diff --check -> pass. 无输出。
 ```
 
-Expected `validate:curriculum` output after the stage 01–03 fill:
+Verification notes:
 
-```text
-课程校验通过：10 个阶段，29 个已发布案例。
-```
+- `npm run validate:curriculum` 和 `npm test` 在普通沙箱内因 `tsx` IPC `listen EPERM` 失败，已按要求升级权限重跑并通过。
+- `npm run build` 在普通沙箱内因 Turbopack 本地端口绑定失败，已按要求升级权限重跑并通过。
 
 Notes:
 
