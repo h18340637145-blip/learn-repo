@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { LessonSpec } from "../../lib/curriculum/types";
-import { validateLessonSpec } from "../../lib/curriculum/validate";
+import type { CurriculumStage, LessonSpec } from "../../lib/curriculum/types";
+import { validateCatalog, validateLessonSpec } from "../../lib/curriculum/validate";
 
 const validLesson: LessonSpec = {
   id: "event-loop-order",
@@ -46,6 +46,42 @@ const validLesson: LessonSpec = {
   }]
 };
 
+const stageIds: CurriculumStage["id"][] = [
+  "runtime-cli",
+  "modules-packages",
+  "async-events",
+  "files-streams",
+  "http-foundations",
+  "api-design",
+  "process-concurrency",
+  "realtime",
+  "testing-security",
+  "diagnostics-production"
+];
+
+function createValidCatalog(): CurriculumStage[] {
+  return stageIds.map((id, index) => ({
+    id,
+    number: index + 1,
+    title: `阶段 ${index + 1}`,
+    summary: `阶段 ${index + 1} 摘要`,
+    lessons: Array.from({ length: 8 }, (_, lessonIndex) => ({
+      id: `${id}-lesson-${lessonIndex + 1}`,
+      title: `知识点 ${lessonIndex + 1}`,
+      order: lessonIndex + 1,
+      kind: "knowledge",
+      status: "published"
+    })),
+    project: {
+      id: `${id}-project`,
+      title: `阶段 ${index + 1} 项目`,
+      order: 9,
+      kind: "stage-project",
+      status: "planned"
+    }
+  }));
+}
+
 test("有效课程规格没有校验错误", () => {
   assert.deepEqual(validateLessonSpec(validLesson), []);
 });
@@ -55,5 +91,33 @@ test("正确答案不存在时返回具体错误", () => {
   invalid.questions[0].answerId = "missing";
   assert.deepEqual(validateLessonSpec(invalid), [
     "课程 event-loop-order 的题目 event-loop-order-prediction 缺少正确答案选项 missing"
+  ]);
+});
+
+test("有效 10 阶段课程目录没有校验错误", () => {
+  assert.deepEqual(validateCatalog(createValidCatalog()), []);
+});
+
+test("课程目录阶段数量不是 10 时返回具体错误", () => {
+  assert.deepEqual(validateCatalog(createValidCatalog().slice(0, 9)), [
+    "课程目录应有 10 个阶段，实际为 9"
+  ]);
+});
+
+test("课程目录阶段编号错误时返回具体错误", () => {
+  const invalid = createValidCatalog();
+  invalid[0].number = 2;
+
+  assert.deepEqual(validateCatalog(invalid), [
+    "阶段 runtime-cli 的编号应为 1"
+  ]);
+});
+
+test("课程目录包含重复课程 ID 时返回具体错误", () => {
+  const invalid = createValidCatalog();
+  invalid[1].lessons[0].id = "runtime-cli-lesson-1";
+
+  assert.deepEqual(validateCatalog(invalid), [
+    "课程 ID 重复：runtime-cli-lesson-1"
   ]);
 });
