@@ -1,18 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
+import { curriculum } from "@/content/curriculum";
 import { publishedLessons } from "@/content/lesson-registry";
 import type { RunnerFrame } from "@/lib/curriculum/types";
+import { buildRoadmap } from "@/lib/curriculum/view-model";
 import { streamAuthoredTrace } from "@/lib/execution/authored-trace";
-
-const roadmap = [
-  { number: "01", title: "Node.js 基础", meta: "6 / 6", state: "done", items: ["运行时与全局对象", "模块系统与缓存"] },
-  { number: "02", title: "异步运行时", meta: "3 / 7", state: "active", items: ["Event Loop", "Promise 与异步控制"] },
-  { number: "03", title: "文件与数据流", meta: "0 / 6", state: "locked", items: ["Buffer", "Stream 与背压"] },
-  { number: "04", title: "网络与 API", meta: "0 / 7", state: "locked", items: ["HTTP Server", "REST API"] },
-  { number: "05", title: "工程与质量", meta: "0 / 5", state: "locked", items: ["测试", "性能与安全"] },
-];
+import { getBrowserProgressRepository } from "@/lib/progress/browser-progress-repository";
+import { emptyProgress, type ProgressSnapshot } from "@/lib/progress/types";
 
 const delay = (milliseconds: number) =>
   new Promise((resolve) => window.setTimeout(resolve, milliseconds));
@@ -23,13 +19,23 @@ export function LearningStudio() {
   const [status, setStatus] = useState<"idle" | "running" | "wrong" | "success">("idle");
   const [frameIndex, setFrameIndex] = useState(-1);
   const [frame, setFrame] = useState<RunnerFrame | null>(null);
+  const [progress, setProgress] = useState<ProgressSnapshot>(() => {
+    if (typeof window === "undefined") return emptyProgress();
+    return getBrowserProgressRepository().load();
+  });
   const activeRun = useRef<AbortController | null>(null);
   const lesson = publishedLessons[lessonIndex]!;
   const question = lesson.questions[0]!;
+  const selectedOption = question.options.find((option) => option.id === selected);
   const frames = lesson.execution.frames;
   const lanes = lesson.execution.lanes;
   const isProject = lesson.kind === "stage-project";
   const codeFile = lesson.files.find((file) => file.name === lesson.entryFile) ?? lesson.files[0]!;
+  const roadmap = useMemo(() => buildRoadmap(curriculum, progress), [progress]);
+  const publishedCount = publishedLessons.length;
+  const completedCount = progress.completedLessonIds.length + progress.completedProjectIds.length;
+  const progressPercent = publishedCount === 0 ? 0 : Math.round((completedCount / publishedCount) * 100);
+  const projectLessonIndex = publishedLessons.findIndex((item) => item.kind === "stage-project");
 
   function cancelRun() {
     activeRun.current?.abort();
@@ -74,6 +80,10 @@ export function LearningStudio() {
     if (!controller.signal.aborted) {
       activeRun.current = null;
       setStatus("success");
+      const repository = getBrowserProgressRepository();
+      setProgress((current) => lesson.kind === "stage-project"
+        ? repository.completeProject(current, lesson.id)
+        : repository.completeLesson(current, lesson.id));
     }
   }
 
@@ -104,21 +114,23 @@ export function LearningStudio() {
               <span className="kicker">LEARNING PATH</span>
               <h2>Node.js 全栈路线</h2>
             </div>
-            <span className="progress-number">32%</span>
+            <span className="progress-number">{progressPercent}%</span>
           </div>
-          <div className="progress-track" aria-label="总体进度 32%"><span /></div>
+          <div className="progress-track" aria-label={`当前已发布课程进度 ${progressPercent}%`}>
+            <span style={{ "--progress": `${progressPercent}%` } as React.CSSProperties} />
+          </div>
 
           <div className="roadmap-list">
             {roadmap.map((section) => (
-              <div className={`roadmap-section ${section.state}`} key={section.number}>
+              <div className={`roadmap-section ${section.state}`} key={section.id}>
                 <div className="roadmap-title">
-                  <span className="roadmap-number">{section.state === "done" ? "✓" : section.number}</span>
-                  <div><strong>{section.title}</strong><span>{section.meta} 知识点</span></div>
-                  <span className="section-state">{section.state === "locked" ? "锁定" : ""}</span>
+                  <span className="roadmap-number">{section.state === "done" ? "✓" : String(section.number).padStart(2, "0")}</span>
+                  <div><strong>{section.title}</strong><span>{section.publishedLessons} 已发布 / {section.totalLessons} 知识点</span></div>
+                  <span className="section-state">{section.state === "planned" ? "即将推出" : section.state === "locked" ? "锁定" : ""}</span>
                 </div>
-                {section.state !== "locked" && (
+                {section.state !== "planned" && section.state !== "locked" && (
                   <div className="roadmap-items">
-                    {section.items.map((item) => <span key={item}>{item}</span>)}
+                    {section.items.filter((item) => item.status === "published").map((item) => <span key={item.id}>{item.title}</span>)}
                   </div>
                 )}
               </div>
@@ -128,7 +140,7 @@ export function LearningStudio() {
           <div className="project-shortcut" id="projects">
             <span className="project-icon">⌘</span>
             <div><span>阶段项目</span><strong>CLI 日志分析器</strong></div>
-            <button type="button" onClick={() => openLesson(3)}>开始</button>
+            <button type="button" onClick={() => openLesson(projectLessonIndex)}>开始</button>
           </div>
 
           <div className="final-project">
@@ -205,7 +217,9 @@ export function LearningStudio() {
                 );
               })}
             </div>
-            {status === "wrong" && <p className="feedback wrong-feedback">还差一步：请先判断当前调用栈何时清空，以及哪个队列拥有更高优先级。</p>}
+            {status === "wrong" && selectedOption && (
+              <p className="feedback wrong-feedback">{selectedOption.feedback}</p>
+            )}
             {status === "running" && <p className="feedback running-feedback"><span /> Node.js 正在解析并执行案例…</p>}
           </section>
 
