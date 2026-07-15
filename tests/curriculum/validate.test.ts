@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { publishedLessons } from "../../content/lesson-registry";
 import type { CurriculumStage, LessonSpec } from "../../lib/curriculum/types";
 import { validateCatalog, validateLessonSpec } from "../../lib/curriculum/validate";
 
@@ -120,4 +121,14 @@ test("课程目录包含重复课程 ID 时返回具体错误", () => {
   assert.deepEqual(validateCatalog(invalid), [
     "课程 ID 重复：runtime-cli-lesson-1"
   ]);
+});
+
+test("课程规格包含可视化轨迹、总结和官方来源", () => {
+  for (const lesson of publishedLessons) {
+    assert.ok(lesson.files.length >= 1, `${lesson.id} 至少包含一个代码文件`);
+    assert.ok(lesson.files.every((file) => file.code.trim().length > 0), `${lesson.id} 的代码文件不能为空`);
+    assert.ok(lesson.execution.frames.length >= 3, `${lesson.id} 至少包含 3 个运行帧`);
+    assert.ok(lesson.summary.length >= 3, `${lesson.id} 至少包含 3 条总结`);
+    assert.ok(lesson.sources.some((source) => source.type === "official"), `${lesson.id} 至少包含一个官方来源`);
+  }
 });

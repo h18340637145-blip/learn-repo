@@ -11,14 +11,24 @@ test("课程目录固定为 10 个阶段和 80 个知识点", () => {
   assert.deepEqual(validateCatalog(curriculum), []);
 });
 
-test("当前 3 个知识点和 CLI 项目在目录中标记为已发布", () => {
-  const published = curriculum.flatMap((stage) => [...stage.lessons, stage.project])
+test("阶段 01-03 在目录中全部标记为已发布", () => {
+  const firstThreeItems = curriculum
+    .slice(0, 3)
+    .flatMap((stage) => stage.lessons.concat([stage.project]));
+
+  assert.equal(firstThreeItems.length, 27);
+
+  for (const item of firstThreeItems) {
+    assert.equal(item.status, "published", `${item.id} 应为 published`);
+  }
+});
+
+test("阶段 04 保留当前两个已发布课程", () => {
+  const stageFourPublished = curriculum[3].lessons.concat([curriculum[3].project])
     .filter((item) => item.status === "published")
     .map((item) => item.id);
 
-  assert.deepEqual(published, [
-    "modules-require-cache",
-    "event-loop-order",
+  assert.deepEqual(stageFourPublished, [
     "stream-backpressure",
     "project-cli-log-analyzer"
   ]);
