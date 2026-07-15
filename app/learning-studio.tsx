@@ -2,6 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import {
+  CompletionBurst,
+  EnergyRunway,
+  ImmersiveBackdrop,
+  NebulaProgress
+} from "@/components/immersive";
 import { curriculum } from "@/content/curriculum";
 import { publishedLessons } from "@/content/lesson-registry";
 import type { RunnerFrame } from "@/lib/curriculum/types";
@@ -33,6 +39,8 @@ export function LearningStudio() {
   const completedCount = progress.completedLessonIds.length + progress.completedProjectIds.length;
   const progressPercent = publishedCount === 0 ? 0 : Math.round((completedCount / publishedCount) * 100);
   const projectLessonIndex = publishedLessons.findIndex((item) => item.kind === "stage-project");
+  const activeStageId = lesson.stageId;
+  const completionVariant = isProject ? "project" : "lesson";
 
   function cancelRun() {
     activeRun.current?.abort();
@@ -95,7 +103,8 @@ export function LearningStudio() {
   const nextLesson = () => openLesson((lessonIndex + 1) % publishedLessons.length);
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell visual-${status}`}>
+      <ImmersiveBackdrop status={status} progressPercent={progressPercent} />
       <header className="topbar">
         <a className="brand" href="#top" aria-label="NodePath 首页">
           <span className="brand-mark">N<span>_</span></span>
@@ -124,6 +133,7 @@ export function LearningStudio() {
           <div className="progress-track" aria-label={`当前已发布课程进度 ${progressPercent}%`}>
             <span style={{ "--progress": `${progressPercent}%` } as React.CSSProperties} />
           </div>
+          <NebulaProgress stages={roadmap} activeStageId={activeStageId} progressPercent={progressPercent} />
 
           <div className="roadmap-list">
             {roadmap.map((section) => (
@@ -228,6 +238,8 @@ export function LearningStudio() {
             {status === "running" && <p className="feedback running-feedback"><span /> Node.js 正在解析并执行案例…</p>}
           </section>
 
+          <EnergyRunway status={status} />
+
           <section className={`runtime ${status === "success" ? "complete" : ""}`}>
             <div className="runtime-heading">
               <div>
@@ -265,6 +277,8 @@ export function LearningStudio() {
               <p>{frame?.note ?? "选择正确答案，启动可视化运行过程。"}</p>
             </div>
           </section>
+
+          <CompletionBurst visible={status === "success"} variant={completionVariant} />
 
           {status === "success" && (
             <section className="summary-panel">
