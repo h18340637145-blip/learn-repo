@@ -19,10 +19,7 @@ export function LearningStudio() {
   const [status, setStatus] = useState<"idle" | "running" | "wrong" | "success">("idle");
   const [frameIndex, setFrameIndex] = useState(-1);
   const [frame, setFrame] = useState<RunnerFrame | null>(null);
-  const [progress, setProgress] = useState<ProgressSnapshot>(() => {
-    if (typeof window === "undefined") return emptyProgress();
-    return getBrowserProgressRepository().load();
-  });
+  const [progress, setProgress] = useState<ProgressSnapshot>(emptyProgress);
   const activeRun = useRef<AbortController | null>(null);
   const lesson = publishedLessons[lessonIndex]!;
   const question = lesson.questions[0]!;
@@ -44,6 +41,14 @@ export function LearningStudio() {
 
   useEffect(() => () => {
     activeRun.current?.abort();
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setProgress(getBrowserProgressRepository().load());
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   function openLesson(index: number) {

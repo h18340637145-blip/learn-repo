@@ -110,6 +110,7 @@ Manual browser acceptance on `http://localhost:55460/`:
 - Progress survived page reload.
 - Switching lessons during a Stream trace cancelled stale frames.
 - Mobile viewport had no horizontal page overflow.
+- A hydration mismatch caused by reading `localStorage` during initial client render was fixed. Progress now starts from empty server-safe state and loads from local storage after mount; browser console errors were empty after reload.
 
 ## Next Recommended Work
 
