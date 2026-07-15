@@ -2,130 +2,124 @@
 
 ## Product Summary
 
-NodePath is a visual learning website for Node.js. It helps learners build a
-runtime mental model by moving through three actions:
+NodePath 是一个面向 Node.js 的可视化学习网站。它用“先预测、再运行、最后总结”的方式帮助学习者建立运行时心智模型，而不是只阅读概念说明。
 
-1. Read a compact explanation of one Node.js concept.
-2. Predict the behavior of a code sample.
-3. Choose the correct answer and watch the runtime visualization execute.
-
-The product should feel like a learning lab, not a marketing page. The first
-screen should remain the actual learning experience.
+首屏应始终是可操作的学习工作台，不是营销落地页。
 
 ## Target Learner
 
-The primary learner already knows basic JavaScript syntax and wants to
-understand how Node.js behaves in real programs. They benefit from seeing what
-happens inside modules, queues, streams, files, APIs, and project structure.
+主要学习者已经掌握 JavaScript 基础语法，希望系统理解 Node.js 在真实程序中的行为：模块、包、异步队列、文件、流、HTTP、进程、实时通信、测试、安全和生产诊断。
 
-The experience should optimize for memory:
+体验优化目标：
 
-- Small concepts.
-- Concrete code.
-- Prediction before explanation.
-- Visual execution.
-- Terminal output.
-- Short summaries.
-- Periodic projects that combine previous knowledge.
+- 小知识点。
+- 具体代码。
+- 先预测再解释。
+- 可视化运行过程。
+- 终端日志反馈。
+- 错误选项提供定向反馈。
+- 阶段项目复用前面知识。
 
 ## Current Experience
 
-The current app is a single-page interactive prototype named NodePath.
+当前应用是单页交互式学习原型，名称为 NodePath。
 
-Implemented lesson patterns:
+已实现体验：
 
-- Concept panel on the left.
-- Code sample on the right.
-- Multiple-choice prediction below.
-- Correct answer triggers visual runtime frames.
-- Terminal panel prints the simulated result.
-- Summary panel appears after successful completion.
-- Sidebar shows a learning path and project entry point.
+- 左侧概念面板。
+- 右侧代码样例。
+- 下方选择题预测。
+- 正确答案触发 authored trace 可视化运行。
+- 终端面板打印预设日志结果。
+- 成功后展示知识点总结。
+- 侧边栏展示 10 阶段课程路线。
+- 已完成课程保存到浏览器本地进度。
 
-Current playable lessons:
+当前已发布案例：
 
-- CommonJS `require` cache.
-- Event Loop order.
-- Stream backpressure.
-- Stage project: CLI log analyzer.
+- CommonJS `require` 缓存。
+- Event Loop 输出顺序。
+- Stream 背压。
+- 阶段项目：CLI 日志分析器。
 
-Current final project preview:
-
-- Realtime collaboration task platform.
-- Intended coverage: API, streams, auth, testing, deployment.
+当前目录已包含 10 个阶段、80 个计划知识点和 10 个阶段项目。除上述 4 个案例外，其余目录项状态为 `planned`，表示内容尚未发布。
 
 ## Learning Flow
 
-Each knowledge point follows this loop:
+每个知识点遵循：
 
 ```text
 Concept -> Code Case -> Prediction -> Correct Answer -> Runtime Visualizer -> Summary
 ```
 
-Each stage project follows the same interaction model but combines knowledge
-from earlier lessons:
+每个阶段项目遵循同一交互模式，但会组合前面知识：
 
 ```text
 Project Brief -> Incomplete Code -> Choice -> Simulated Run -> Visual Result -> Knowledge Summary
 ```
 
-After all knowledge points are complete, the learner should unlock a larger
-project that covers most course topics.
+全部阶段项目完成后，学习者应进入中大型最终项目：实时协作任务平台，覆盖 API、数据流、实时通信、鉴权、测试、诊断和部署等主题。
 
-## Content Roadmap
+## Curriculum Roadmap
 
-Current sidebar roadmap:
+课程主线为 10 个必修阶段：
 
-- Node.js basics: runtime, globals, module system, cache.
-- Async runtime: event loop, promises, async control.
-- Files and streams: Buffer, stream, backpressure.
-- Network and APIs: HTTP server, REST API.
-- Engineering quality: testing, performance, security.
+1. 运行时与命令行。
+2. 模块、包与 TypeScript。
+3. 异步运行时与事件。
+4. 文件、Buffer 与 Stream。
+5. HTTP 基础。
+6. API 与服务设计。
+7. 进程与并发。
+8. 实时通信。
+9. 测试与安全。
+10. 诊断与生产工程。
 
-Recommended next content expansion:
+每个阶段包含 8 个知识点和 1 个阶段项目。当前阶段只发布了 4 个可玩案例，后续内容应继续基于官方 Node.js 学习文档补齐题库、可视化和项目。
 
-- `process`, `Buffer`, and `path`.
-- ESM vs CommonJS.
-- `fs/promises` and error handling.
-- `EventEmitter`.
-- HTTP server request lifecycle.
-- npm scripts and package boundaries.
-- Testing with Node's built-in test runner.
+## Runtime Model
+
+普通课程当前使用 authored trace：课程内容提供可信代码样例、预设运行帧和日志，浏览器只播放这些确定性帧。
+
+真实 Node.js 编译或沙箱执行不在当前阶段。后续项目沙箱必须作为独立计划设计，不能在 Next.js 进程里运行学习者提交的任意代码。
+
+## Progress
+
+当前进度保存在浏览器 `localStorage` 中：
+
+- 完成知识点后记录 `completedLessonIds`。
+- 完成阶段项目后记录 `completedProjectIds`。
+- 刷新页面后会恢复进度。
+- 清理站点数据会清除进度。
+
+Supabase 登录、跨设备同步和严格跨阶段解锁属于后续计划。
 
 ## Product Principles
 
-- Keep the learner inside the doing loop.
-- Prefer visual cause and effect over long prose.
-- Make wrong answers useful, not punitive.
-- Every lesson should end with a memorable rule.
-- Projects should reuse earlier concepts explicitly.
-- The UI should be dense enough for study and calm enough for repeated use.
-
-## Current Boundary
-
-The app currently simulates execution through predefined frames. It does not run
-arbitrary Node.js code from the browser.
-
-When adding real execution, use a sandboxed server-side or isolated runtime
-design. Do not execute learner-submitted code in the Next.js server process.
+- 让学习者始终处在“做”的循环里。
+- 用视觉因果关系替代长篇概念堆叠。
+- 错误答案要有帮助，而不是惩罚。
+- 每课都应该留下一个可记忆规则。
+- 阶段项目必须显式复用前面概念。
+- UI 应该适合反复学习：信息密度足够，但视觉保持克制。
 
 ## Success Criteria
 
-Short term:
+短期：
 
-- A learner can complete the existing lessons without instructions.
-- The visualizer clearly connects code behavior to runtime state.
-- The app builds with `npm run build`.
+- 课程目录可校验，已发布案例可完整运行。
+- 错误选项能给出当前题目的定向反馈。
+- 完成进度能在刷新后恢复。
+- `npm run validate:curriculum`、`npm test`、`npm run lint`、`npm run build` 可通过。
 
-Medium term:
+中期：
 
-- Full Node.js course content is represented as structured lesson data.
-- Progress is saved per learner.
-- Stage projects unlock based on progress.
-- Lesson content can be authored without editing UI code.
+- 80 个知识点和 10 个阶段项目逐步补齐。
+- 题库覆盖 prediction、diagnosis、transfer 三类问题。
+- 增加更多可视化类型，尤其是模块图、事件循环、Stream/HTTP 流程和并发图。
 
-Long term:
+长期：
 
-- Safe Node.js execution sandbox.
-- Rich project outputs, including logs, diagrams, and small rendered apps.
-- Final project that synthesizes most course knowledge.
+- 安全的项目沙箱。
+- 更丰富的项目输出，包括日志、图表和小型渲染结果。
+- 最终项目覆盖大多数 Node.js 学习知识点。

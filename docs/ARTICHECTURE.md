@@ -2,24 +2,21 @@
 
 ## Snapshot
 
-NodePath is currently a single-route Next.js 16 App Router application.
+NodePath 是一个 Next.js 16 App Router 单页学习应用。当前页面仍渲染在 `/`，但课程数据、执行逻辑和进度存储已经从 UI 组件中拆出。
 
 ```text
 app/layout.tsx
   -> app/page.tsx
     -> app/learning-studio.tsx
-      -> lesson data
-      -> answer state
-      -> runtime frame animation
-      -> visualizer UI
+      -> content/curriculum.ts
+      -> content/lesson-registry.ts
+      -> lib/execution/authored-trace.ts
+      -> lib/progress/*
 
 app/globals.css
   -> global design tokens
   -> app layout
   -> responsive rules
-
-public/og.png
-  -> social preview image
 ```
 
 ## Framework
@@ -30,9 +27,7 @@ public/og.png
 - Tailwind CSS v4 via `@import "tailwindcss"`
 - ESLint flat config
 
-This project uses the App Router. `app/layout.tsx` and `app/page.tsx` are Server
-Components by default. `app/learning-studio.tsx` is a Client Component because
-it uses `useState`, `useRef`, click handlers, and `window.setTimeout`.
+This project uses the App Router. `app/layout.tsx` and `app/page.tsx` are Server Components by default. `app/learning-studio.tsx` is a Client Component because it uses state, event handlers, animation control, and browser `localStorage`.
 
 Before changing framework behavior, check the local docs under:
 
@@ -40,76 +35,98 @@ Before changing framework behavior, check the local docs under:
 node_modules/next/dist/docs/
 ```
 
+## Module Boundaries
+
+```text
+content/curriculum.ts
+  -> 10 阶段、80 个计划知识点、10 个阶段项目的课程主目录
+
+content/legacy-lessons.ts
+  -> 从原型迁移来的 4 个旧案例原始内容
+
+content/lesson-registry.ts
+  -> 已发布课程注册表
+  -> 旧案例到 LessonSpec 的迁移适配
+  -> 课程来源、记忆钩子、定向反馈
+
+lib/curriculum/types.ts
+  -> 课程目录、课程规格、题目、来源、运行帧类型
+
+lib/curriculum/validate.ts
+  -> 无副作用课程校验函数
+
+lib/curriculum/view-model.ts
+  -> 课程目录 + 进度 -> 侧边栏路线视图模型
+
+lib/execution/authored-trace.ts
+  -> 可取消的预设轨迹异步生成器
+
+lib/progress/*
+  -> 与 UI 解耦的本地进度仓储
+```
+
 ## Runtime Boundaries
 
-Current execution model:
+当前执行模型：
 
-- Browser renders the learning studio.
-- User selects an answer.
-- Client state determines whether the answer is correct.
-- Correct answers step through deterministic `RunnerFrame` data.
-- The terminal panel displays predefined log lines.
+- 浏览器渲染学习工作台。
+- 用户选择答案。
+- 正确答案启动 `streamAuthoredTrace()`。
+- `AbortController` 负责切换课程或重新作答时取消旧轨迹。
+- 终端面板显示课程内预设日志。
+- 完整运行结束后写入本地进度仓储。
 
-There is no backend API, database, authentication, or arbitrary code execution
-in the current implementation.
+当前没有后端 API、数据库、认证或任意代码执行。
 
 ## Data Model
 
-The central model is the `Lesson` type in `app/learning-studio.tsx`.
+核心课程类型是 `LessonSpec`：
 
-Important fields:
+- `id`, `stageId`, `kind`: 稳定身份和课程类型。
+- `objectives`, `prerequisites`, `summary`: 学习目标和总结。
+- `files`, `entryFile`: 展示给学习者的代码文件。
+- `questions`: 题目、选项、正确答案和定向反馈。
+- `execution`: authored trace 可视化配置。
+- `sources`: 官方来源和校验日期。
 
-- `id`: stable lesson identifier.
-- `eyebrow`, `title`, `duration`: display metadata.
-- `concept`, `points`: explanation content.
-- `code`: code sample shown to learners.
-- `question`, `options`, `answer`: prediction challenge.
-- `lanes`: visualizer lanes.
-- `frames`: runtime animation frames.
-- `summary`: completion summary.
-- `project`: optional flag for stage-project styling and copy.
+课程目录使用 `CurriculumStage`：
 
-The `RunnerFrame` type drives the visualizer:
-
-- `activeLane`: highlighted lane index.
-- `laneValues`: per-lane labels for the current step.
-- `log`: terminal output shown at the current step.
-- `note`: explanatory caption.
+- 每阶段 8 个 `CatalogLesson`。
+- 每阶段 1 个 `stage-project`。
+- `status` 区分 `published` 与 `planned`。
 
 ## State Flow
 
 ```text
 openLesson(index)
-  -> reset selected answer, status, and frame index
+  -> abort current run
+  -> reset selected answer, status, frame, frame index
 
 chooseAnswer(answer)
   -> wrong answer: status = "wrong"
   -> correct answer: status = "running"
-    -> iterate lesson.frames with delays
-    -> update frameIndex
+    -> stream authored frames
+    -> update frame and frameIndex
     -> status = "success"
+    -> save progress
 
 nextLesson()
-  -> open the next lesson
+  -> open the next published lesson
 ```
 
-`runToken` prevents stale animations from mutating state after the learner
-switches lessons or chooses another answer.
+`localStorage` 只通过 `lib/progress/browser-progress-repository.ts` 进入 UI。损坏进度数据会回退为空进度。
 
 ## Styling Architecture
 
-The app currently uses one global stylesheet:
+应用仍使用一个全局 stylesheet：
 
 - CSS custom properties define the palette.
-- Layout classes define top bar, sidebar, lesson panels, challenge, runtime
-  visualizer, terminal, and completion summary.
-- Responsive breakpoints at `1050px` and `760px` adapt the workspace to tablet
-  and mobile.
-- `prefers-reduced-motion` disables meaningful animation for reduced-motion
-  users.
+- Layout classes define top bar, sidebar, lesson panels, challenge, runtime visualizer, terminal, and completion summary.
+- Progress bar width uses `--progress`.
+- Responsive breakpoints at `1050px` and `760px` adapt the workspace to tablet and mobile.
+- `prefers-reduced-motion` disables meaningful animation for reduced-motion users.
 
-If the UI grows, consider splitting presentation into colocated components
-before splitting CSS. The current single stylesheet is still manageable.
+If UI complexity grows, split focused React components before splitting CSS. The current single stylesheet is still manageable.
 
 ## Metadata
 
@@ -119,39 +136,15 @@ before splitting CSS. The current single stylesheet is still manageable.
 - `metadataBase` from `NEXT_PUBLIC_SITE_URL` with local fallback.
 - Open Graph and Twitter image references to `/og.png`.
 
-Keep remote fonts out of this file unless the build environment is known to
-allow external font fetching.
-
-## Extension Points
-
-Recommended next architecture steps:
-
-- Move lesson data into `lib/lessons.ts` or `content/lessons/*.ts`.
-- Split UI into focused components:
-  - `RoadmapSidebar`
-  - `LessonHeader`
-  - `ConceptPanel`
-  - `CodePanel`
-  - `Challenge`
-  - `RuntimeVisualizer`
-  - `SummaryPanel`
-- Add persistent progress with Supabase or another store.
-- Add lesson unlock rules derived from completion state.
-- Add a safe execution service for real Node.js code.
+Keep remote fonts out of this file unless the build environment is known to allow external font fetching.
 
 ## Safe Execution Direction
 
 Do not run learner-submitted code directly in the Next.js process.
 
-Safer options include:
+Current beginner lessons should prefer authored traces. Real project execution should be designed as a separate sandbox boundary with:
 
-- Isolated worker process with strict timeout and memory limits.
-- Containerized execution service.
-- WebAssembly-based JavaScript runtime where appropriate.
-- Pre-authored execution traces for beginner lessons.
-
-Any real execution path should define:
-
+- Trusted templates and controlled patches.
 - Input limits.
 - Timeout.
 - Memory cap.
@@ -165,6 +158,8 @@ Any real execution path should define:
 Use:
 
 ```bash
+npm run validate:curriculum
+npm test
 npm run lint
 npm run build
 git diff --check
