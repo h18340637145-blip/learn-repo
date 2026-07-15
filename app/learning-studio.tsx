@@ -1,8 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { publishedLessons } from "@/content/lesson-registry";
+import type { RunnerFrame } from "@/lib/curriculum/types";
+import { streamAuthoredTrace } from "@/lib/execution/authored-trace";
 
 const roadmap = [
   { number: "01", title: "Node.js 基础", meta: "6 / 6", state: "done", items: ["运行时与全局对象", "模块系统与缓存"] },
@@ -20,42 +22,59 @@ export function LearningStudio() {
   const [selected, setSelected] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "running" | "wrong" | "success">("idle");
   const [frameIndex, setFrameIndex] = useState(-1);
-  const runToken = useRef(0);
+  const [frame, setFrame] = useState<RunnerFrame | null>(null);
+  const activeRun = useRef<AbortController | null>(null);
   const lesson = publishedLessons[lessonIndex]!;
   const question = lesson.questions[0]!;
   const frames = lesson.execution.frames;
   const lanes = lesson.execution.lanes;
-  const frame = frameIndex >= 0 ? frames[frameIndex] : null;
   const isProject = lesson.kind === "stage-project";
   const codeFile = lesson.files.find((file) => file.name === lesson.entryFile) ?? lesson.files[0]!;
 
+  function cancelRun() {
+    activeRun.current?.abort();
+    activeRun.current = null;
+  }
+
+  useEffect(() => () => {
+    activeRun.current?.abort();
+  }, []);
+
   function openLesson(index: number) {
-    runToken.current += 1;
+    cancelRun();
     setLessonIndex(index);
     setSelected(null);
     setStatus("idle");
     setFrameIndex(-1);
+    setFrame(null);
   }
 
   async function chooseAnswer(answer: string) {
-    const token = runToken.current + 1;
-    runToken.current = token;
+    cancelRun();
     setSelected(answer);
     setFrameIndex(-1);
+    setFrame(null);
 
     if (answer !== question.answerId) {
       setStatus("wrong");
       return;
     }
 
+    const controller = new AbortController();
+    activeRun.current = controller;
     setStatus("running");
-    for (let index = 0; index < frames.length; index += 1) {
-      await delay(index === 0 ? 280 : 780);
-      if (runToken.current !== token) return;
+    let index = 0;
+    for await (const nextFrame of streamAuthoredTrace(frames, controller.signal)) {
+      if (controller.signal.aborted) return;
       setFrameIndex(index);
+      setFrame(nextFrame);
+      index += 1;
     }
     await delay(480);
-    if (runToken.current === token) setStatus("success");
+    if (!controller.signal.aborted) {
+      activeRun.current = null;
+      setStatus("success");
+    }
   }
 
   const nextLesson = () => openLesson((lessonIndex + 1) % publishedLessons.length);
