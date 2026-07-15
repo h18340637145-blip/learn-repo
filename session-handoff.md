@@ -91,6 +91,26 @@ Notes:
 - `npm run build` may need permission because Turbopack can bind a local port for CSS processing.
 - Next may warn about multiple lockfiles and infer a workspace root above this project. That warning has not blocked successful builds.
 
+Final stage 1 acceptance was run on this branch:
+
+```text
+npm run validate:curriculum -> 课程校验通过：10 个阶段，4 个已发布案例。
+npm test -> 16 tests, 16 pass, 0 fail.
+npm run lint -> pass.
+npm run build -> pass with the existing multiple-lockfile warning.
+git diff --check -> pass.
+```
+
+Manual browser acceptance on `http://localhost:55460/`:
+
+- Desktop viewport showed 10 roadmap stages and no horizontal overflow.
+- Event Loop wrong answer showed option-specific feedback.
+- Correct answer ran the authored trace and displayed terminal logs.
+- Completion summary appeared after the trace.
+- Progress survived page reload.
+- Switching lessons during a Stream trace cancelled stale frames.
+- Mobile viewport had no horizontal page overflow.
+
 ## Next Recommended Work
 
 Highest-value next plan:
