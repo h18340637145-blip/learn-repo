@@ -10,8 +10,11 @@ app/layout.tsx
     -> app/learning-studio.tsx
       -> content/curriculum.ts
       -> content/lesson-registry.ts
+      -> lib/curriculum/stage-space.ts
       -> lib/execution/authored-trace.ts
       -> lib/progress/*
+      -> components/learning-space/*
+      -> components/visualizers/*
 
 app/globals.css
   -> global design tokens
@@ -91,6 +94,12 @@ lib/curriculum/validate.ts
 lib/curriculum/view-model.ts
   -> 课程目录 + 进度 -> 侧边栏路线视图模型
 
+lib/curriculum/stage-space.ts
+  -> 课程目录 + 已发布课程 + 进度 -> 当前阶段星图 view model
+
+lib/curriculum/visualizers.ts
+  -> 阶段和课程类型 -> 默认 3D 运行可视化配置
+
 lib/execution/authored-trace.ts
   -> 可取消的预设轨迹异步生成器
 
@@ -102,6 +111,12 @@ lib/immersive/visual-state.ts
 
 components/immersive/*
   -> Runtime Cockpit、Knowledge Nebula、EnergyRunway 和 CompletionBurst 视觉组件
+
+components/learning-space/*
+  -> 左侧阶段入口和当前阶段课程星图
+
+components/visualizers/*
+  -> Three.js 运行舱、运行场景和 WebGL / 减少动态效果 fallback
 ```
 
 ## Runtime Boundaries
@@ -121,6 +136,12 @@ components/immersive/*
 
 `ImmersiveBackdrop` 是当前唯一直接使用 Canvas 和 `window` 的 Client Component。其他沉浸式组件保持展示职责，只消费上层传入的视觉状态。
 
+### 空间可视化边界
+
+课程数据通过 `execution.visualizer` 描述运行可视化类型。`LearningStudio` 负责传入当前 `status`、`frame` 和 `visualizer`，`components/visualizers` 决定使用 Three.js Canvas 还是 fallback。Three.js 组件只存在于 Client Component 和动态加载边界内；`app/layout.tsx` 继续保持 Server Component。
+
+阶段导航通过 `lib/curriculum/stage-space.ts` 生成阶段空间模型。左侧 `StageSidebar` 只展示阶段入口，不再平铺全部课程；主内容区 `StageSpaceMap` 只展示当前阶段的知识点和阶段项目。
+
 ## Data Model
 
 核心课程类型是 `LessonSpec`：
@@ -129,7 +150,7 @@ components/immersive/*
 - `objectives`, `prerequisites`, `summary`: 学习目标和总结。
 - `files`, `entryFile`: 展示给学习者的代码文件。
 - `questions`: 题目、选项、正确答案和定向反馈。
-- `execution`: authored trace 可视化配置。
+- `execution`: authored trace 可视化配置，包含结构化 `visualizer`。
 - `sources`: 官方来源和校验日期。
 
 已发布课程的质量约束：

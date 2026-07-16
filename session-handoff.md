@@ -7,7 +7,7 @@ Project: NodePath, a visual Node.js learning website built on Next.js 16.
 Current branch:
 
 ```text
-codex/nodepath-stage-05-10-curriculum
+codex/nodepath-3d-spatial-learning
 ```
 
 当前应用是带沉浸式视觉层的课程驱动学习原型。UI 仍在 `/` 渲染学习工作台，但课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。阶段 01–03、05–10 已完整发布 Node.js 学习内容和阶段项目，阶段 04 当前保留两个已发布案例。
@@ -51,6 +51,9 @@ Core interaction:
 - Correct answer starts a cancellable authored trace.
 - 已实现 Runtime Cockpit + Knowledge Nebula 沉浸式视觉层。
 - Runtime Cockpit、Knowledge Nebula、EnergyRunway 和 CompletionBurst 会响应答题正确、运行中和完成状态。
+- 已新增阶段星图导航，课程不再全部平铺在全局导航中。
+- 已新增结构化 `execution.visualizer`，重点阶段映射到主题化 3D 场景。
+- 已新增 Three.js 运行舱和 WebGL / 减少动态效果 fallback。
 - Terminal panel shows simulated logs.
 - Summary appears after completion.
 - Completion is saved to browser local progress and restored after refresh.
@@ -61,6 +64,16 @@ Important product boundary:
 - The current app uses deterministic authored traces.
 - It does not execute arbitrary Node.js code.
 - A real sandbox remains a separate future plan.
+
+## 3D 空间化学习体验
+
+- 左侧导航现在使用 `StageSidebar`，只展示 10 个阶段入口。
+- 主内容区使用 `StageSpaceMap`，只展示当前阶段课程和阶段项目。
+- 答对题目后，`SpatialRuntimeVisualizer` 会根据课程 `execution.visualizer` 尝试展示 Three.js 运行舱。
+- WebGL 不可用、移动端或开启减少动态效果时，会使用 `VisualizerFallback` 保留可读运行顺序。
+- 重点场景覆盖 HTTP 管线、服务边界、Worker 并发、实时星网、测试安全边界和诊断生产观测。
+- 当前实现仍使用确定性 authored traces，不执行学习者提交的任意 Node.js 代码。
+- 验证命令：`npm test`、`npx tsc --noEmit`、`npm run validate:curriculum`、`npm run lint`、`npm run build`、`git diff --check`。
 
 ## Important Files
 
@@ -81,10 +94,14 @@ Important product boundary:
 - `lib/curriculum/types.ts`: shared curriculum and lesson types.
 - `lib/curriculum/validate.ts`: catalog and lesson validators.
 - `lib/curriculum/view-model.ts`: roadmap view model.
+- `lib/curriculum/stage-space.ts`: 阶段空间 view model。
+- `lib/curriculum/visualizers.ts`: 课程运行可视化配置映射。
 - `lib/execution/authored-trace.ts`: cancellable authored trace runner.
 - `lib/immersive/visual-state.ts`: 学习状态到沉浸式视觉状态的纯函数映射。
 - `lib/progress/*`: local progress repository boundary.
 - `components/immersive/*`: Runtime Cockpit、Knowledge Nebula、EnergyRunway、CompletionBurst 和相关视觉组件。
+- `components/learning-space/*`: 阶段入口和当前阶段星图组件。
+- `components/visualizers/*`: Three.js 运行舱、运行场景和 fallback。
 - `scripts/validate-curriculum.ts`: curriculum validation CLI.
 - `app/learning-studio.tsx`: client learning studio consuming registry, roadmap, runner, and progress.
 - `app/globals.css`: visual system and responsive behavior.
