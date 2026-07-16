@@ -24,3 +24,19 @@ test("样式包含移动端和减少动态效果降级", () => {
   assert.ok(css.includes(".spatial-runtime-canvas"));
   assert.ok(css.includes(".visualizer-fallback"));
 });
+
+test("样式包含更多空间面板和答案粒子特效", () => {
+  for (const selector of [
+    ".nebula-stage-button",
+    ".course-orbital-dashboard",
+    ".orbital-card",
+    ".answer-particle-field",
+    ".answer-orbit",
+    ".answer-core"
+  ]) {
+    assert.ok(css.includes(selector), `${selector} 应存在`);
+  }
+
+  assert.ok(css.includes("@keyframes answer-particles"));
+  assert.ok(css.includes("@keyframes orbit-spin"));
+});

@@ -15,3 +15,16 @@ test("LearningStudio 将课程 visualizer 传给空间运行实验舱", () => {
   assert.match(source, /SpatialRuntimeVisualizer/);
   assert.match(source, /visualizer=\{lesson\.execution\.visualizer\}/);
 });
+
+test("LearningStudio 提供可点击左侧驾驶舱和课程轨道面板", () => {
+  assert.match(source, /onSelectStage=\{selectStage\}/);
+  assert.match(source, /className="project-shortcut"/);
+  assert.match(source, /className="course-orbital-dashboard"/);
+  assert.match(source, /lesson\.execution\.visualizer\.title/);
+});
+
+test("LearningStudio 答案选项包含空间粒子层", () => {
+  assert.match(source, /answer-particle-field/);
+  assert.match(source, /answer-orbit/);
+  assert.match(source, /answer-core/);
+});

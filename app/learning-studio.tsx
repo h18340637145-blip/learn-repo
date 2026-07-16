@@ -50,6 +50,8 @@ export function LearningStudio() {
   const activeStageSpace = stageSpaces.find((stage) => stage.id === selectedStageId)
     ?? stageSpaces.find((stage) => stage.id === activeStageId)
     ?? stageSpaces[0]!;
+  const activeStageProject = activeStageSpace.nodes.find((node) => node.kind === "stage-project");
+  const activeStageProjectLessonIndex = activeStageProject?.lessonIndex ?? projectLessonIndex;
   const completionVariant = isProject ? "project" : "lesson";
 
   function cancelRun() {
@@ -160,7 +162,12 @@ export function LearningStudio() {
           <div className="progress-track" aria-label={`当前已发布课程进度 ${progressPercent}%`}>
             <span style={{ "--progress": `${progressPercent}%` } as React.CSSProperties} />
           </div>
-          <NebulaProgress stages={roadmap} activeStageId={selectedStageId} progressPercent={progressPercent} />
+          <NebulaProgress
+            activeStageId={selectedStageId}
+            onSelectStage={selectStage}
+            progressPercent={progressPercent}
+            stages={roadmap}
+          />
 
           <StageSidebar
             activeStageId={selectedStageId}
@@ -168,11 +175,11 @@ export function LearningStudio() {
             stages={roadmap}
           />
 
-          <div className="project-shortcut" id="projects">
+          <button className="project-shortcut" id="projects" type="button" onClick={() => openLesson(activeStageProjectLessonIndex)}>
             <span className="project-icon">⌘</span>
-            <div><span>阶段项目</span><strong>CLI 日志分析器</strong></div>
-            <button type="button" onClick={() => openLesson(projectLessonIndex)}>开始</button>
-          </div>
+            <span><span>阶段项目</span><strong>{activeStageProject?.title ?? "阶段项目挑战"}</strong></span>
+            <em>进入</em>
+          </button>
 
           <div className="final-project">
             <span className="kicker">FINAL PROJECT</span>
@@ -197,6 +204,30 @@ export function LearningStudio() {
             onOpenLesson={openLesson}
             stage={activeStageSpace}
           />
+
+          <section className="course-orbital-dashboard" aria-label="当前学习轨道">
+            <div className="orbital-core">
+              <span className="orbital-core__ring" aria-hidden="true" />
+              <span className="kicker">ORBITAL TRACK</span>
+              <strong>{lesson.kind === "stage-project" ? "阶段项目核心" : "知识点运行轨道"}</strong>
+              <small>{lesson.execution.visualizer.title}</small>
+            </div>
+            <div className="orbital-card">
+              <span>当前节点</span>
+              <strong>{lesson.title}</strong>
+              <small>{lesson.execution.visualizer.nodes.join(" → ")}</small>
+            </div>
+            <div className="orbital-card">
+              <span>阶段能量</span>
+              <strong>{activeStageSpace.completedCount} / {activeStageSpace.publishedCount}</strong>
+              <small>{activeStageSpace.title}</small>
+            </div>
+            <div className="orbital-card">
+              <span>下一步</span>
+              <strong>{status === "idle" || status === "wrong" ? "选择预测答案" : status === "running" ? "观察粒子运行" : "总结并继续"}</strong>
+              <small>{frames.length} 个运行帧 · {lesson.execution.visualizer.nodes.length} 个空间节点</small>
+            </div>
+          </section>
 
           <div className="learning-grid">
             <article className="concept-panel">
@@ -238,8 +269,10 @@ export function LearningStudio() {
                     onClick={() => chooseAnswer(option.id)}
                     type="button"
                   >
+                    <span className="answer-particle-field" aria-hidden="true" />
+                    <span className="answer-orbit" aria-hidden="true" />
                     <span className="answer-letter">{option.id.toUpperCase()}</span>
-                    <span><strong>{option.label}</strong><small>{option.detail}</small></span>
+                    <span className="answer-core"><strong>{option.label}</strong><small>{option.detail}</small></span>
                     {isSelected && status === "wrong" && <span className="answer-mark">×</span>}
                     {isSelected && isCorrect && status !== "idle" && <span className="answer-mark">✓</span>}
                   </button>

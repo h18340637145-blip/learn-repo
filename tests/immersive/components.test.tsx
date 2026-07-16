@@ -42,6 +42,21 @@ test("NebulaProgress 渲染阶段星域和总进度", () => {
   assert.match(html, /异步运行时与事件/);
   assert.match(html, /42%/);
   assert.match(html, /nebula-stage active/);
+  assert.match(html, /nebula-stage active selected/);
+});
+
+test("NebulaProgress 支持点击阶段星体", () => {
+  const html = renderToStaticMarkup(
+    <NebulaProgress
+      stages={stages}
+      activeStageId="async-events"
+      progressPercent={42}
+      onSelectStage={() => {}}
+    />
+  );
+
+  assert.match(html, /button/);
+  assert.match(html, /aria-label="进入运行时与命令行阶段"/);
 });
 
 test("EnergyRunway 输出状态类名", () => {

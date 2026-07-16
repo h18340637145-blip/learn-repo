@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 
+import type { StageId } from "@/lib/curriculum/types";
 import type { RoadmapStage } from "@/lib/curriculum/view-model";
 import { getNebulaStageState } from "@/lib/immersive/visual-state";
 
@@ -7,9 +8,10 @@ type NebulaProgressProps = {
   stages: RoadmapStage[];
   activeStageId: string;
   progressPercent: number;
+  onSelectStage?: (stageId: StageId) => void;
 };
 
-export function NebulaProgress({ stages, activeStageId, progressPercent }: NebulaProgressProps) {
+export function NebulaProgress({ stages, activeStageId, progressPercent, onSelectStage }: NebulaProgressProps) {
   return (
     <section className="nebula-progress" aria-label={`知识星云进度 ${progressPercent}%`}>
       <div className="nebula-progress__core">
@@ -22,16 +24,19 @@ export function NebulaProgress({ stages, activeStageId, progressPercent }: Nebul
           const state = getNebulaStageState(stage, activeStageId);
 
           return (
-            <div
-              className={state.className}
+            <button
+              aria-label={`进入${stage.title}阶段`}
+              className={`nebula-stage-button ${state.className}${stage.id === activeStageId ? " selected" : ""}`}
               key={stage.id}
+              onClick={() => onSelectStage?.(stage.id)}
               style={{ "--stage-progress": `${state.completionPercent}%` } as CSSProperties}
+              type="button"
             >
               <span className="nebula-stage__index">{state.label}</span>
               <span className="nebula-stage__star" />
               <span className="nebula-stage__title">{stage.title}</span>
               {state.hasCoreGlow && <span className="nebula-stage__core" />}
-            </div>
+            </button>
           );
         })}
       </div>
