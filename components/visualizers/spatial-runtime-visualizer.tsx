@@ -29,7 +29,8 @@ export function SpatialRuntimeVisualizer(props: SpatialRuntimeVisualizerProps) {
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      setCanUseMotion(hasWebGLSupport() && !reducedMotion);
+      const smallViewport = window.matchMedia("(max-width: 760px)").matches;
+      setCanUseMotion(hasWebGLSupport() && !reducedMotion && !smallViewport);
     });
 
     return () => window.cancelAnimationFrame(frame);

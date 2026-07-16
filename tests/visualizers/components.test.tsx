@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 
@@ -37,4 +38,11 @@ test("SpatialRuntimeVisualizer 服务端静态渲染时保留 fallback 结构", 
 
   assert.match(html, /spatial-runtime-visualizer/);
   assert.match(html, /visualizer-fallback/);
+});
+
+test("SpatialRuntimeVisualizer 在移动端降级为 fallback", () => {
+  const source = readFileSync("components/visualizers/spatial-runtime-visualizer.tsx", "utf8");
+
+  assert.match(source, /\(max-width: 760px\)/);
+  assert.match(source, /smallViewport/);
 });
