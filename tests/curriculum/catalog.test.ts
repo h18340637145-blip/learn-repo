@@ -33,3 +33,15 @@ test("阶段 04 保留当前两个已发布课程", () => {
     "project-cli-log-analyzer"
   ]);
 });
+
+test("阶段 05-10 在目录中全部标记为已发布", () => {
+  const lateStageItems = curriculum
+    .slice(4, 10)
+    .flatMap((stage) => stage.lessons.concat([stage.project]));
+
+  assert.equal(lateStageItems.length, 54);
+
+  for (const item of lateStageItems) {
+    assert.equal(item.status, "published", `${item.id} 应为 published`);
+  }
+});

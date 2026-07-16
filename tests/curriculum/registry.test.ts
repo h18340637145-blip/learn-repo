@@ -34,18 +34,80 @@ const stageOneToThreeIds = [
   "project-task-scheduler"
 ];
 
-test("注册表发布阶段 01-03 的全部课程，并保留阶段 04 的两个现有课程", () => {
+const stageFiveToTenIds = [
+  "http-transaction",
+  "http-create-server",
+  "http-request",
+  "http-response",
+  "http-headers-status",
+  "http-routing-query",
+  "http-request-body",
+  "http-streaming-fetch",
+  "project-static-file-server",
+  "api-rest-modeling",
+  "api-input-validation",
+  "api-error-model",
+  "api-config-boundary",
+  "api-structured-logging",
+  "api-timeout",
+  "api-abort-signal",
+  "api-health-shutdown",
+  "project-task-rest-api",
+  "concurrency-blocking-loop",
+  "concurrency-libuv-pool",
+  "concurrency-child-process",
+  "concurrency-worker-threads",
+  "concurrency-ipc",
+  "concurrency-shared-memory",
+  "concurrency-cluster",
+  "concurrency-model-choice",
+  "project-worker-report",
+  "realtime-polling",
+  "realtime-sse",
+  "realtime-websocket-handshake",
+  "realtime-connection-lifecycle",
+  "realtime-heartbeat",
+  "realtime-broadcast",
+  "realtime-backpressure",
+  "realtime-recovery",
+  "project-realtime-notifications",
+  "testing-node-test",
+  "testing-assertions",
+  "testing-lifecycle",
+  "testing-mocking",
+  "testing-coverage",
+  "testing-integration",
+  "security-permissions-secrets",
+  "security-dependencies-web",
+  "project-tested-auth",
+  "diagnostics-inspector",
+  "diagnostics-cpu-profile",
+  "diagnostics-heap-snapshot",
+  "diagnostics-gc-tracing",
+  "diagnostics-flame-graphs",
+  "diagnostics-performance-baseline",
+  "production-config-observability",
+  "production-release-incident",
+  "project-production-diagnostics"
+] as const;
+
+test("注册表发布阶段 01-03、阶段 04 现有案例和阶段 05-10 全部课程", () => {
   assert.deepEqual(
     publishedLessons.map((lesson) => lesson.id),
     stageOneToThreeIds.concat([
       "stream-backpressure",
       "project-cli-log-analyzer"
-    ])
+    ], stageFiveToTenIds)
   );
 });
 
-test("阶段 01-03 的每个课程都可以按 ID 查询", () => {
-  for (const lessonId of stageOneToThreeIds) {
+test("发布案例数量包含阶段 05-10 的完整 54 个新增案例", () => {
+  assert.equal(stageFiveToTenIds.length, 54);
+  assert.equal(publishedLessons.length, 83);
+});
+
+test("每个已上线阶段课程都可以按 ID 查询", () => {
+  for (const lessonId of stageOneToThreeIds.concat(stageFiveToTenIds)) {
     assert.equal(getLesson(lessonId)?.id, lessonId);
   }
 });
