@@ -21,3 +21,13 @@ test("普通阶段和阶段项目都有可用的 fallback 可视化配置", () =
 
   assert.equal(getDefaultVisualizer("files-streams", "stage-project").type, "stage-project-core");
 });
+
+test("默认可视化配置每次返回独立 nodes 副本", () => {
+  const first = getDefaultVisualizer("http-foundations", "knowledge");
+  (first.nodes as string[]).push("污染节点");
+
+  const second = getDefaultVisualizer("http-foundations", "knowledge");
+
+  assert.deepEqual(second.nodes, ["Client", "Headers", "Router", "Handler", "Response"]);
+  assert.notEqual(first.nodes, second.nodes);
+});

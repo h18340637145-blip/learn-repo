@@ -28,7 +28,7 @@ export type VisualizerType =
 export type VisualizerSpec = {
   type: VisualizerType;
   title: string;
-  nodes: string[];
+  readonly nodes: readonly string[];
 };
 
 export type CatalogLesson = {
