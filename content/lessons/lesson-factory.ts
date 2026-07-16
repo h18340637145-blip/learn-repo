@@ -1,4 +1,5 @@
 import type { LessonKind, LessonSpec, LessonSource, QuestionType } from "../../lib/curriculum/types";
+import { getDefaultVisualizer } from "../../lib/curriculum/visualizers";
 
 type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVersion" | "execution" | "kind" | "questions" | "sources"> & {
   answer: {
@@ -8,7 +9,9 @@ type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVers
     answerId: string;
     correctExplanation: string;
   };
-  execution: Omit<LessonSpec["execution"], "mode" | "visualizer">;
+  execution: Omit<LessonSpec["execution"], "mode" | "visualizer"> & {
+    visualizer?: LessonSpec["execution"]["visualizer"];
+  };
   sources: Omit<LessonSource, "type" | "verifiedAt">[];
   durationMinutes?: number;
   difficulty?: LessonSpec["difficulty"];
@@ -16,10 +19,12 @@ type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVers
 };
 
 export function createLessonSpec(input: LessonInput): LessonSpec {
+  const kind = input.kind ?? "knowledge";
+
   return {
     id: input.id,
     stageId: input.stageId,
-    kind: input.kind ?? "knowledge",
+    kind,
     eyebrow: input.eyebrow,
     title: input.title,
     durationMinutes: input.durationMinutes ?? 9,
@@ -42,7 +47,7 @@ export function createLessonSpec(input: LessonInput): LessonSpec {
     }],
     execution: {
       mode: "authored-trace",
-      visualizer: "lane-flow",
+      visualizer: input.execution.visualizer ?? getDefaultVisualizer(input.stageId, kind),
       lanes: input.execution.lanes,
       frames: input.execution.frames
     },

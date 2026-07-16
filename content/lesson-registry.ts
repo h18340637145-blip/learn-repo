@@ -1,4 +1,5 @@
 import type { LessonSpec, StageId } from "../lib/curriculum/types";
+import { getDefaultVisualizer } from "../lib/curriculum/visualizers";
 import { legacyLessons, type LegacyLesson } from "./legacy-lessons";
 import { stageOneRuntimeCliLessons } from "./lessons/stage-01-runtime-cli";
 import { stageTwoModulesPackagesLessons } from "./lessons/stage-02-modules-packages";
@@ -119,7 +120,7 @@ function migrateLesson(legacy: LegacyLesson): LessonSpec {
     }],
     execution: {
       mode: "authored-trace",
-      visualizer: "lane-flow",
+      visualizer: getDefaultVisualizer(metadata.stageId, legacy.project ? "stage-project" : "knowledge"),
       lanes: legacy.lanes,
       frames: legacy.frames.map((frame, index) => ({
         ...frame,

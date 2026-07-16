@@ -34,7 +34,11 @@ const validLesson: LessonSpec = {
   }],
   execution: {
     mode: "authored-trace",
-    visualizer: "lane-flow",
+    visualizer: {
+      type: "lane-flow",
+      title: "轨道流",
+      nodes: ["Call Stack"]
+    },
     lanes: ["Call Stack"],
     frames: [{ activeLane: 0, laneValues: ["console.log"], log: ["1"], note: "同步执行。", delayMs: 0 }]
   },
