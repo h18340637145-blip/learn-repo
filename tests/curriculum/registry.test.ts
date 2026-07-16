@@ -129,6 +129,14 @@ test("每个已发布课程通过规格校验并提供定向错误反馈", () =>
   }
 });
 
+test("每个已发布课程都有结构化运行可视化配置", () => {
+  for (const lesson of publishedLessons) {
+    assert.ok(lesson.execution.visualizer.title.length > 0);
+    assert.ok(lesson.execution.visualizer.nodes.length >= 3);
+    assert.notEqual(lesson.execution.visualizer.type, "lane-flow");
+  }
+});
+
 test("按 ID 查询课程，未知 ID 返回 undefined", () => {
   assert.equal(getLesson("event-loop-order")?.title, "读懂 Event Loop 执行顺序");
   assert.equal(getLesson("missing"), undefined);

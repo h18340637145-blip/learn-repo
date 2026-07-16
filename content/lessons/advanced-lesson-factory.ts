@@ -1,4 +1,4 @@
-import type { LessonSpec, RunnerFrame, StageId } from "../../lib/curriculum/types";
+import type { LessonSpec, RunnerFrame, StageId, VisualizerSpec } from "../../lib/curriculum/types";
 import { createLessonSpec } from "./lesson-factory";
 
 type AdvancedLessonInput = {
@@ -26,6 +26,7 @@ type AdvancedLessonInput = {
   sourceUrl: string;
   objectives?: string[];
   prerequisites?: string[];
+  visualizer?: VisualizerSpec;
   kind: LessonSpec["kind"];
   difficulty?: LessonSpec["difficulty"];
   durationMinutes?: number;
@@ -83,6 +84,7 @@ export function createAdvancedLesson(input: AdvancedLessonInput): LessonSpec {
       correctExplanation: input.correctFeedback
     },
     execution: {
+      visualizer: input.visualizer,
       lanes: input.lanes,
       frames
     },
