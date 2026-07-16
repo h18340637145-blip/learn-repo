@@ -14,6 +14,22 @@ export type LessonKind = "knowledge" | "stage-project" | "final-project";
 export type LessonStatus = "published" | "planned";
 export type QuestionType = "prediction" | "diagnosis" | "transfer";
 export type SourceType = "official" | "engineering-extension";
+export type VisualizerType =
+  | "lane-flow"
+  | "http-pipeline"
+  | "service-boundary"
+  | "worker-pool"
+  | "realtime-mesh"
+  | "quality-shield"
+  | "diagnostics-tower"
+  | "stage-project-core"
+  | "generic-particle-flow";
+
+export type VisualizerSpec = {
+  type: VisualizerType;
+  title: string;
+  nodes: string[];
+};
 
 export type CatalogLesson = {
   id: string;
@@ -65,7 +81,7 @@ export type RunnerFrame = {
 
 export type AuthoredTraceExecution = {
   mode: "authored-trace";
-  visualizer: "lane-flow";
+  visualizer: VisualizerSpec;
   lanes: string[];
   frames: RunnerFrame[];
 };
