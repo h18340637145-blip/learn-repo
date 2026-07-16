@@ -47,6 +47,9 @@ content/legacy-lessons.ts
 content/lessons/lesson-factory.ts
   -> 生成标准 LessonSpec，统一 nodeVersion、题目结构、authored trace 和来源日期
 
+content/lessons/advanced-lesson-factory.ts
+  -> 为阶段 05–10 提供精简课程工厂，内部仍生成标准 LessonSpec
+
 content/lessons/stage-01-runtime-cli.ts
   -> 阶段 01：运行时、浏览器差异、V8、LTS、CLI、REPL、argv、env/console 和 CLI 系统探测器
 
@@ -56,9 +59,27 @@ content/lessons/stage-02-modules-packages.ts
 content/lessons/stage-03-async-events.ts
   -> 阶段 03：callback、Promise、async/await、异步错误、事件循环、nextTick、setImmediate、EventEmitter/Abort 和任务调度器
 
+content/lessons/stage-05-http-foundations.ts
+  -> 阶段 05：HTTP 事务、服务器、请求响应、路由、请求体、流式传输和静态文件服务器
+
+content/lessons/stage-06-api-design.ts
+  -> 阶段 06：REST 建模、校验、错误、配置、日志、超时、取消、健康检查和任务 API
+
+content/lessons/stage-07-process-concurrency.ts
+  -> 阶段 07：事件循环阻塞、线程池、子进程、Worker、IPC、共享内存、Cluster 和报表引擎
+
+content/lessons/stage-08-realtime.ts
+  -> 阶段 08：轮询、SSE、WebSocket 握手、连接生命周期、心跳、广播、背压、恢复和通知服务
+
+content/lessons/stage-09-testing-security.ts
+  -> 阶段 09：Node 测试运行器、断言、生命周期、Mock、覆盖率、集成测试、安全和鉴权项目
+
+content/lessons/stage-10-diagnostics-production.ts
+  -> 阶段 10：Inspector、CPU/内存/GC/火焰图、性能基线、可观测性、发布事故和生产诊断项目
+
 content/lesson-registry.ts
   -> 已发布课程注册表
-  -> 聚合阶段 01–03 正式课程
+  -> 聚合阶段 01–03、05–10 正式课程
   -> 保留阶段 04 旧案例到 LessonSpec 的迁移适配
 
 lib/curriculum/types.ts
@@ -94,7 +115,7 @@ components/immersive/*
 - 终端面板显示课程内预设日志。
 - 完整运行结束后写入本地进度仓储。
 
-当前没有后端 API、数据库、认证或任意代码执行。阶段 01–03 虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
+当前没有后端 API、数据库、认证或任意代码执行。已发布课程虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
 
 沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId` 和 `lesson.kind`。它不写入学习进度，不触发课程切换，也不执行学习者代码。
 

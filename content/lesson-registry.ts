@@ -3,6 +3,12 @@ import { legacyLessons, type LegacyLesson } from "./legacy-lessons";
 import { stageOneRuntimeCliLessons } from "./lessons/stage-01-runtime-cli";
 import { stageTwoModulesPackagesLessons } from "./lessons/stage-02-modules-packages";
 import { stageThreeAsyncEventsLessons } from "./lessons/stage-03-async-events";
+import { stageFiveHttpFoundationsLessons } from "./lessons/stage-05-http-foundations";
+import { stageSixApiDesignLessons } from "./lessons/stage-06-api-design";
+import { stageSevenProcessConcurrencyLessons } from "./lessons/stage-07-process-concurrency";
+import { stageEightRealtimeLessons } from "./lessons/stage-08-realtime";
+import { stageNineTestingSecurityLessons } from "./lessons/stage-09-testing-security";
+import { stageTenDiagnosticsProductionLessons } from "./lessons/stage-10-diagnostics-production";
 
 type MigrationMetadata = {
   id: string;
@@ -138,7 +144,13 @@ export const publishedLessons = [
   stageOneRuntimeCliLessons,
   stageTwoModulesPackagesLessons,
   stageThreeAsyncEventsLessons,
-  legacyStageFourLessons
+  legacyStageFourLessons,
+  stageFiveHttpFoundationsLessons,
+  stageSixApiDesignLessons,
+  stageSevenProcessConcurrencyLessons,
+  stageEightRealtimeLessons,
+  stageNineTestingSecurityLessons,
+  stageTenDiagnosticsProductionLessons
 ].flat() satisfies LessonSpec[];
 const lessonById = new Map(publishedLessons.map((lesson) => [lesson.id, lesson]));
 

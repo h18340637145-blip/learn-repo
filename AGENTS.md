@@ -21,6 +21,8 @@ For the current app shape, the most relevant local docs are:
 - `01-app/01-getting-started/05-server-and-client-components.md`
 - `01-app/03-api-reference/04-functions/generate-metadata.md`
 
+You must read above documents when you execute tasks. If the requirements not same as above documents, the requirements is true.
+
 ## Project Intent
 
 NodePath teaches Node.js through prediction, controlled execution, and visual

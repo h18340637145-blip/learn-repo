@@ -1,0 +1,63 @@
+<h2>NodePath 沉浸式学习体验方向</h2>
+<p class="subtitle">目标不是单纯炫技，而是让学习者感觉自己在「进入 Node.js 运行时空间」：越学越有探索欲、反馈更强、记忆更深。请选择最像你想要的方向。</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="height:260px;background:radial-gradient(circle at 70% 15%,rgba(159,232,112,.38),transparent 22%),linear-gradient(145deg,#08100d,#05070b 58%,#111827);border:1px solid rgba(159,232,112,.35);position:relative;overflow:hidden;padding:18px;">
+        <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(159,232,112,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(159,232,112,.08) 1px,transparent 1px);background-size:28px 28px;transform:perspective(500px) rotateX(64deg) translateY(38px);transform-origin:bottom;opacity:.9"></div>
+        <div style="position:absolute;left:18px;right:18px;top:18px;height:42px;border:1px solid rgba(159,232,112,.25);background:rgba(5,10,8,.68);display:flex;align-items:center;justify-content:space-between;padding:0 14px;color:#b8ff85;font:11px ui-monospace;">NODE RUNTIME COCKPIT <span>SYNC 87%</span></div>
+        <div style="position:absolute;left:22px;top:88px;width:42%;height:118px;border:1px solid rgba(137,147,164,.25);background:rgba(13,17,23,.75);box-shadow:0 0 40px rgba(159,232,112,.12);"></div>
+        <div style="position:absolute;right:28px;top:92px;width:42%;height:120px;border:1px solid rgba(159,232,112,.3);background:rgba(159,232,112,.08);clip-path:polygon(0 0,100% 12%,88% 100%,8% 88%);"></div>
+        <div style="position:absolute;left:40%;top:126px;width:72px;height:72px;border-radius:50%;border:1px solid #9fe870;box-shadow:0 0 34px rgba(159,232,112,.5),inset 0 0 22px rgba(159,232,112,.15);"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · Runtime Cockpit（运行时驾驶舱）</h3>
+      <p>把页面变成一艘学习飞船：顶部状态、能量槽、运行时仪表盘、答对后引擎点亮。沉浸感强，也最容易和现有开发者实验室风格融合。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="height:260px;background:radial-gradient(circle at 50% 42%,rgba(101,124,255,.45),transparent 18%),radial-gradient(circle at 20% 20%,rgba(159,232,112,.22),transparent 14%),linear-gradient(145deg,#050816,#070a0d);border:1px solid rgba(110,231,255,.28);position:relative;overflow:hidden;">
+        <div style="position:absolute;left:50%;top:50%;width:1px;height:1px;box-shadow:0 0 0 2px #b8ff85,54px -42px 0 1px #6ee7ff,-78px -28px 0 1px #9fe870,110px 30px 0 1px #6ee7ff,-120px 66px 0 1px #8993a4,16px 92px 0 1px #b8ff85,146px -72px 0 1px #8993a4,-160px -88px 0 1px #6ee7ff;"></div>
+        <svg viewBox="0 0 420 260" style="position:absolute;inset:0;width:100%;height:100%;opacity:.65">
+          <path d="M210 130 L264 88 L320 160 L226 222 L90 196 L132 102 Z" fill="none" stroke="rgba(110,231,255,.45)" stroke-width="1"/>
+          <path d="M132 102 L264 88 M210 130 L90 196 M210 130 L226 222" stroke="rgba(159,232,112,.34)" stroke-width="1"/>
+        </svg>
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:104px;height:104px;border-radius:50%;background:radial-gradient(circle,rgba(184,255,133,.32),rgba(101,124,255,.08) 54%,transparent 70%);border:1px solid rgba(184,255,133,.45);"></div>
+        <div style="position:absolute;left:24px;bottom:20px;color:#b8ff85;font:10px ui-monospace;letter-spacing:.12em;">KNOWLEDGE CONSTELLATION</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · Knowledge Nebula（知识星云）</h3>
+      <p>每个知识点像星体，前置知识是星轨；答题、运行、总结会点亮星云。空间感、粒子感最强，适合做「越学越亮」的长期成就系统。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="height:260px;background:linear-gradient(145deg,#080b0f,#111720);border:1px solid rgba(255,173,102,.28);position:relative;overflow:hidden;padding:20px;">
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 18% 20%,rgba(255,173,102,.18),transparent 16%),radial-gradient(circle at 80% 70%,rgba(159,232,112,.16),transparent 18%);"></div>
+        <div style="position:absolute;left:28px;top:42px;width:110px;height:46px;border:1px solid rgba(255,173,102,.5);background:rgba(255,173,102,.09);transform:rotate(-8deg);color:#ffad66;font:10px ui-monospace;display:grid;place-items:center;">CALL STACK</div>
+        <div style="position:absolute;left:156px;top:104px;width:126px;height:52px;border:1px solid rgba(159,232,112,.5);background:rgba(159,232,112,.09);color:#b8ff85;font:10px ui-monospace;display:grid;place-items:center;box-shadow:0 0 28px rgba(159,232,112,.18);">MICROTASK</div>
+        <div style="position:absolute;right:28px;bottom:42px;width:112px;height:48px;border:1px solid rgba(110,231,255,.48);background:rgba(110,231,255,.08);transform:rotate(7deg);color:#6ee7ff;font:10px ui-monospace;display:grid;place-items:center;">I/O QUEUE</div>
+        <svg viewBox="0 0 420 260" style="position:absolute;inset:0;width:100%;height:100%;">
+          <path d="M138 66 C190 70 168 125 156 130" fill="none" stroke="rgba(255,173,102,.42)" stroke-width="2"/>
+          <path d="M282 130 C340 138 312 206 292 214" fill="none" stroke="rgba(110,231,255,.38)" stroke-width="2"/>
+        </svg>
+        <div style="position:absolute;left:22px;bottom:18px;color:#8993a4;font:10px ui-monospace;">ANSWER → SIMULATION → MEMORY</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · Execution Diorama（执行流立体剧场）</h3>
+      <p>把运行过程做成可观赏的 2.5D 立体舞台：调用栈、队列、文件流、HTTP 事务都以空间卡片移动。学习专注度最高，炫酷程度更克制。</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>我的推荐</h3>
+  <p class="subtitle">首版用 A + B 的混合：驾驶舱作为页面框架，星云作为课程进度和奖励层；运行过程内部再局部引入 C 的立体剧场。这样既酷，也不会让粒子效果压过代码和题目。</p>
+</div>

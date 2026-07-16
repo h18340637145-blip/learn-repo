@@ -4,7 +4,6 @@ import { createLessonSpec } from "./lesson-factory";
 type AdvancedLessonInput = {
   id: string;
   stageId: StageId;
-  stageNumber: number;
   order: number;
   title: string;
   concept: string;
@@ -27,12 +26,13 @@ type AdvancedLessonInput = {
   sourceUrl: string;
   objectives?: string[];
   prerequisites?: string[];
-  kind?: LessonSpec["kind"];
+  kind: LessonSpec["kind"];
   difficulty?: LessonSpec["difficulty"];
   durationMinutes?: number;
 };
 
 export function createAdvancedLesson(input: AdvancedLessonInput): LessonSpec {
+  const meta = stageMeta(input.stageId);
   const frames: RunnerFrame[] = [
     {
       activeLane: 0,
@@ -61,7 +61,7 @@ export function createAdvancedLesson(input: AdvancedLessonInput): LessonSpec {
     id: input.id,
     stageId: input.stageId,
     kind: input.kind,
-    eyebrow: `${String(input.stageNumber).padStart(2, "0")}.${input.order} · ${stageLabel(input.stageId)}`,
+    eyebrow: `${String(meta.number).padStart(2, "0")}.${input.order} · ${meta.label}`,
     title: input.title,
     durationMinutes: input.durationMinutes ?? (input.kind === "stage-project" ? 18 : 10),
     difficulty: input.difficulty ?? (input.kind === "stage-project" ? "进阶" : "基础"),
@@ -91,19 +91,19 @@ export function createAdvancedLesson(input: AdvancedLessonInput): LessonSpec {
   });
 }
 
-function stageLabel(stageId: StageId): string {
-  const labels: Record<StageId, string> = {
-    "runtime-cli": "运行时与命令行",
-    "modules-packages": "模块、包与 TypeScript",
-    "async-events": "异步运行时与事件",
-    "files-streams": "文件、Buffer 与 Stream",
-    "http-foundations": "HTTP 基础",
-    "api-design": "API 与服务设计",
-    "process-concurrency": "进程与并发",
-    realtime: "实时通信",
-    "testing-security": "测试与安全",
-    "diagnostics-production": "诊断与生产工程"
+function stageMeta(stageId: StageId): { number: number; label: string } {
+  const meta: Record<StageId, { number: number; label: string }> = {
+    "runtime-cli": { number: 1, label: "运行时与命令行" },
+    "modules-packages": { number: 2, label: "模块、包与 TypeScript" },
+    "async-events": { number: 3, label: "异步运行时与事件" },
+    "files-streams": { number: 4, label: "文件、Buffer 与 Stream" },
+    "http-foundations": { number: 5, label: "HTTP 基础" },
+    "api-design": { number: 6, label: "API 与服务设计" },
+    "process-concurrency": { number: 7, label: "进程与并发" },
+    realtime: { number: 8, label: "实时通信" },
+    "testing-security": { number: 9, label: "测试与安全" },
+    "diagnostics-production": { number: 10, label: "诊断与生产工程" }
   };
 
-  return labels[stageId];
+  return meta[stageId];
 }
