@@ -1,4 +1,4 @@
-import type { LessonKind, LessonSpec, LessonSource, QuestionType } from "../../lib/curriculum/types";
+import type { LessonKind, LessonSpec, LessonSource, QuestionType, VisualizerSpec } from "../../lib/curriculum/types";
 import { getDefaultVisualizer } from "../../lib/curriculum/visualizers";
 
 type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVersion" | "execution" | "kind" | "questions" | "sources"> & {
@@ -20,6 +20,7 @@ type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVers
 
 export function createLessonSpec(input: LessonInput): LessonSpec {
   const kind = input.kind ?? "knowledge";
+  const visualizer = input.execution.visualizer ?? getDefaultVisualizer(input.stageId, kind);
 
   return {
     id: input.id,
@@ -47,7 +48,7 @@ export function createLessonSpec(input: LessonInput): LessonSpec {
     }],
     execution: {
       mode: "authored-trace",
-      visualizer: input.execution.visualizer ?? getDefaultVisualizer(input.stageId, kind),
+      visualizer: cloneVisualizer(visualizer),
       lanes: input.execution.lanes,
       frames: input.execution.frames
     },
@@ -59,4 +60,8 @@ export function createLessonSpec(input: LessonInput): LessonSpec {
       verifiedAt: "2026-07-15"
     }))
   };
+}
+
+function cloneVisualizer(visualizer: VisualizerSpec): VisualizerSpec {
+  return { ...visualizer, nodes: [...visualizer.nodes] };
 }
