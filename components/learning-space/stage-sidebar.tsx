@@ -13,14 +13,14 @@ export function StageSidebar({ stages, activeStageId, onSelectStage }: StageSide
   return (
     <div className="stage-sidebar" aria-label="学习阶段">
       {stages.map((stage) => {
-        const stageId = stage.id as StageId;
-        const isActive = stageId === activeStageId;
+        const isActive = stage.id === activeStageId;
 
         return (
           <button
+            aria-current={isActive ? "true" : undefined}
             className={`stage-entry ${stage.state}${isActive ? " selected" : ""}`}
             key={stage.id}
-            onClick={() => onSelectStage(stageId)}
+            onClick={() => onSelectStage(stage.id)}
             type="button"
           >
             <span className="stage-entry__number">{String(stage.number).padStart(2, "0")}</span>

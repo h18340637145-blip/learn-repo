@@ -1,8 +1,8 @@
-import type { CurriculumStage } from "./types";
+import type { CurriculumStage, StageId } from "./types";
 import type { ProgressSnapshot } from "../progress/types";
 
 export type RoadmapStage = {
-  id: string;
+  id: StageId;
   number: number;
   title: string;
   totalLessons: number;

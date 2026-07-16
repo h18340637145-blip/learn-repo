@@ -26,6 +26,7 @@ const stageSpace: StageSpace = {
   publishedCount: 9,
   nodes: [
     { id: "http-transaction", title: "HTTP 事务生命周期", order: 1, kind: "knowledge", status: "published", state: "done", lessonIndex: 29 },
+    { id: "http-planned", title: "计划中的 HTTP 课程", order: 2, kind: "knowledge", status: "planned", state: "planned", lessonIndex: null },
     { id: "project-static-file-server", title: "流式静态文件服务器", order: 9, kind: "stage-project", status: "published", state: "available", lessonIndex: 37 }
   ]
 };
@@ -37,6 +38,7 @@ test("StageSidebar 只渲染阶段入口，不渲染课程 item 列表", () => {
 
   assert.match(html, /stage-sidebar/);
   assert.match(html, /HTTP 基础/);
+  assert.match(html, /aria-current="true"/);
   assert.doesNotMatch(html, /HTTP 事务生命周期/);
 });
 
@@ -49,4 +51,6 @@ test("StageSpaceMap 渲染当前阶段课程节点和项目节点", () => {
   assert.match(html, /HTTP 事务生命周期/);
   assert.match(html, /流式静态文件服务器/);
   assert.match(html, /stage-node project/);
+  assert.match(html, /aria-current="true"/);
+  assert.match(html, /disabled/);
 });

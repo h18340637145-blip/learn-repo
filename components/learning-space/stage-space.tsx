@@ -20,6 +20,7 @@ export function StageSpaceMap({ stage, activeLessonId, onOpenLesson }: StageSpac
       <div className="stage-node-grid">
         {stage.nodes.map((node) => (
           <button
+            aria-current={node.id === activeLessonId ? "true" : undefined}
             className={`stage-node ${node.kind === "stage-project" ? "project" : "lesson"} ${node.state}${node.id === activeLessonId ? " active" : ""}`}
             disabled={node.lessonIndex === null}
             key={node.id}
