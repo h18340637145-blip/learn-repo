@@ -8,9 +8,12 @@ import {
   ImmersiveBackdrop,
   NebulaProgress
 } from "@/components/immersive";
+import { StageSidebar, StageSpaceMap } from "@/components/learning-space";
+import { SpatialRuntimeVisualizer } from "@/components/visualizers";
 import { curriculum } from "@/content/curriculum";
 import { publishedLessons } from "@/content/lesson-registry";
-import type { RunnerFrame } from "@/lib/curriculum/types";
+import { buildStageSpaces } from "@/lib/curriculum/stage-space";
+import type { RunnerFrame, StageId } from "@/lib/curriculum/types";
 import { buildRoadmap } from "@/lib/curriculum/view-model";
 import { streamAuthoredTrace } from "@/lib/execution/authored-trace";
 import { getBrowserProgressRepository } from "@/lib/progress/browser-progress-repository";
@@ -21,6 +24,7 @@ const delay = (milliseconds: number) =>
 
 export function LearningStudio() {
   const [lessonIndex, setLessonIndex] = useState(1);
+  const [selectedStageId, setSelectedStageId] = useState<StageId>(publishedLessons[1]?.stageId ?? "runtime-cli");
   const [selected, setSelected] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "running" | "wrong" | "success">("idle");
   const [frameIndex, setFrameIndex] = useState(-1);
@@ -31,15 +35,21 @@ export function LearningStudio() {
   const question = lesson.questions[0]!;
   const selectedOption = question.options.find((option) => option.id === selected);
   const frames = lesson.execution.frames;
-  const lanes = lesson.execution.lanes;
   const isProject = lesson.kind === "stage-project";
   const codeFile = lesson.files.find((file) => file.name === lesson.entryFile) ?? lesson.files[0]!;
   const roadmap = useMemo(() => buildRoadmap(curriculum, progress), [progress]);
+  const stageSpaces = useMemo(
+    () => buildStageSpaces(curriculum, publishedLessons, progress),
+    [progress]
+  );
   const publishedCount = publishedLessons.length;
   const completedCount = progress.completedLessonIds.length + progress.completedProjectIds.length;
   const progressPercent = publishedCount === 0 ? 0 : Math.round((completedCount / publishedCount) * 100);
   const projectLessonIndex = publishedLessons.findIndex((item) => item.kind === "stage-project");
   const activeStageId = lesson.stageId;
+  const activeStageSpace = stageSpaces.find((stage) => stage.id === selectedStageId)
+    ?? stageSpaces.find((stage) => stage.id === activeStageId)
+    ?? stageSpaces[0]!;
   const completionVariant = isProject ? "project" : "lesson";
 
   function cancelRun() {
@@ -61,11 +71,28 @@ export function LearningStudio() {
 
   function openLesson(index: number) {
     cancelRun();
+    const next = publishedLessons[index];
+    if (!next) return;
+
     setLessonIndex(index);
+    setSelectedStageId(next.stageId);
     setSelected(null);
     setStatus("idle");
     setFrameIndex(-1);
     setFrame(null);
+  }
+
+  function selectStage(stageId: StageId) {
+    cancelRun();
+    setSelectedStageId(stageId);
+
+    const firstLesson = stageSpaces
+      .find((stage) => stage.id === stageId)
+      ?.nodes.find((node) => node.lessonIndex !== null);
+
+    if (firstLesson?.lessonIndex !== null && firstLesson?.lessonIndex !== undefined) {
+      openLesson(firstLesson.lessonIndex);
+    }
   }
 
   async function chooseAnswer(answer: string) {
@@ -133,24 +160,13 @@ export function LearningStudio() {
           <div className="progress-track" aria-label={`当前已发布课程进度 ${progressPercent}%`}>
             <span style={{ "--progress": `${progressPercent}%` } as React.CSSProperties} />
           </div>
-          <NebulaProgress stages={roadmap} activeStageId={activeStageId} progressPercent={progressPercent} />
+          <NebulaProgress stages={roadmap} activeStageId={selectedStageId} progressPercent={progressPercent} />
 
-          <div className="roadmap-list">
-            {roadmap.map((section) => (
-              <div className={`roadmap-section ${section.state}`} key={section.id}>
-                <div className="roadmap-title">
-                  <span className="roadmap-number">{section.state === "done" ? "✓" : String(section.number).padStart(2, "0")}</span>
-                  <div><strong>{section.title}</strong><span>{section.publishedLessons} 已发布 / {section.totalLessons} 知识点</span></div>
-                  <span className="section-state">{section.state === "planned" ? "即将推出" : section.state === "locked" ? "锁定" : ""}</span>
-                </div>
-                {section.state !== "planned" && section.state !== "locked" && (
-                  <div className="roadmap-items">
-                    {section.items.filter((item) => item.status === "published").map((item) => <span key={item.id}>{item.title}</span>)}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <StageSidebar
+            activeStageId={selectedStageId}
+            onSelectStage={selectStage}
+            stages={roadmap}
+          />
 
           <div className="project-shortcut" id="projects">
             <span className="project-icon">⌘</span>
@@ -176,13 +192,11 @@ export function LearningStudio() {
             <div className="lesson-meta"><span>◷ {lesson.durationMinutes} 分钟</span><span>难度 · {lesson.difficulty}</span></div>
           </section>
 
-          <div className="lesson-switcher" aria-label="课程示例">
-            {publishedLessons.map((item, index) => (
-              <button className={index === lessonIndex ? "active" : ""} key={item.id} onClick={() => openLesson(index)} type="button">
-                <span>{item.kind === "stage-project" ? "PROJECT" : `0${index + 1}`}</span>{item.title}
-              </button>
-            ))}
-          </div>
+          <StageSpaceMap
+            activeLessonId={lesson.id}
+            onOpenLesson={openLesson}
+            stage={activeStageSpace}
+          />
 
           <div className="learning-grid">
             <article className="concept-panel">
@@ -250,15 +264,11 @@ export function LearningStudio() {
             </div>
 
             <div className="runtime-body">
-              <div className="runtime-flow">
-                {lanes.map((lane, index) => (
-                  <div className={`runtime-lane ${frame?.activeLane === index ? "active" : ""}`} key={lane}>
-                    <span className="lane-index">0{index + 1}</span>
-                    <div><small>{lane}</small><strong>{frame?.laneValues[index] ?? "等待运行"}</strong></div>
-                    {index < lanes.length - 1 && <span className="flow-arrow">→</span>}
-                  </div>
-                ))}
-              </div>
+              <SpatialRuntimeVisualizer
+                frame={frame}
+                status={status}
+                visualizer={lesson.execution.visualizer}
+              />
               <div className="terminal">
                 <div className="terminal-bar"><span>CONSOLE</span><span>{status === "success" ? "exit 0" : `node ${lesson.entryFile}`}</span></div>
                 <div className="terminal-output">
