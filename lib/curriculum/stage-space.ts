@@ -35,7 +35,7 @@ export function buildStageSpaces(
     const nodes = entries.map((entry) => {
       const lesson = lessonById.get(entry.id);
       const isPublished = entry.status === "published" && Boolean(lesson);
-      const isDone = completedIds.has(entry.id);
+      const isDone = isPublished && completedIds.has(entry.id);
 
       return {
         id: entry.id,
@@ -54,7 +54,7 @@ export function buildStageSpaces(
       title: stage.title,
       summary: stage.summary,
       completedCount: nodes.filter((node) => node.state === "done").length,
-      publishedCount: nodes.filter((node) => node.status === "published").length,
+      publishedCount: nodes.filter((node) => node.lessonIndex !== null).length,
       nodes
     };
   });
