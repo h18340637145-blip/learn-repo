@@ -67,7 +67,7 @@ Important product boundary:
 
 ## 3D 空间化学习体验
 
-- 左侧导航现在使用 `StageSidebar`，只展示 10 个阶段入口。
+- 左侧导航现在使用 `StageSidebar`，展示 10 个阶段入口，并展开当前阶段的可点击知识点。
 - 主内容区使用 `StageSpaceMap`，只展示当前阶段课程和阶段项目。
 - 答对题目后，`SpatialRuntimeVisualizer` 会根据课程 `execution.visualizer` 尝试展示 Three.js 运行舱。
 - WebGL 不可用、移动端或开启减少动态效果时，会使用 `VisualizerFallback` 保留可读运行顺序。
