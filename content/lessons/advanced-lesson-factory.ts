@@ -95,6 +95,7 @@ export function createAdvancedLesson(input: AdvancedLessonInput): LessonSpec {
 
 function stageMeta(stageId: StageId): { number: number; label: string } {
   const meta: Record<StageId, { number: number; label: string }> = {
+    foundations: { number: 0, label: "基础训练营" },
     "runtime-cli": { number: 1, label: "运行时与命令行" },
     "modules-packages": { number: 2, label: "模块、包与 TypeScript" },
     "async-events": { number: 3, label: "异步运行时与事件" },

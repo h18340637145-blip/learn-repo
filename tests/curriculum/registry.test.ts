@@ -4,6 +4,18 @@ import test from "node:test";
 import { getLesson, publishedLessons } from "../../content/lesson-registry";
 import { validateLessonSpec } from "../../lib/curriculum/validate";
 
+const stageZeroFoundationIds = [
+  "foundations-node-javascript",
+  "foundations-types-typeof",
+  "foundations-collections",
+  "foundations-functions",
+  "foundations-branches-loops",
+  "foundations-try-catch",
+  "foundations-console-debug",
+  "foundations-process-files",
+  "project-cli-file-inspector"
+];
+
 const stageOneToThreeIds = [
   "runtime-introduction",
   "runtime-browser-differences",
@@ -96,21 +108,23 @@ const stageFourPublishedIds = [
   "project-cli-log-analyzer"
 ] as const;
 
-const expectedPublishedLessonIds = stageOneToThreeIds.concat(
+const expectedPublishedLessonIds = stageZeroFoundationIds.concat(
+  stageOneToThreeIds,
   stageFourPublishedIds,
   stageFiveToTenIds
 );
 
-test("注册表发布阶段 01-03、阶段 04 现有案例和阶段 05-10 全部课程", () => {
+test("注册表发布阶段 00 基础训练营、阶段 01-03、阶段 04 现有案例和阶段 05-10 全部课程", () => {
   assert.deepEqual(
     publishedLessons.map((lesson) => lesson.id),
     expectedPublishedLessonIds
   );
 });
 
-test("发布案例数量包含阶段 05-10 的完整 54 个新增案例", () => {
+test("发布案例数量包含阶段 00 基础训练营和阶段 05-10 的完整新增案例", () => {
+  assert.equal(stageZeroFoundationIds.length, 9);
   assert.equal(stageFiveToTenIds.length, 54);
-  assert.equal(expectedPublishedLessonIds.length, 83);
+  assert.equal(expectedPublishedLessonIds.length, 92);
   assert.equal(publishedLessons.length, expectedPublishedLessonIds.length);
 });
 

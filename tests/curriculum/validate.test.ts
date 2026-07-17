@@ -52,6 +52,7 @@ const validLesson: LessonSpec = {
 };
 
 const stageIds: CurriculumStage["id"][] = [
+  "foundations",
   "runtime-cli",
   "modules-packages",
   "async-events",
@@ -67,9 +68,9 @@ const stageIds: CurriculumStage["id"][] = [
 function createValidCatalog(): CurriculumStage[] {
   return stageIds.map((id, index) => ({
     id,
-    number: index + 1,
-    title: `阶段 ${index + 1}`,
-    summary: `阶段 ${index + 1} 摘要`,
+    number: index,
+    title: index === 0 ? "基础训练营" : `阶段 ${index}`,
+    summary: index === 0 ? "补齐 Node.js 入门语法" : `阶段 ${index} 摘要`,
     lessons: Array.from({ length: 8 }, (_, lessonIndex) => ({
       id: `${id}-lesson-${lessonIndex + 1}`,
       title: `知识点 ${lessonIndex + 1}`,
@@ -79,7 +80,7 @@ function createValidCatalog(): CurriculumStage[] {
     })),
     project: {
       id: `${id}-project`,
-      title: `阶段 ${index + 1} 项目`,
+      title: index === 0 ? "基础训练营项目" : `阶段 ${index} 项目`,
       order: 9,
       kind: "stage-project",
       status: "planned"
@@ -99,13 +100,13 @@ test("正确答案不存在时返回具体错误", () => {
   ]);
 });
 
-test("有效 10 阶段课程目录没有校验错误", () => {
+test("有效 00 到 10 阶段课程目录没有校验错误", () => {
   assert.deepEqual(validateCatalog(createValidCatalog()), []);
 });
 
-test("课程目录阶段数量不是 10 时返回具体错误", () => {
-  assert.deepEqual(validateCatalog(createValidCatalog().slice(0, 9)), [
-    "课程目录应有 10 个阶段，实际为 9"
+test("课程目录阶段数量不是 11 时返回具体错误", () => {
+  assert.deepEqual(validateCatalog(createValidCatalog().slice(0, 10)), [
+    "课程目录应有 11 个阶段，实际为 10"
   ]);
 });
 
@@ -114,13 +115,13 @@ test("课程目录阶段编号错误时返回具体错误", () => {
   invalid[0].number = 2;
 
   assert.deepEqual(validateCatalog(invalid), [
-    "阶段 runtime-cli 的编号应为 1"
+    "阶段 foundations 的编号应为 0"
   ]);
 });
 
 test("课程目录包含重复课程 ID 时返回具体错误", () => {
   const invalid = createValidCatalog();
-  invalid[1].lessons[0].id = "runtime-cli-lesson-1";
+  invalid[0].lessons[0].id = "runtime-cli-lesson-1";
 
   assert.deepEqual(validateCatalog(invalid), [
     "课程 ID 重复：runtime-cli-lesson-1"

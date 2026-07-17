@@ -42,7 +42,7 @@ node_modules/next/dist/docs/
 
 ```text
 content/curriculum.ts
-  -> 10 阶段、80 个计划知识点、10 个阶段项目的课程主目录
+  -> 00 基础训练营和 10 个正式阶段、88 个计划知识点、11 个阶段项目的课程主目录
 
 content/legacy-lessons.ts
   -> 从原型迁移来的 4 个旧案例原始内容
@@ -52,6 +52,9 @@ content/lessons/lesson-factory.ts
 
 content/lessons/advanced-lesson-factory.ts
   -> 为阶段 05–10 提供精简课程工厂，内部仍生成标准 LessonSpec
+
+content/lessons/stage-00-foundations.ts
+  -> 阶段 00：Node.js 与 JavaScript、变量类型、集合、函数、分支循环、错误处理、console、process/path/fs 和命令行文件统计器
 
 content/lessons/stage-01-runtime-cli.ts
   -> 阶段 01：运行时、浏览器差异、V8、LTS、CLI、REPL、argv、env/console 和 CLI 系统探测器
@@ -82,14 +85,14 @@ content/lessons/stage-10-diagnostics-production.ts
 
 content/lesson-registry.ts
   -> 已发布课程注册表
-  -> 聚合阶段 01–03、05–10 正式课程
+  -> 聚合阶段 00–03、05–10 正式课程
   -> 保留阶段 04 旧案例到 LessonSpec 的迁移适配
 
 lib/curriculum/types.ts
   -> 课程目录、课程规格、题目、来源、运行帧类型
 
 lib/curriculum/validate.ts
-  -> 无副作用课程校验函数
+  -> 无副作用课程校验函数，校验 00–10 共 11 个阶段、每阶段 8 个知识点和 1 个阶段项目
 
 lib/curriculum/view-model.ts
   -> 课程目录 + 进度 -> 侧边栏路线视图模型
@@ -146,7 +149,7 @@ components/visualizers/*
 
 `SpatialRuntimeVisualizer` 在客户端使用 `ResizeObserver`、`window.resize` 和媒体查询监听运行舱尺寸变化。WebGL 不可用、减少动态效果、移动端或运行舱容器宽度低于 640px 时，组件直接渲染 `VisualizerFallback`；宽屏恢复后再切回动态加载的 `SpatialRuntimeCanvas`。这保证浏览器 resize 时不会留下被隐藏或清屏失败的 Canvas 空白层。
 
-阶段导航通过 `lib/curriculum/stage-space.ts` 生成阶段空间模型。左侧 `StageSidebar` 展示 10 个阶段入口，并仅展开当前阶段的可点击知识点，避免把完整课程列表一次性铺满导航；主内容区 `StageSpaceMap` 继续展示当前阶段的知识点和阶段项目。
+阶段导航通过 `lib/curriculum/stage-space.ts` 生成阶段空间模型。左侧 `StageSidebar` 展示 00 基础训练营和 10 个正式阶段入口，并仅展开当前阶段的可点击知识点，避免把完整课程列表一次性铺满导航；主内容区 `StageSpaceMap` 继续展示当前阶段的知识点和阶段项目。
 
 ## Data Model
 

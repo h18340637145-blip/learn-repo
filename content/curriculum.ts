@@ -1,6 +1,15 @@
 import type { CatalogLesson, CurriculumStage, StageId } from "../lib/curriculum/types";
 
 const publishedIds = new Set([
+  "foundations-node-javascript",
+  "foundations-types-typeof",
+  "foundations-collections",
+  "foundations-functions",
+  "foundations-branches-loops",
+  "foundations-try-catch",
+  "foundations-console-debug",
+  "foundations-process-files",
+  "project-cli-file-inspector",
   "runtime-introduction",
   "runtime-browser-differences",
   "runtime-v8",
@@ -119,6 +128,16 @@ const stage = (
 });
 
 export const curriculum = [
+  stage("foundations", 0, "基础训练营", "补齐 Node.js 入门语法", [
+    ["foundations-node-javascript", "Node.js 与 JavaScript 的关系"],
+    ["foundations-types-typeof", "变量、类型与 typeof"],
+    ["foundations-collections", "字符串、数组与对象"],
+    ["foundations-functions", "函数、参数与返回值"],
+    ["foundations-branches-loops", "条件判断与循环"],
+    ["foundations-try-catch", "错误处理 try/catch"],
+    ["foundations-console-debug", "console 与调试输出"],
+    ["foundations-process-files", "process、路径与文件读取入门"]
+  ], ["project-cli-file-inspector", "命令行文件统计器"]),
   stage("runtime-cli", 1, "运行时与命令行", "认识 Node.js", [
     ["runtime-introduction", "Node.js 运行时"],
     ["runtime-browser-differences", "Node.js 与浏览器的差异"],

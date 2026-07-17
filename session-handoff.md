@@ -10,28 +10,20 @@ Current branch:
 codex/nodepath-particle-world
 ```
 
-当前应用是带沉浸式视觉层的课程驱动学习原型。UI 仍在 `/` 渲染学习工作台，但课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。阶段 01–03、05–10 已完整发布 Node.js 学习内容和阶段项目，阶段 04 当前保留两个已发布案例。
-
-阶段 05–10 的实现当前保留在工作树中，尚未提交或合并：本次会话的 Git 索引写入受用量限制阻止。`AGENTS.md` 和 `.superpowers/**` 中的既有改动不属于本轮课程实现，后续提交时应继续排除。
-
-Expected dirty state after this session:
-
-- `.superpowers/brainstorm/8292-1784101222/.server-info` deleted.
-- `.superpowers/brainstorm/8292-1784101222/.server-stopped` untracked.
-
-Those files came from the earlier visual brainstorming server and are intentionally not part of this implementation.
+当前应用是带沉浸式视觉层的课程驱动学习原型。UI 仍在 `/` 渲染学习工作台，但课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。阶段 00–03、05–10 已完整发布 Node.js 学习内容和阶段项目，阶段 04 当前保留两个已发布案例。
 
 ## What Exists
 
 Curriculum foundation:
 
-- 10 required stages.
-- 80 knowledge points.
-- 10 stage projects.
-- 83 currently published playable cases.
+- 00 基础训练营和 10 个正式阶段。
+- 88 knowledge points.
+- 11 stage projects.
+- 92 currently published playable cases.
 
 Published cases:
 
+- Stage 00: 8 foundations lessons plus the CLI file inspector project.
 - Stage 01: 8 runtime/CLI lessons plus the CLI system inspector project.
 - Stage 02: 8 modules/packages/TypeScript lessons plus the dependency inspector project.
 - Stage 03: 8 async/events lessons plus the task scheduler project.
@@ -68,7 +60,7 @@ Important product boundary:
 
 ## 3D 空间化学习体验
 
-- 左侧导航现在使用 `StageSidebar`，展示 10 个阶段入口，并展开当前阶段的可点击知识点。
+- 左侧导航现在使用 `StageSidebar`，展示 00 基础训练营和 10 个正式阶段入口，并展开当前阶段的可点击知识点。
 - 主内容区使用 `StageSpaceMap`，只展示当前阶段课程和阶段项目。
 - 答对题目后，`SpatialRuntimeVisualizer` 会根据课程 `execution.visualizer` 尝试展示 Three.js 运行舱；运行舱包含知识环绕轨道和粒子点云。
 - 代码案例面板现在有 Chrome 可见标题、文件名和空间光晕，标题为“Node.js 案例代码”。
@@ -82,9 +74,10 @@ Important product boundary:
 
 ## Important Files
 
-- `content/curriculum.ts`: 10-stage/80-point master curriculum catalog.
+- `content/curriculum.ts`: 00 基础训练营 + 10-stage/88-point master curriculum catalog.
 - `content/legacy-lessons.ts`: migrated original 4 prototype cases.
 - `content/lessons/lesson-factory.ts`: helper for standard LessonSpec creation.
+- `content/lessons/stage-00-foundations.ts`: complete stage 00 foundations bootcamp content.
 - `content/lessons/stage-01-runtime-cli.ts`: complete stage 01 content.
 - `content/lessons/stage-02-modules-packages.ts`: complete stage 02 content.
 - `content/lessons/stage-03-async-events.ts`: complete stage 03 content.
@@ -95,7 +88,7 @@ Important product boundary:
 - `content/lessons/stage-08-realtime.ts`: complete stage 08 content.
 - `content/lessons/stage-09-testing-security.ts`: complete stage 09 content.
 - `content/lessons/stage-10-diagnostics-production.ts`: complete stage 10 content.
-- `content/lesson-registry.ts`: published lesson registry, stage 01–03 and 05–10 aggregation, and stage 04 migration metadata.
+- `content/lesson-registry.ts`: published lesson registry, stage 00–03 and 05–10 aggregation, and stage 04 migration metadata.
 - `lib/curriculum/types.ts`: shared curriculum and lesson types.
 - `lib/curriculum/validate.ts`: catalog and lesson validators.
 - `lib/curriculum/view-model.ts`: roadmap view model.
@@ -114,6 +107,23 @@ Important product boundary:
 - `docs/ARTICHECTURE.md`: architecture harness.
 
 ## Validation History
+
+Latest automatic validation for the stage 00 foundations bootcamp:
+
+```bash
+npx tsx --test tests/curriculum/catalog.test.ts tests/curriculum/registry.test.ts tests/curriculum/validate.test.ts -> pass. 18 tests, 18 pass, 0 fail.
+npm test -> pass. 72 tests, 72 pass, 0 fail.
+npm run validate:curriculum -> pass. 输出：课程校验通过：11 个阶段，92 个已发布案例。
+npm run lint -> pass.
+npm run build -> pass. 仅出现已有 multiple lockfiles warning。
+git diff --check -> pass. 无输出。
+```
+
+Manual browser acceptance on `http://localhost:3000/`:
+
+- 左侧出现 `00 基础训练营`，并展开 8 个基础知识点。
+- 当前基础课程可进入，阶段星图显示基础训练营课程和“命令行文件统计器”项目节点。
+- 点击“变量、类型与 typeof”的正确答案 A 后，Runtime Visualizer 展示运行完成，终端日志包含 `string` 和 `3`，总结面板显示“知识点已掌握”。
 
 Latest targeted validation for the gamified interaction layer:
 

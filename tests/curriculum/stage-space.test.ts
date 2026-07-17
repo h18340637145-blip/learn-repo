@@ -9,8 +9,8 @@ import { emptyProgress } from "../../lib/progress/types";
 test("阶段空间只暴露阶段入口，不展开全局课程列表", () => {
   const spaces = buildStageSpaces(curriculum, publishedLessons, emptyProgress());
 
-  assert.equal(spaces.length, 10);
-  assert.deepEqual(spaces.map((space) => space.number), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  assert.equal(spaces.length, 11);
+  assert.deepEqual(spaces.map((space) => space.number), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   assert.ok(spaces.every((space) => space.nodes.length <= 9));
 });
 

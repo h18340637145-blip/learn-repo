@@ -27,10 +27,10 @@ export function validateCatalog(stages: readonly CurriculumStage[]): string[] {
   const errors: string[] = [];
   const ids = new Set<string>();
 
-  if (stages.length !== 10) errors.push(`课程目录应有 10 个阶段，实际为 ${stages.length}`);
+  if (stages.length !== 11) errors.push(`课程目录应有 11 个阶段，实际为 ${stages.length}`);
 
   stages.forEach((stage, index) => {
-    if (stage.number !== index + 1) errors.push(`阶段 ${stage.id} 的编号应为 ${index + 1}`);
+    if (stage.number !== index) errors.push(`阶段 ${stage.id} 的编号应为 ${index}`);
     if (stage.lessons.length !== 8) errors.push(`阶段 ${stage.id} 应有 8 个知识点`);
     for (const item of [...stage.lessons, stage.project]) {
       if (ids.has(item.id)) errors.push(`课程 ID 重复：${item.id}`);

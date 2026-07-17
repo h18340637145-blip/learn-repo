@@ -13,8 +13,10 @@ test("阶段展示计划总数和已发布数量", () => {
     updatedAt: null
   });
 
-  assert.equal(roadmap[1].totalLessons, 8);
-  assert.equal(roadmap[1].publishedLessons, 8);
-  assert.equal(roadmap[1].completedLessons, 1);
-  assert.equal(roadmap[1].state, "active");
+  const modulesStage = roadmap.find((stage) => stage.id === "modules-packages");
+
+  assert.equal(modulesStage?.totalLessons, 8);
+  assert.equal(modulesStage?.publishedLessons, 8);
+  assert.equal(modulesStage?.completedLessons, 1);
+  assert.equal(modulesStage?.state, "active");
 });

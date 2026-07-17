@@ -1,4 +1,5 @@
 export type StageId =
+  | "foundations"
   | "runtime-cli"
   | "modules-packages"
   | "async-events"

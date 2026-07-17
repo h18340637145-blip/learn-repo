@@ -1,6 +1,7 @@
 import type { LessonSpec, StageId } from "../lib/curriculum/types";
 import { getDefaultVisualizer } from "../lib/curriculum/visualizers";
 import { legacyLessons, type LegacyLesson } from "./legacy-lessons";
+import { stageZeroFoundationsLessons } from "./lessons/stage-00-foundations";
 import { stageOneRuntimeCliLessons } from "./lessons/stage-01-runtime-cli";
 import { stageTwoModulesPackagesLessons } from "./lessons/stage-02-modules-packages";
 import { stageThreeAsyncEventsLessons } from "./lessons/stage-03-async-events";
@@ -142,6 +143,7 @@ const legacyStageFourLessons = legacyLessons
   .map(migrateLesson);
 
 export const publishedLessons = [
+  stageZeroFoundationsLessons,
   stageOneRuntimeCliLessons,
   stageTwoModulesPackagesLessons,
   stageThreeAsyncEventsLessons,
