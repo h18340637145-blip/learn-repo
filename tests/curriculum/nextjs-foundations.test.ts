@@ -4,7 +4,7 @@ import test from "node:test";
 import { nextjsPublishedLessons } from "../../content/lesson-registry";
 
 test("Next.js 基础训练营使用 Next.js 专属运行环境标签", () => {
-  assert.equal(nextjsPublishedLessons.length, 9);
+  assert.equal(nextjsPublishedLessons.length, 90);
 
   for (const lesson of nextjsPublishedLessons) {
     assert.match(lesson.nodeVersion, /^Next\.js 16/);
@@ -12,7 +12,7 @@ test("Next.js 基础训练营使用 Next.js 专属运行环境标签", () => {
 });
 
 test("Next.js 基础训练营覆盖 App Router 核心心智模型", () => {
-  const titles = nextjsPublishedLessons.map((lesson) => lesson.title);
+  const titles = nextjsPublishedLessons.slice(0, 9).map((lesson) => lesson.title);
 
   assert.deepEqual(titles, [
     "Next.js 是什么",

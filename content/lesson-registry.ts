@@ -13,6 +13,15 @@ import { stageNineTestingSecurityLessons } from "./lessons/stage-09-testing-secu
 import { stageTenDiagnosticsProductionLessons } from "./lessons/stage-10-diagnostics-production";
 // Next.js lessons
 import { nextjsStageZeroFoundationsLessons } from "./lessons/nextjs/stage-00-foundations";
+import { nextjsStageOneRoutingLessons } from "./lessons/nextjs/stage-01-routing";
+import { nextjsStageTwoRenderingLessons } from "./lessons/nextjs/stage-02-rendering";
+import { nextjsStageThreeDataFetchingLessons } from "./lessons/nextjs/stage-03-data-fetching";
+import { nextjsStageFourStylingOptimizationLessons } from "./lessons/nextjs/stage-04-styling-optimization";
+import { nextjsStageFiveApiRoutesLessons } from "./lessons/nextjs/stage-05-api-routes";
+import { nextjsStageSixAuthMiddlewareLessons } from "./lessons/nextjs/stage-06-auth-middleware";
+import { nextjsStageSevenDatabaseLessons } from "./lessons/nextjs/stage-07-database";
+import { nextjsStageEightTestingDeploymentLessons } from "./lessons/nextjs/stage-08-testing-deployment";
+import { nextjsStageNineArchitectureAdvancedLessons } from "./lessons/nextjs/stage-09-architecture";
 
 type MigrationMetadata = {
   id: string;
@@ -167,7 +176,16 @@ export function getLesson(id: string): LessonSpec | undefined {
 
 // ── Next.js published lessons ──────────────────────────────
 export const nextjsPublishedLessons = [
-  nextjsStageZeroFoundationsLessons
+  nextjsStageZeroFoundationsLessons,
+  nextjsStageOneRoutingLessons,
+  nextjsStageTwoRenderingLessons,
+  nextjsStageThreeDataFetchingLessons,
+  nextjsStageFourStylingOptimizationLessons,
+  nextjsStageFiveApiRoutesLessons,
+  nextjsStageSixAuthMiddlewareLessons,
+  nextjsStageSevenDatabaseLessons,
+  nextjsStageEightTestingDeploymentLessons,
+  nextjsStageNineArchitectureAdvancedLessons
 ].flat() satisfies LessonSpec[];
 
 const nextjsLessonById = new Map(nextjsPublishedLessons.map((lesson) => [lesson.id, lesson]));

@@ -55,7 +55,7 @@ content/curriculum.ts
   -> 00 基础训练营和 10 个正式阶段、88 个计划知识点、11 个阶段项目的课程主目录
 
 content/curriculum-nextjs.ts
-  -> Next.js 10 个阶段、80 个计划知识点、10 个阶段项目的课程主目录；阶段 00 已发布，其余阶段为 planned
+  -> Next.js 10 个阶段、80 个知识点、10 个阶段项目的课程主目录；当前 90 个节点均已发布
 
 content/curriculum-registry.ts
   -> 聚合 Node.js 与 Next.js CourseSpec，提供 allCourses 和 getCourse(courseId)
@@ -68,6 +68,9 @@ content/lessons/lesson-factory.ts
 
 content/lessons/nextjs/nextjs-lesson-factory.ts
   -> Next.js 专属 LessonSpec 工厂，默认运行环境标签为 Next.js 16.x
+
+content/lessons/nextjs/nextjs-quick-lesson.ts
+  -> Next.js 后续题库的轻量课程工厂，统一生成真实代码案例、预测题、定向反馈、运行轨迹和官方来源
 
 content/lessons/advanced-lesson-factory.ts
   -> 为阶段 05–10 提供精简课程工厂，内部仍生成标准 LessonSpec
@@ -105,10 +108,14 @@ content/lessons/stage-10-diagnostics-production.ts
 content/lessons/nextjs/stage-00-foundations.ts
   -> Next.js 阶段 00：框架定位、App Router、页面与动态路由、布局、Server Components、Client Components、Link 预取、环境变量和多页个人主页
 
+content/lessons/nextjs/stage-01-routing.ts ... stage-09-architecture.ts
+  -> Next.js 阶段 01–09：路由、渲染、数据获取、样式优化、API、认证、数据库、测试部署和高级生产架构的完整题库与阶段项目
+
 content/lesson-registry.ts
   -> 已发布课程注册表
   -> 聚合阶段 00–03、05–10 正式课程
   -> 保留阶段 04 旧案例到 LessonSpec 的迁移适配
+  -> 聚合 Next.js 90 个已发布案例
   -> 导出 Node.js 兼容别名 publishedLessons、nextjsPublishedLessons 和 getLessonsByCourse(courseId)
 
 lib/curriculum/types.ts

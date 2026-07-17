@@ -48,7 +48,7 @@ NodePath 是一个可视化编程学习平台，当前支持 Node.js 和 Next.js
 - 运行舱响应式降级：浏览器 resize、移动端或运行舱容器过窄时自动切换到深色 fallback，避免 3D Canvas 白屏遮挡学习内容。
 - 代码案例面板：根据课程显示“Node.js 案例代码”或“Next.js 案例代码”标题、文件名和空间光晕，避免代码区语义弱化。
 
-当前已发布案例：101 个。
+当前已发布案例：182 个。
 
 Node.js 当前已发布案例：92 个。
 
@@ -68,7 +68,7 @@ Node.js 当前已发布案例：92 个。
 
 Node.js 已发布内容的知识边界来自 Node.js 官方 Learn/API 文档与 JavaScript 官方参考资料，覆盖基础语法、Getting Started、Command Line、Modules、Packages、TypeScript、Asynchronous Work、Events、Timers、HTTP、Process、Worker Threads、Test Runner、Security 和 Diagnostics 等主题。
 
-Next.js 当前目录包含 10 个阶段、80 个知识点和 10 个阶段项目；阶段 00 “Next.js 基础”已发布 8 个知识点和阶段项目“多页个人主页”，其余阶段作为 planned 目录入口保留。已发布内容参考本地 Next.js 16.2.10 官方文档，覆盖 App Router 目录结构、页面与动态路由、布局、Server Components、Client Components、Link 预取和环境变量边界。
+Next.js 当前目录包含 10 个阶段、80 个知识点和 10 个阶段项目，已全部发布为 90 个可玩案例。已发布内容参考本地 Next.js 16.2.10 官方文档和主流工程实践，覆盖 App Router、路由系统、渲染模式、数据获取、样式优化、API 路由、认证会话、数据库 ORM、测试部署和高级生产架构。
 
 ## Learning Flow
 
@@ -117,7 +117,7 @@ Next.js 学习路线包含 10 个阶段：
 8. 测试与部署。
 9. 高级模式。
 
-当前 Next.js 阶段 00 已形成完整学习闭环，后续应优先补齐路由系统、渲染模式和数据获取三个阶段。
+当前 Next.js 10 个阶段均已形成完整学习闭环，每个阶段包含 8 个知识点和 1 个阶段项目。后续应优先扩展更多题型、真实项目运行可视化和 Next.js 生产部署专题。
 
 ### 3D 空间化学习体验
 

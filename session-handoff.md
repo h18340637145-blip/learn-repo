@@ -10,7 +10,7 @@ Current branch:
 codex/nodepath-particle-world
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 阶段 00 已发布 8 个知识点和阶段项目。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。
 
 ## What Exists
 
@@ -19,10 +19,10 @@ Curriculum foundation:
 - 00 基础训练营和 10 个正式阶段。
 - 88 knowledge points.
 - 11 stage projects.
-- 92 currently published playable cases.
+- 92 currently published Node.js playable cases.
 - Next.js 路线包含 10 个阶段、80 个计划知识点、10 个阶段项目。
-- Next.js 阶段 00 已发布 9 个 playable cases。
-- 当前总计 101 个已发布 playable cases。
+- Next.js 已发布 90 个 playable cases。
+- 当前总计 182 个已发布 playable cases。
 
 Published cases:
 
@@ -98,7 +98,9 @@ Important product boundary:
 - `content/lessons/stage-09-testing-security.ts`: complete stage 09 content.
 - `content/lessons/stage-10-diagnostics-production.ts`: complete stage 10 content.
 - `content/lessons/nextjs/nextjs-lesson-factory.ts`: Next.js lesson factory with `Next.js 16.x` runtime label.
+- `content/lessons/nextjs/nextjs-quick-lesson.ts`: Next.js 后续题库的轻量课程工厂。
 - `content/lessons/nextjs/stage-00-foundations.ts`: complete Next.js stage 00 foundations content.
+- `content/lessons/nextjs/stage-01-routing.ts` ... `stage-09-architecture.ts`: complete Next.js stages 01–09 content, including testing/deployment and advanced realtime dashboard project.
 - `content/lesson-registry.ts`: published lesson registry, Node.js aggregation, Next.js aggregation, and stage 04 migration metadata.
 - `lib/curriculum/types.ts`: shared curriculum and lesson types.
 - `lib/curriculum/validate.ts`: catalog and lesson validators.
@@ -125,7 +127,7 @@ Important product boundary:
 Latest targeted validation for the Next.js route expansion:
 
 ```bash
-npm test -- tests/curriculum/course-registry.test.ts tests/curriculum/nextjs-foundations.test.ts tests/progress/local-progress-repository.test.ts -> pass. 78 tests, 78 pass, 0 fail.
+npm test -- tests/curriculum/nextjs-complete.test.ts -> pass. 89 tests, 89 pass, 0 fail.
 npm test -- tests/learning-studio/course-routing.test.ts tests/learning-space/source.test.ts tests/learning-studio/sidebar-navigation.test.ts -> pass. 81 tests, 81 pass, 0 fail.
 ```
 
@@ -133,6 +135,7 @@ Implementation notes:
 
 - 新增 `content/curriculum-registry.ts` 聚合 Node.js 与 Next.js 课程。
 - Next.js 阶段 00 使用 `createNextjsLessonSpec()`，运行环境标签为 `Next.js 16.x`。
+- Next.js 阶段 01–09 已补齐为完整题库，目录中 90 个节点全部可打开对应案例。
 - 进度仓储现在按课程隔离 localStorage key，并在快照中保留 `courseId`。
 - 删除旧 `app/learning-studio.tsx` 重复实现，路由工作台统一走 `app/_components/learning-studio.tsx`。
 - `scripts/validate-curriculum.ts` 现在从 `allCourses` 动态校验多课程目录。

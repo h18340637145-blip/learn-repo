@@ -39,7 +39,7 @@ export default function Home() {
           <div className="course-card__stats">
             <span>10 个阶段</span>
             <span>·</span>
-            <span>9 个案例</span>
+            <span>90 个案例</span>
           </div>
           <span className="course-card__cta">开始学习 <span>→</span></span>
         </Link>

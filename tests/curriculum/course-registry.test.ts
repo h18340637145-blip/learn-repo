@@ -17,12 +17,12 @@ test("每条学习路径可以独立校验目录和已发布课程", () => {
   }
 
   assert.equal(publishedLessons.length, 92);
-  assert.equal(nextjsPublishedLessons.length, 9);
+  assert.equal(nextjsPublishedLessons.length, 90);
   assert.deepEqual(nextjsPublishedLessons.flatMap(validateLessonSpec), []);
 });
 
 test("按课程读取课程内容时隔离 Node.js 与 Next.js 案例", () => {
   assert.equal(getLessonsByCourse("nodejs").length, 92);
-  assert.equal(getLessonsByCourse("nextjs").length, 9);
+  assert.equal(getLessonsByCourse("nextjs").length, 90);
   assert.ok(getLessonsByCourse("nextjs").every((lesson) => lesson.id.startsWith("nextjs-") || lesson.id.startsWith("project-nextjs-")));
 });
