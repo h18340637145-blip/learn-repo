@@ -31,15 +31,23 @@ const stageSpace: StageSpace = {
   ]
 };
 
-test("StageSidebar 只渲染阶段入口，不渲染课程 item 列表", () => {
+test("StageSidebar 渲染阶段入口和当前阶段可点击知识点", () => {
   const html = renderToStaticMarkup(
-    <StageSidebar stages={roadmap} activeStageId="http-foundations" onSelectStage={() => {}} />
+    <StageSidebar
+      activeLessonId="http-transaction"
+      activeStageId="http-foundations"
+      onOpenLesson={() => {}}
+      onSelectStage={() => {}}
+      stages={roadmap}
+    />
   );
 
   assert.match(html, /stage-sidebar/);
   assert.match(html, /HTTP 基础/);
   assert.match(html, /aria-current="true"/);
-  assert.doesNotMatch(html, /HTTP 事务生命周期/);
+  assert.match(html, /HTTP 事务生命周期/);
+  assert.match(html, /class="roadmap-item active"/);
+  assert.match(html, /aria-current="step"/);
 });
 
 test("StageSpaceMap 渲染当前阶段课程节点和项目节点", () => {

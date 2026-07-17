@@ -42,6 +42,10 @@ export function LearningStudio() {
     () => buildStageSpaces(curriculum, publishedLessons, progress),
     [progress]
   );
+  const lessonIndexById = useMemo(
+    () => new Map(publishedLessons.map((item, index) => [item.id, index])),
+    []
+  );
   const publishedCount = publishedLessons.length;
   const completedCount = progress.completedLessonIds.length + progress.completedProjectIds.length;
   const progressPercent = publishedCount === 0 ? 0 : Math.round((completedCount / publishedCount) * 100);
@@ -82,6 +86,14 @@ export function LearningStudio() {
     setStatus("idle");
     setFrameIndex(-1);
     setFrame(null);
+  }
+
+  function openPublishedLessonById(id: string) {
+    const targetIndex = lessonIndexById.get(id);
+
+    if (targetIndex === undefined) return;
+
+    openLesson(targetIndex);
   }
 
   function selectStage(stageId: StageId) {
@@ -171,6 +183,8 @@ export function LearningStudio() {
 
           <StageSidebar
             activeStageId={selectedStageId}
+            activeLessonId={lesson.id}
+            onOpenLesson={openPublishedLessonById}
             onSelectStage={selectStage}
             stages={roadmap}
           />
