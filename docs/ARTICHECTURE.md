@@ -116,7 +116,7 @@ components/learning-space/*
   -> 左侧阶段入口和当前阶段课程星图
 
 components/visualizers/*
-  -> Three.js 运行舱、运行场景和 WebGL / 减少动态效果 fallback
+  -> Three.js 运行舱、知识环绕场景、粒子增强层和 WebGL / 减少动态效果 fallback
 ```
 
 ## Runtime Boundaries
@@ -139,6 +139,8 @@ components/visualizers/*
 ### 空间可视化边界
 
 课程数据通过 `execution.visualizer` 描述运行可视化类型。`LearningStudio` 负责传入当前 `status`、`frame` 和 `visualizer`，`components/visualizers` 决定使用 Three.js Canvas 还是 fallback。Three.js 组件只存在于 Client Component 和动态加载边界内；`app/layout.tsx` 继续保持 Server Component。
+
+`RuntimeScene` 负责渲染执行节点、知识环绕轨道和粒子点云。项目依赖声明包含 `three.quarks`、`three-nebula` 和 `proton-engine`；当前实现将 `three.quarks` 作为运行场景的粒子增强桥接点，并用稳定的 Three.js points 渲染可控粒子云，避免专业粒子引擎直接耦合到课程数据结构。后续可以在 `QuarksParticleAura` 内逐步替换为更复杂的发射器配置。
 
 阶段导航通过 `lib/curriculum/stage-space.ts` 生成阶段空间模型。左侧 `StageSidebar` 展示 10 个阶段入口，并仅展开当前阶段的可点击知识点，避免把完整课程列表一次性铺满导航；主内容区 `StageSpaceMap` 继续展示当前阶段的知识点和阶段项目。
 
@@ -194,7 +196,7 @@ nextLesson()
 应用仍使用一个全局 stylesheet：
 
 - CSS custom properties define the palette.
-- Layout classes define top bar, sidebar, lesson panels, challenge, runtime visualizer, terminal, and completion summary.
+- Layout classes define top bar, sidebar, lesson panels, challenge, runtime visualizer, terminal, code-panel depth effects, knowledge orbit effects, and completion summary.
 - Progress bar width uses `--progress`.
 - Responsive breakpoints at `1050px` and `760px` adapt the workspace to tablet and mobile.
 - `prefers-reduced-motion` disables meaningful animation for reduced-motion users.

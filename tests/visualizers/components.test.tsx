@@ -46,3 +46,13 @@ test("SpatialRuntimeVisualizer 在移动端降级为 fallback", () => {
   assert.match(source, /\(max-width: 760px\)/);
   assert.match(source, /smallViewport/);
 });
+
+test("RuntimeScene 提供知识环绕轨道和粒子引擎增强点", () => {
+  const source = readFileSync("components/visualizers/scenes/runtime-scene.tsx", "utf8");
+
+  assert.match(source, /KnowledgeOrbit/);
+  assert.match(source, /QuarksParticleAura/);
+  assert.match(source, /three\.quarks/);
+  assert.match(source, /ThreeNebula/);
+  assert.match(source, /Proton/);
+});

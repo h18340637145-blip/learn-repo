@@ -37,7 +37,8 @@ export function SpatialRuntimeVisualizer(props: SpatialRuntimeVisualizerProps) {
   }, []);
 
   return (
-    <div className="spatial-runtime-visualizer">
+    <div className="spatial-runtime-visualizer knowledge-world">
+      <span className="knowledge-world__ring" aria-hidden="true" />
       {canUseMotion ? <SpatialRuntimeCanvas {...props} /> : <VisualizerFallback {...props} />}
     </div>
   );

@@ -28,3 +28,9 @@ test("LearningStudio 答案选项包含空间粒子层", () => {
   assert.match(source, /answer-orbit/);
   assert.match(source, /answer-core/);
 });
+
+test("LearningStudio 代码面板提供 Chrome 可见标题和空间光晕", () => {
+  assert.match(source, /code-panel__title/);
+  assert.match(source, /Node\.js 案例代码/);
+  assert.match(source, /code-panel__aurora/);
+});

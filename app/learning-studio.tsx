@@ -256,6 +256,11 @@ export function LearningStudio() {
             </article>
 
             <article className="code-panel">
+              <span className="code-panel__aurora" aria-hidden="true" />
+              <div className="code-panel__title">
+                <span>Node.js 案例代码</span>
+                <strong>{lesson.entryFile}</strong>
+              </div>
               <div className="code-toolbar">
                 <div><i /><i /><i /></div>
                 <span>{lesson.entryFile}</span>

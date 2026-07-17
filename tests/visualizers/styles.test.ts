@@ -40,3 +40,19 @@ test("样式包含更多空间面板和答案粒子特效", () => {
   assert.ok(css.includes("@keyframes answer-particles"));
   assert.ok(css.includes("@keyframes orbit-spin"));
 });
+
+test("样式包含知识环绕世界和代码面板景深增强", () => {
+  for (const selector of [
+    ".code-panel__title",
+    ".code-panel__aurora",
+    ".knowledge-world",
+    ".knowledge-world__ring",
+    ".spatial-runtime-visualizer::before",
+    ".stage-space-map::after"
+  ]) {
+    assert.ok(css.includes(selector), `${selector} 应存在`);
+  }
+
+  assert.ok(css.includes("@keyframes knowledge-ring"));
+  assert.ok(css.includes("@keyframes code-aurora"));
+});
