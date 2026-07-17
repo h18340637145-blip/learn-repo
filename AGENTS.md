@@ -114,3 +114,5 @@ git diff --check
 ```
 
 When changing responsive UI, manually inspect desktop and mobile widths.
+
+每次变更都要检查PRODUCT.md ARTICHECTURE.md session-handoff 文件是否需要变更，如需变更，按实际实现和需求进行变更，如果当前文档和需求冲突，则以需求为准
