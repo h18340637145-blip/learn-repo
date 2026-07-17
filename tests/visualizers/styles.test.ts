@@ -56,3 +56,8 @@ test("样式包含知识环绕世界和代码面板景深增强", () => {
   assert.ok(css.includes("@keyframes knowledge-ring"));
   assert.ok(css.includes("@keyframes code-aurora"));
 });
+
+test("运行舱 Canvas 自身保持深色背景避免白屏", () => {
+  assert.ok(css.includes(".spatial-runtime-canvas {"));
+  assert.ok(css.includes("background: #080b0f"));
+});

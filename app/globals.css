@@ -247,7 +247,7 @@ a { color: inherit; text-decoration: none; }
 .spatial-runtime-visualizer::after { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent, rgba(159, 232, 112, .06), transparent); pointer-events: none; }
 .knowledge-world { perspective: 900px; transform-style: preserve-3d; }
 .knowledge-world__ring { position: absolute; width: 260px; height: 260px; left: calc(50% - 130px); top: 22px; border: 1px solid rgba(110, 231, 255, .22); border-radius: 50%; box-shadow: inset 0 0 38px rgba(110, 231, 255, .08), 0 0 42px rgba(159, 232, 112, .08); transform: rotateX(68deg) rotateZ(-12deg); animation: knowledge-ring 13s linear infinite; pointer-events: none; z-index: 1; }
-.spatial-runtime-canvas { width: 100%; min-height: 280px; display: block; }
+.spatial-runtime-canvas { width: 100%; min-height: 280px; display: block; background: #080b0f; }
 .visualizer-fallback { min-height: 280px; display: grid; align-content: center; gap: 18px; padding: 28px; position: relative; z-index: 1; }
 .visualizer-fallback__header span, .visualizer-fallback__header strong { display: block; }
 .visualizer-fallback__header span { color: var(--green); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 8px; letter-spacing: .16em; }

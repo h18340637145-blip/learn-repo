@@ -47,6 +47,25 @@ test("SpatialRuntimeVisualizer 在移动端降级为 fallback", () => {
   assert.match(source, /smallViewport/);
 });
 
+test("SpatialRuntimeVisualizer 响应浏览器尺寸变化重新选择 3D 或 fallback", () => {
+  const source = readFileSync("components/visualizers/spatial-runtime-visualizer.tsx", "utf8");
+
+  assert.match(source, /ResizeObserver/);
+  assert.match(source, /compactRuntimeWidth = 640/);
+  assert.match(source, /compactRuntime/);
+  assert.match(source, /matchMedia\("\(max-width: 760px\)"\)/);
+  assert.match(source, /addEventListener\("resize"/);
+  assert.match(source, /removeEventListener\("resize"/);
+});
+
+test("SpatialRuntimeCanvas 无法创建 WebGL 时回退且保持深色清屏", () => {
+  const source = readFileSync("components/visualizers/spatial-runtime-canvas.tsx", "utf8");
+
+  assert.match(source, /fallback=\{<VisualizerFallback/);
+  assert.match(source, /onCreated=\{\(\{ gl \}\)/);
+  assert.match(source, /setClearColor\("#080b0f", 1\)/);
+});
+
 test("RuntimeScene 提供知识环绕轨道和粒子引擎增强点", () => {
   const source = readFileSync("components/visualizers/scenes/runtime-scene.tsx", "utf8");
 

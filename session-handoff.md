@@ -7,7 +7,7 @@ Project: NodePath, a visual Node.js learning website built on Next.js 16.
 Current branch:
 
 ```text
-codex/nodepath-3d-spatial-learning
+codex/nodepath-particle-world
 ```
 
 当前应用是带沉浸式视觉层的课程驱动学习原型。UI 仍在 `/` 渲染学习工作台，但课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。阶段 01–03、05–10 已完整发布 Node.js 学习内容和阶段项目，阶段 04 当前保留两个已发布案例。
@@ -73,6 +73,7 @@ Important product boundary:
 - 代码案例面板现在有 Chrome 可见标题、文件名和空间光晕，标题为“Node.js 案例代码”。
 - 粒子增强依赖已声明：`three.quarks`、`three-nebula`、`proton-engine`；当前渲染路径保持稳定 Three.js points，并在运行场景保留专业粒子引擎桥接点。
 - WebGL 不可用、移动端或开启减少动态效果时，会使用 `VisualizerFallback` 保留可读运行顺序。
+- 浏览器 resize 或运行舱容器宽度不足时，`SpatialRuntimeVisualizer` 会重新评估并切换到深色 fallback，避免 3D Canvas 白屏或空白占位。
 - 重点场景覆盖 HTTP 管线、服务边界、Worker 并发、实时星网、测试安全边界和诊断生产观测。
 - 当前实现仍使用确定性 authored traces，不执行学习者提交的任意 Node.js 代码。
 - 验证命令：`npm test`、`npx tsc --noEmit`、`npm run validate:curriculum`、`npm run lint`、`npm run build`、`git diff --check`。
@@ -111,6 +112,18 @@ Important product boundary:
 - `docs/ARTICHECTURE.md`: architecture harness.
 
 ## Validation History
+
+Latest targeted validation for the responsive runtime visualizer fix:
+
+```bash
+npx tsx --test tests/visualizers/components.test.tsx tests/visualizers/styles.test.ts -> pass. 11 tests, 11 pass, 0 fail.
+```
+
+Manual browser acceptance on `http://localhost:3000/`:
+
+- 871px viewport: runtime visualizer width about 566px, Canvas not mounted, fallback visible at 280px height, no console errors.
+- 1639px viewport: runtime visualizer width about 754px, Canvas remounted at 280px height, no console errors.
+- Existing Three.js deprecation warning about `THREE.Clock` remains non-blocking.
 
 Latest automatic validation for the stage 05–10 curriculum launch:
 

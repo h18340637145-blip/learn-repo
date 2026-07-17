@@ -142,6 +142,8 @@ components/visualizers/*
 
 `RuntimeScene` 负责渲染执行节点、知识环绕轨道和粒子点云。项目依赖声明包含 `three.quarks`、`three-nebula` 和 `proton-engine`；当前实现将 `three.quarks` 作为运行场景的粒子增强桥接点，并用稳定的 Three.js points 渲染可控粒子云，避免专业粒子引擎直接耦合到课程数据结构。后续可以在 `QuarksParticleAura` 内逐步替换为更复杂的发射器配置。
 
+`SpatialRuntimeVisualizer` 在客户端使用 `ResizeObserver`、`window.resize` 和媒体查询监听运行舱尺寸变化。WebGL 不可用、减少动态效果、移动端或运行舱容器宽度低于 640px 时，组件直接渲染 `VisualizerFallback`；宽屏恢复后再切回动态加载的 `SpatialRuntimeCanvas`。这保证浏览器 resize 时不会留下被隐藏或清屏失败的 Canvas 空白层。
+
 阶段导航通过 `lib/curriculum/stage-space.ts` 生成阶段空间模型。左侧 `StageSidebar` 展示 10 个阶段入口，并仅展开当前阶段的可点击知识点，避免把完整课程列表一次性铺满导航；主内容区 `StageSpaceMap` 继续展示当前阶段的知识点和阶段项目。
 
 ## Data Model
