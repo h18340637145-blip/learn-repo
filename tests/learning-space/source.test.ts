@@ -8,7 +8,7 @@ test("LearningStudio 使用阶段空间组件替代全局课程切换器", () =>
   assert.match(source, /selectedStageId/);
   assert.match(source, /StageSidebar/);
   assert.match(source, /StageSpaceMap/);
-  assert.doesNotMatch(source, /publishedLessons\.map\(\(item, index\)/);
+  assert.doesNotMatch(source, /className="lesson-switcher"/);
 });
 
 test("LearningStudio 将课程 visualizer 传给空间运行实验舱", () => {
