@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  AchievementUnlock,
   CompletionBurst,
+  CursorSparks,
   EnergyRunway,
   ImmersiveBackdrop,
   NebulaProgress
@@ -146,6 +148,8 @@ export function LearningStudio() {
   return (
     <div className={`app-shell visual-${status}`}>
       <ImmersiveBackdrop status={status} progressPercent={progressPercent} />
+      <CursorSparks />
+      <span className="hud-scanline" aria-hidden="true" />
       <header className="topbar">
         <a className="brand" href="#top" aria-label="NodePath 首页">
           <span className="brand-mark">N<span>_</span></span>
@@ -157,7 +161,10 @@ export function LearningStudio() {
           <a href="#projects">项目</a>
         </nav>
         <div className="top-actions">
-          <div className="streak"><span>◆</span> 连续学习 7 天</div>
+          <div className="mission-hud">
+            <span>MISSION STATUS</span>
+            <strong>{status === "success" ? "知识芯片已解锁" : status === "running" ? "运行解码中" : "等待预测输入"}</strong>
+          </div>
           <button className="avatar" type="button" aria-label="打开个人中心">HX</button>
         </div>
       </header>
@@ -341,6 +348,11 @@ export function LearningStudio() {
           </section>
 
           <CompletionBurst visible={status === "success"} variant={completionVariant} />
+          <AchievementUnlock
+            lessonTitle={lesson.title}
+            visible={status === "success"}
+            variant={completionVariant}
+          />
 
           {status === "success" && (
             <section className="summary-panel">

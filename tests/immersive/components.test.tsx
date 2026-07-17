@@ -3,7 +3,9 @@ import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import {
+  AchievementUnlock,
   CompletionBurst,
+  CursorSparks,
   EnergyRunway,
   NebulaProgress
 } from "../../components/immersive";
@@ -69,4 +71,25 @@ test("CompletionBurst 输出项目完成反馈", () => {
   const html = renderToStaticMarkup(<CompletionBurst visible variant="project" />);
   assert.match(html, /completion-burst visible project/);
   assert.match(html, /阶段核心已激活/);
+});
+
+test("CursorSparks 输出鼠标火花画布", () => {
+  const html = renderToStaticMarkup(<CursorSparks />);
+
+  assert.match(html, /cursor-sparks/);
+  assert.match(html, /aria-hidden="true"/);
+});
+
+test("AchievementUnlock 输出游戏化成就解锁反馈", () => {
+  const lessonHtml = renderToStaticMarkup(
+    <AchievementUnlock lessonTitle="Node.js 与浏览器的边界" visible variant="lesson" />
+  );
+  const projectHtml = renderToStaticMarkup(
+    <AchievementUnlock lessonTitle="CLI 系统信息探测器" visible variant="project" />
+  );
+
+  assert.match(lessonHtml, /achievement-unlock visible lesson/);
+  assert.match(lessonHtml, /知识芯片已解锁/);
+  assert.match(lessonHtml, /Node\.js 与浏览器的边界/);
+  assert.match(projectHtml, /阶段徽章已铸造/);
 });

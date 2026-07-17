@@ -110,7 +110,7 @@ lib/immersive/visual-state.ts
   -> 学习状态到沉浸式视觉状态的纯函数映射
 
 components/immersive/*
-  -> Runtime Cockpit、Knowledge Nebula、EnergyRunway 和 CompletionBurst 视觉组件
+  -> Runtime Cockpit、Knowledge Nebula、EnergyRunway、CompletionBurst、CursorSparks 和 AchievementUnlock 视觉组件
 
 components/learning-space/*
   -> 左侧阶段入口和当前阶段课程星图
@@ -132,9 +132,11 @@ components/visualizers/*
 
 当前没有后端 API、数据库、认证或任意代码执行。已发布课程虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
 
-沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId` 和 `lesson.kind`。它不写入学习进度，不触发课程切换，也不执行学习者代码。
+沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId`、`lesson.kind` 和当前课程标题。它不写入学习进度，不触发课程切换，也不执行学习者代码。
 
-`ImmersiveBackdrop` 是当前唯一直接使用 Canvas 和 `window` 的 Client Component。其他沉浸式组件保持展示职责，只消费上层传入的视觉状态。
+`ImmersiveBackdrop` 和 `CursorSparks` 是当前直接使用 Canvas 和 `window` 的沉浸式 Client Component：前者渲染学习空间背景，后者渲染鼠标火花。它们都支持 `prefers-reduced-motion` 降级；其他沉浸式组件保持展示职责，只消费上层传入的视觉状态。
+
+`AchievementUnlock` 是纯展示的游戏化反馈组件。`LearningStudio` 在 `status === "success"` 时传入当前课程标题和 `lesson/project` variant，组件只展示“知识芯片解锁”或“阶段徽章铸造”，不负责写入进度或解锁课程。
 
 ### 空间可视化边界
 
@@ -199,6 +201,7 @@ nextLesson()
 
 - CSS custom properties define the palette.
 - Layout classes define top bar, sidebar, lesson panels, challenge, runtime visualizer, terminal, code-panel depth effects, knowledge orbit effects, and completion summary.
+- 全局固定视觉层（`space-backdrop`、`cursor-sparks`、`hud-scanline`）不得进入 `app-shell` 普通文档流；样式中同时通过普通层级选择器排除和直接子元素 fixed 规则保护，避免粒子画布或 HUD 扫描层在小屏顶部撑出留白。顶栏也通过 `.app-shell > .topbar` 保持 sticky，避免被普通层级选择器降级。
 - Progress bar width uses `--progress`.
 - Responsive breakpoints at `1050px` and `760px` adapt the workspace to tablet and mobile.
 - `prefers-reduced-motion` disables meaningful animation for reduced-motion users.

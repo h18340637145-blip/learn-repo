@@ -34,3 +34,11 @@ test("LearningStudio 代码面板提供 Chrome 可见标题和空间光晕", () 
   assert.match(source, /Node\.js 案例代码/);
   assert.match(source, /code-panel__aurora/);
 });
+
+test("LearningStudio 接入游戏化任务 HUD 和成就解锁反馈", () => {
+  assert.match(source, /CursorSparks/);
+  assert.match(source, /AchievementUnlock/);
+  assert.match(source, /className="mission-hud"/);
+  assert.match(source, /MISSION STATUS/);
+  assert.match(source, /lessonTitle=\{lesson\.title\}/);
+});

@@ -54,6 +54,7 @@ Core interaction:
 - 已新增阶段星图导航，课程不再全部平铺在全局导航中。
 - 已新增结构化 `execution.visualizer`，重点阶段映射到主题化 3D 场景。
 - 已新增 Three.js 运行舱、知识环绕轨道、粒子增强层和 WebGL / 减少动态效果 fallback。
+- 已新增游戏化 Mission HUD、鼠标火花、HUD 扫描线、3D hover 和成就解锁弹层。
 - Terminal panel shows simulated logs.
 - Summary appears after completion.
 - Completion is saved to browser local progress and restored after refresh.
@@ -74,6 +75,7 @@ Important product boundary:
 - 粒子增强依赖已声明：`three.quarks`、`three-nebula`、`proton-engine`；当前渲染路径保持稳定 Three.js points，并在运行场景保留专业粒子引擎桥接点。
 - WebGL 不可用、移动端或开启减少动态效果时，会使用 `VisualizerFallback` 保留可读运行顺序。
 - 浏览器 resize 或运行舱容器宽度不足时，`SpatialRuntimeVisualizer` 会重新评估并切换到深色 fallback，避免 3D Canvas 白屏或空白占位。
+- 成功完成课程时，`AchievementUnlock` 显示“知识芯片已解锁”；完成阶段项目时显示“阶段徽章已铸造”。这些反馈是纯前端展示，不改变进度模型。
 - 重点场景覆盖 HTTP 管线、服务边界、Worker 并发、实时星网、测试安全边界和诊断生产观测。
 - 当前实现仍使用确定性 authored traces，不执行学习者提交的任意 Node.js 代码。
 - 验证命令：`npm test`、`npx tsc --noEmit`、`npm run validate:curriculum`、`npm run lint`、`npm run build`、`git diff --check`。
@@ -102,7 +104,7 @@ Important product boundary:
 - `lib/execution/authored-trace.ts`: cancellable authored trace runner.
 - `lib/immersive/visual-state.ts`: 学习状态到沉浸式视觉状态的纯函数映射。
 - `lib/progress/*`: local progress repository boundary.
-- `components/immersive/*`: Runtime Cockpit、Knowledge Nebula、EnergyRunway、CompletionBurst 和相关视觉组件。
+- `components/immersive/*`: Runtime Cockpit、Knowledge Nebula、EnergyRunway、CompletionBurst、CursorSparks、AchievementUnlock 和相关视觉组件。
 - `components/learning-space/*`: 阶段入口和当前阶段星图组件。
 - `components/visualizers/*`: Three.js 运行舱、知识环绕运行场景、粒子增强层和 fallback。
 - `scripts/validate-curriculum.ts`: curriculum validation CLI.
@@ -112,6 +114,24 @@ Important product boundary:
 - `docs/ARTICHECTURE.md`: architecture harness.
 
 ## Validation History
+
+Latest targeted validation for the gamified interaction layer:
+
+```bash
+npx tsx --test tests/immersive/components.test.tsx tests/immersive/styles.test.ts tests/learning-space/source.test.ts -> pass. 16 tests, 16 pass, 0 fail.
+```
+
+Latest targeted validation for the top blank-space layout fix:
+
+```bash
+npx tsx --test tests/immersive/styles.test.ts -> pass. 5 tests, 5 pass, 0 fail.
+```
+
+Fix notes:
+
+- `app-shell` 普通层级选择器已排除 `cursor-sparks` 和 `hud-scanline`。
+- 同时新增 `.app-shell > .cursor-sparks` 与 `.app-shell > .hud-scanline` fixed 防护，避免固定粒子画布和 HUD 扫描线在小屏或样式热更新状态下变成普通文档流元素，撑出顶部大面积留白。
+- 新增 `.app-shell > .topbar` sticky 防护，避免同一普通层级选择器把顶部导航降级为 relative。
 
 Latest targeted validation for the responsive runtime visualizer fix:
 

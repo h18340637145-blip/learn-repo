@@ -70,3 +70,35 @@ test("沉浸式样式约束关键显示和层级行为", () => {
 
   assert.doesNotMatch(ruleFor(".app-shell"), /overflow:\s*hidden/);
 });
+
+test("游戏化交互样式包含成就弹层、鼠标火花和 HUD 扫描", () => {
+  for (const selector of [
+    ".cursor-sparks",
+    ".achievement-unlock",
+    ".achievement-unlock.visible",
+    ".mission-hud",
+    ".hud-scanline",
+    ".learning-grid > article:hover",
+    ".stage-node::after",
+  ]) {
+    assert.ok(css.includes(selector), `${selector} 应存在`);
+  }
+
+  assert.ok(css.includes("@keyframes achievement-pop"));
+  assert.ok(css.includes("@keyframes hud-scan"));
+});
+
+test("固定视觉图层不会参与 app-shell 普通文档流", () => {
+  assert.ok(
+    css.includes(
+      ".app-shell > :not(.space-backdrop, .cursor-sparks, .hud-scanline)",
+    ),
+    "app-shell 普通层级选择器应排除固定视觉图层，避免顶部被画布或 HUD 撑出留白",
+  );
+
+  assert.match(ruleFor(".cursor-sparks"), /position:\s*fixed/);
+  assert.match(ruleFor(".hud-scanline"), /position:\s*fixed/);
+  assert.match(ruleFor(".app-shell > .cursor-sparks"), /position:\s*fixed/);
+  assert.match(ruleFor(".app-shell > .hud-scanline"), /position:\s*fixed/);
+  assert.match(ruleFor(".app-shell > .topbar"), /position:\s*sticky/);
+});
