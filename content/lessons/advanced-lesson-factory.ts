@@ -105,7 +105,18 @@ function stageMeta(stageId: StageId): { number: number; label: string } {
     "process-concurrency": { number: 7, label: "进程与并发" },
     realtime: { number: 8, label: "实时通信" },
     "testing-security": { number: 9, label: "测试与安全" },
-    "diagnostics-production": { number: 10, label: "诊断与生产工程" }
+    "diagnostics-production": { number: 10, label: "诊断与生产工程" },
+    // Next.js stages
+    "nextjs-foundations": { number: 0, label: "Next.js 基础" },
+    "nextjs-routing": { number: 1, label: "路由系统" },
+    "nextjs-rendering": { number: 2, label: "渲染模式" },
+    "nextjs-data-fetching": { number: 3, label: "数据获取" },
+    "nextjs-styling-optimization": { number: 4, label: "样式与优化" },
+    "nextjs-api-routes": { number: 5, label: "API 路由与中间件" },
+    "nextjs-auth-middleware": { number: 6, label: "认证与会话" },
+    "nextjs-database": { number: 7, label: "数据库与 ORM" },
+    "nextjs-testing-deployment": { number: 8, label: "测试与部署" },
+    "nextjs-advanced-patterns": { number: 9, label: "高级模式" }
   };
 
   return meta[stageId];

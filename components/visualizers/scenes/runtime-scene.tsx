@@ -23,7 +23,14 @@ const colorByType: Record<VisualizerSpec["type"], string> = {
   "worker-pool": "#ffad66",
   "realtime-mesh": "#7c5cff",
   "quality-shield": "#b8ff85",
-  "diagnostics-tower": "#ff6bcb"
+  "diagnostics-tower": "#ff6bcb",
+  // Next.js visualizers
+  "nextjs-render-pipeline": "#6ee7ff",
+  "nextjs-routing-tree": "#9fe870",
+  "nextjs-component-boundary": "#ffd166",
+  "nextjs-data-flow": "#7c5cff",
+  "nextjs-middleware-chain": "#ffad66",
+  "nextjs-build-output": "#b8ff85"
 };
 
 function nodePosition(index: number, total: number): [number, number, number] {

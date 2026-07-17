@@ -1,4 +1,7 @@
+export type CourseId = "nodejs" | "nextjs";
+
 export type StageId =
+  // Node.js stages
   | "foundations"
   | "runtime-cli"
   | "modules-packages"
@@ -9,7 +12,18 @@ export type StageId =
   | "process-concurrency"
   | "realtime"
   | "testing-security"
-  | "diagnostics-production";
+  | "diagnostics-production"
+  // Next.js stages
+  | "nextjs-foundations"
+  | "nextjs-routing"
+  | "nextjs-rendering"
+  | "nextjs-data-fetching"
+  | "nextjs-styling-optimization"
+  | "nextjs-api-routes"
+  | "nextjs-auth-middleware"
+  | "nextjs-database"
+  | "nextjs-testing-deployment"
+  | "nextjs-advanced-patterns";
 
 export type LessonKind = "knowledge" | "stage-project" | "final-project";
 export type LessonStatus = "published" | "planned";
@@ -24,7 +38,14 @@ export type VisualizerType =
   | "quality-shield"
   | "diagnostics-tower"
   | "stage-project-core"
-  | "generic-particle-flow";
+  | "generic-particle-flow"
+  // Next.js visualizers
+  | "nextjs-render-pipeline"
+  | "nextjs-routing-tree"
+  | "nextjs-component-boundary"
+  | "nextjs-data-flow"
+  | "nextjs-middleware-chain"
+  | "nextjs-build-output";
 
 export type VisualizerSpec = {
   type: VisualizerType;
@@ -47,6 +68,14 @@ export type CurriculumStage = {
   summary: string;
   lessons: readonly CatalogLesson[];
   project: CatalogLesson;
+};
+
+export type CourseSpec = {
+  id: CourseId;
+  title: string;
+  description: string;
+  icon: string;
+  stages: readonly CurriculumStage[];
 };
 
 export type LessonSource = {

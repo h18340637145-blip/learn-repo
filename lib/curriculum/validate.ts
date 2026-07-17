@@ -1,4 +1,4 @@
-import type { CurriculumStage, LessonSpec } from "./types";
+import type { CourseSpec, CurriculumStage, LessonSpec } from "./types";
 
 export function validateLessonSpec(lesson: LessonSpec): string[] {
   const errors: string[] = [];
@@ -23,6 +23,35 @@ export function validateLessonSpec(lesson: LessonSpec): string[] {
   return errors;
 }
 
+/** Validate a single course catalog (variable stage count). */
+export function validateCourseCatalog(course: CourseSpec): string[] {
+  const errors: string[] = [];
+  const ids = new Set<string>();
+
+  if (course.stages.length === 0) errors.push(`课程 ${course.id} 没有阶段`);
+  if (course.id === "nodejs" && course.stages.length !== 11) {
+    errors.push(`课程 ${course.id} 应有 11 个阶段，实际为 ${course.stages.length}`);
+  }
+  if (course.id === "nextjs" && course.stages.length !== 10) {
+    errors.push(`课程 ${course.id} 应有 10 个阶段，实际为 ${course.stages.length}`);
+  }
+
+  course.stages.forEach((stage, index) => {
+    if (stage.number !== index) errors.push(`课程 ${course.id} 阶段 ${stage.id} 的编号应为 ${index}`);
+    if (stage.lessons.length !== 8) errors.push(`课程 ${course.id} 阶段 ${stage.id} 应有 8 个知识点`);
+    for (const item of [...stage.lessons, stage.project]) {
+      if (ids.has(item.id)) errors.push(`课程 ${course.id} ID 重复：${item.id}`);
+      ids.add(item.id);
+    }
+  });
+
+  return errors;
+}
+
+/**
+ * Backward-compatible: validate the Node.js catalog which must have exactly 11 stages.
+ * This wraps validateCourseCatalog with the extra 11-stage constraint.
+ */
 export function validateCatalog(stages: readonly CurriculumStage[]): string[] {
   const errors: string[] = [];
   const ids = new Set<string>();

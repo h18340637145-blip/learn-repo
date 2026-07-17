@@ -1,7 +1,7 @@
 import type { LessonKind, LessonSpec, LessonSource, QuestionType, VisualizerSpec } from "../../lib/curriculum/types";
 import { getDefaultVisualizer } from "../../lib/curriculum/visualizers";
 
-type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVersion" | "execution" | "kind" | "questions" | "sources"> & {
+export type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVersion" | "execution" | "kind" | "questions" | "sources"> & {
   answer: {
     type?: QuestionType;
     prompt: string;
@@ -16,6 +16,7 @@ type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVers
   durationMinutes?: number;
   difficulty?: LessonSpec["difficulty"];
   kind?: LessonKind;
+  nodeVersion?: string;
 };
 
 export function createLessonSpec(input: LessonInput): LessonSpec {
@@ -30,7 +31,7 @@ export function createLessonSpec(input: LessonInput): LessonSpec {
     title: input.title,
     durationMinutes: input.durationMinutes ?? 9,
     difficulty: input.difficulty ?? "基础",
-    nodeVersion: "24.x LTS",
+    nodeVersion: input.nodeVersion ?? "24.x LTS",
     objectives: input.objectives,
     prerequisites: input.prerequisites,
     concept: input.concept,

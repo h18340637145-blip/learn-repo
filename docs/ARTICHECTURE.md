@@ -2,19 +2,29 @@
 
 ## Snapshot
 
-NodePath 是一个 Next.js 16 App Router 单页学习应用。当前页面仍渲染在 `/`，但课程数据、执行逻辑和进度存储已经从 UI 组件中拆出。
+NodePath 是一个 Next.js 16 App Router 多课程学习应用。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别渲染独立学习工作台；课程数据、执行逻辑和进度存储已经从 UI 组件中拆出。
 
 ```text
 app/layout.tsx
   -> app/page.tsx
-    -> app/learning-studio.tsx
-      -> content/curriculum.ts
+      -> course selection cards
+  -> app/nodejs/page.tsx
+    -> app/nodejs/learning-studio.tsx
+      -> app/_components/learning-studio.tsx
+      -> content/curriculum-registry.ts
       -> content/lesson-registry.ts
-      -> lib/curriculum/stage-space.ts
-      -> lib/execution/authored-trace.ts
-      -> lib/progress/*
-      -> components/learning-space/*
-      -> components/visualizers/*
+  -> app/nextjs/page.tsx
+    -> app/nextjs/learning-studio.tsx
+      -> app/_components/learning-studio.tsx
+      -> content/curriculum-registry.ts
+      -> content/lesson-registry.ts
+
+app/_components/learning-studio.tsx
+  -> lib/curriculum/stage-space.ts
+  -> lib/execution/authored-trace.ts
+  -> lib/progress/*
+  -> components/learning-space/*
+  -> components/visualizers/*
 
 app/globals.css
   -> global design tokens
@@ -30,7 +40,7 @@ app/globals.css
 - Tailwind CSS v4 via `@import "tailwindcss"`
 - ESLint flat config
 
-This project uses the App Router. `app/layout.tsx` and `app/page.tsx` are Server Components by default. `app/learning-studio.tsx` is a Client Component because it uses state, event handlers, animation control, and browser `localStorage`.
+This project uses the App Router. `app/layout.tsx`, `app/page.tsx`, `app/nodejs/page.tsx` and `app/nextjs/page.tsx` are Server Components by default. `app/_components/learning-studio.tsx` and per-course `learning-studio.tsx` wrappers are Client Components because they use state, event handlers, animation control, and browser `localStorage`.
 
 Before changing framework behavior, check the local docs under:
 
@@ -44,11 +54,20 @@ node_modules/next/dist/docs/
 content/curriculum.ts
   -> 00 基础训练营和 10 个正式阶段、88 个计划知识点、11 个阶段项目的课程主目录
 
+content/curriculum-nextjs.ts
+  -> Next.js 10 个阶段、80 个计划知识点、10 个阶段项目的课程主目录；阶段 00 已发布，其余阶段为 planned
+
+content/curriculum-registry.ts
+  -> 聚合 Node.js 与 Next.js CourseSpec，提供 allCourses 和 getCourse(courseId)
+
 content/legacy-lessons.ts
   -> 从原型迁移来的 4 个旧案例原始内容
 
 content/lessons/lesson-factory.ts
-  -> 生成标准 LessonSpec，统一 nodeVersion、题目结构、authored trace 和来源日期
+  -> 生成标准 LessonSpec，统一默认运行环境标签、题目结构、authored trace 和来源日期
+
+content/lessons/nextjs/nextjs-lesson-factory.ts
+  -> Next.js 专属 LessonSpec 工厂，默认运行环境标签为 Next.js 16.x
 
 content/lessons/advanced-lesson-factory.ts
   -> 为阶段 05–10 提供精简课程工厂，内部仍生成标准 LessonSpec
@@ -83,16 +102,20 @@ content/lessons/stage-09-testing-security.ts
 content/lessons/stage-10-diagnostics-production.ts
   -> 阶段 10：Inspector、CPU/内存/GC/火焰图、性能基线、可观测性、发布事故和生产诊断项目
 
+content/lessons/nextjs/stage-00-foundations.ts
+  -> Next.js 阶段 00：框架定位、App Router、页面与动态路由、布局、Server Components、Client Components、Link 预取、环境变量和多页个人主页
+
 content/lesson-registry.ts
   -> 已发布课程注册表
   -> 聚合阶段 00–03、05–10 正式课程
   -> 保留阶段 04 旧案例到 LessonSpec 的迁移适配
+  -> 导出 Node.js 兼容别名 publishedLessons、nextjsPublishedLessons 和 getLessonsByCourse(courseId)
 
 lib/curriculum/types.ts
-  -> 课程目录、课程规格、题目、来源、运行帧类型
+  -> CourseId、CourseSpec、课程目录、题目、来源、运行帧和 Next.js 可视化类型
 
 lib/curriculum/validate.ts
-  -> 无副作用课程校验函数，校验 00–10 共 11 个阶段、每阶段 8 个知识点和 1 个阶段项目
+  -> 无副作用课程校验函数；Node.js 校验 11 个阶段，Next.js 校验 10 个阶段，每阶段 8 个知识点和 1 个阶段项目
 
 lib/curriculum/view-model.ts
   -> 课程目录 + 进度 -> 侧边栏路线视图模型
@@ -107,7 +130,7 @@ lib/execution/authored-trace.ts
   -> 可取消的预设轨迹异步生成器
 
 lib/progress/*
-  -> 与 UI 解耦的本地进度仓储
+  -> 与 UI 解耦的本地进度仓储；按 courseId 隔离 localStorage key，并在 ProgressSnapshot 中保留 courseId
 
 lib/immersive/visual-state.ts
   -> 学习状态到沉浸式视觉状态的纯函数映射
@@ -120,6 +143,9 @@ components/learning-space/*
 
 components/visualizers/*
   -> Three.js 运行舱、知识环绕场景、粒子增强层和 WebGL / 减少动态效果 fallback
+
+app/_components/learning-studio.tsx
+  -> 共享课程工作台 Client Component，通过 CourseConfig 接收课程、目录、代码标签、终端命令和课程切换信息
 ```
 
 ## Runtime Boundaries
@@ -135,7 +161,7 @@ components/visualizers/*
 
 当前没有后端 API、数据库、认证或任意代码执行。已发布课程虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
 
-沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId`、`lesson.kind` 和当前课程标题。它不写入学习进度，不触发课程切换，也不执行学习者代码。
+沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId`、`lesson.kind` 和当前课程标题。它不写入学习进度，不执行学习者代码；课程切换由 App Router 链接 `/nodejs` / `/nextjs` 处理。
 
 `ImmersiveBackdrop` 和 `CursorSparks` 是当前直接使用 Canvas 和 `window` 的沉浸式 Client Component：前者渲染学习空间背景，后者渲染鼠标火花。它们都支持 `prefers-reduced-motion` 降级；其他沉浸式组件保持展示职责，只消费上层传入的视觉状态。
 
@@ -149,7 +175,7 @@ components/visualizers/*
 
 `SpatialRuntimeVisualizer` 在客户端使用 `ResizeObserver`、`window.resize` 和媒体查询监听运行舱尺寸变化。WebGL 不可用、减少动态效果、移动端或运行舱容器宽度低于 640px 时，组件直接渲染 `VisualizerFallback`；宽屏恢复后再切回动态加载的 `SpatialRuntimeCanvas`。这保证浏览器 resize 时不会留下被隐藏或清屏失败的 Canvas 空白层。
 
-阶段导航通过 `lib/curriculum/stage-space.ts` 生成阶段空间模型。左侧 `StageSidebar` 展示 00 基础训练营和 10 个正式阶段入口，并仅展开当前阶段的可点击知识点，避免把完整课程列表一次性铺满导航；主内容区 `StageSpaceMap` 继续展示当前阶段的知识点和阶段项目。
+阶段导航通过 `lib/curriculum/stage-space.ts` 生成阶段空间模型。左侧 `StageSidebar` 展示当前课程的阶段入口，并仅展开当前阶段的可点击知识点，避免把完整课程列表一次性铺满导航；主内容区 `StageSpaceMap` 继续展示当前阶段的知识点和阶段项目。Next.js 路线复用同一阶段导航模型，展示 10 个 Next.js 阶段。
 
 ## Data Model
 
@@ -176,6 +202,19 @@ components/visualizers/*
 - 每阶段 8 个 `CatalogLesson`。
 - 每阶段 1 个 `stage-project`。
 - `status` 区分 `published` 与 `planned`。
+
+课程集合使用 `CourseSpec`：
+
+- `id`: 当前为 `nodejs` 或 `nextjs`。
+- `title`, `description`, `icon`: 课程选择与工作台展示元数据。
+- `stages`: 对应课程的 `CurriculumStage[]`。
+
+进度使用 `ProgressSnapshot`：
+
+- `courseId`: 进度所属课程。
+- Node.js 使用兼容 key `nodepath.progress.v1`。
+- Next.js 使用 `nodepath.progress.nextjs.v1`。
+- 损坏或旧格式进度会按当前课程回退为空快照。
 
 ## State Flow
 

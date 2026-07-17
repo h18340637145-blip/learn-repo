@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 
 import {
   AchievementUnlock,
@@ -12,10 +13,8 @@ import {
 } from "@/components/immersive";
 import { StageSidebar, StageSpaceMap } from "@/components/learning-space";
 import { SpatialRuntimeVisualizer } from "@/components/visualizers";
-import { curriculum } from "@/content/curriculum";
-import { publishedLessons } from "@/content/lesson-registry";
 import { buildStageSpaces } from "@/lib/curriculum/stage-space";
-import type { RunnerFrame, StageId } from "@/lib/curriculum/types";
+import type { CurriculumStage, LessonSpec, RunnerFrame, StageId } from "@/lib/curriculum/types";
 import { buildRoadmap } from "@/lib/curriculum/view-model";
 import { streamAuthoredTrace } from "@/lib/execution/authored-trace";
 import { getBrowserProgressRepository } from "@/lib/progress/browser-progress-repository";
@@ -24,14 +23,28 @@ import { emptyProgress, type ProgressSnapshot } from "@/lib/progress/types";
 const delay = (milliseconds: number) =>
   new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 
-export function LearningStudio() {
-  const [lessonIndex, setLessonIndex] = useState(1);
-  const [selectedStageId, setSelectedStageId] = useState<StageId>(publishedLessons[1]?.stageId ?? "runtime-cli");
+type CourseConfig = {
+  courseId: "nodejs" | "nextjs";
+  courseTitle: string;
+  sidebarTitle: string;
+  codeLabel: string;
+  terminalPrefix: (entryFile: string) => string;
+  curriculum: readonly CurriculumStage[];
+  publishedLessons: LessonSpec[];
+  finalProjectTitle: string;
+  finalProjectTags: string;
+  peerCourse: { id: string; title: string; href: string };
+};
+
+export function CourseLearningStudio({ config }: { config: CourseConfig }) {
+  const { courseId, courseTitle, sidebarTitle, codeLabel, terminalPrefix, curriculum, publishedLessons, finalProjectTitle, finalProjectTags, peerCourse } = config;
+  const [lessonIndex, setLessonIndex] = useState(0);
+  const [selectedStageId, setSelectedStageId] = useState<StageId>(publishedLessons[0]?.stageId ?? curriculum[0].id);
   const [selected, setSelected] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "running" | "wrong" | "success">("idle");
   const [frameIndex, setFrameIndex] = useState(-1);
   const [frame, setFrame] = useState<RunnerFrame | null>(null);
-  const [progress, setProgress] = useState<ProgressSnapshot>(emptyProgress);
+  const [progress, setProgress] = useState<ProgressSnapshot>(() => emptyProgress(courseId));
   const activeRun = useRef<AbortController | null>(null);
   const lesson = publishedLessons[lessonIndex]!;
   const question = lesson.questions[0]!;
@@ -39,14 +52,14 @@ export function LearningStudio() {
   const frames = lesson.execution.frames;
   const isProject = lesson.kind === "stage-project";
   const codeFile = lesson.files.find((file) => file.name === lesson.entryFile) ?? lesson.files[0]!;
-  const roadmap = useMemo(() => buildRoadmap(curriculum, progress), [progress]);
+  const roadmap = useMemo(() => buildRoadmap(curriculum, progress), [curriculum, progress]);
   const stageSpaces = useMemo(
     () => buildStageSpaces(curriculum, publishedLessons, progress),
-    [progress]
+    [curriculum, publishedLessons, progress]
   );
   const lessonIndexById = useMemo(
     () => new Map(publishedLessons.map((item, index) => [item.id, index])),
-    []
+    [publishedLessons]
   );
   const publishedCount = publishedLessons.length;
   const completedCount = progress.completedLessonIds.length + progress.completedProjectIds.length;
@@ -71,11 +84,11 @@ export function LearningStudio() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setProgress(getBrowserProgressRepository().load());
+      setProgress(getBrowserProgressRepository(courseId).load());
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [courseId]);
 
   function openLesson(index: number) {
     cancelRun();
@@ -136,7 +149,7 @@ export function LearningStudio() {
     if (!controller.signal.aborted) {
       activeRun.current = null;
       setStatus("success");
-      const repository = getBrowserProgressRepository();
+      const repository = getBrowserProgressRepository(courseId);
       setProgress((current) => lesson.kind === "stage-project"
         ? repository.completeProject(current, lesson.id)
         : repository.completeLesson(current, lesson.id));
@@ -151,12 +164,13 @@ export function LearningStudio() {
       <CursorSparks />
       <span className="hud-scanline" aria-hidden="true" />
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="NodePath 首页">
+        <Link className="brand" href="/" aria-label="NodePath 首页">
           <span className="brand-mark">N<span>_</span></span>
           <span>NodePath</span>
-        </a>
+        </Link>
         <nav className="main-nav" aria-label="主导航">
-          <a className="is-current" href="#learn">学习</a>
+          <Link className="is-current" href={`/${courseId}`}>{courseTitle}</Link>
+          <Link href={peerCourse.href}>{peerCourse.title}</Link>
           <a href="#roadmap">路线</a>
           <a href="#projects">项目</a>
         </nav>
@@ -174,7 +188,7 @@ export function LearningStudio() {
           <div className="sidebar-heading">
             <div>
               <span className="kicker">LEARNING PATH</span>
-              <h2>Node.js 全栈路线</h2>
+              <h2>{sidebarTitle}</h2>
             </div>
             <span className="progress-number">{progressPercent}%</span>
           </div>
@@ -204,8 +218,8 @@ export function LearningStudio() {
 
           <div className="final-project">
             <span className="kicker">FINAL PROJECT</span>
-            <strong>实时协作任务平台</strong>
-            <p>API · 数据流 · 鉴权 · 测试 · 部署</p>
+            <strong>{finalProjectTitle}</strong>
+            <p>{finalProjectTags}</p>
             <span className="locked-label">完成全部路线后解锁</span>
           </div>
         </aside>
@@ -265,15 +279,15 @@ export function LearningStudio() {
             <article className="code-panel">
               <span className="code-panel__aurora" aria-hidden="true" />
               <div className="code-panel__title">
-                <span>Node.js 案例代码</span>
+                <span>{codeLabel}</span>
                 <strong>{lesson.entryFile}</strong>
               </div>
               <div className="code-toolbar">
                 <div><i /><i /><i /></div>
                 <span>{lesson.entryFile}</span>
-                <span className="node-version">Node {lesson.nodeVersion}</span>
+                <span className="node-version">{lesson.nodeVersion}</span>
               </div>
-              <pre aria-label="Node.js 案例代码"><code>{codeFile.code}</code></pre>
+              <pre aria-label={codeLabel}><code>{codeFile.code}</code></pre>
             </article>
           </div>
 
@@ -308,7 +322,7 @@ export function LearningStudio() {
             {status === "wrong" && selectedOption && (
               <p className="feedback wrong-feedback">{selectedOption.feedback}</p>
             )}
-            {status === "running" && <p className="feedback running-feedback"><span /> Node.js 正在解析并执行案例…</p>}
+            {status === "running" && <p className="feedback running-feedback"><span /> {courseTitle} 正在解析并执行案例…</p>}
           </section>
 
           <EnergyRunway status={status} />
@@ -329,9 +343,9 @@ export function LearningStudio() {
                 visualizer={lesson.execution.visualizer}
               />
               <div className="terminal">
-                <div className="terminal-bar"><span>CONSOLE</span><span>{status === "success" ? "exit 0" : `node ${lesson.entryFile}`}</span></div>
+                <div className="terminal-bar"><span>CONSOLE</span><span>{status === "success" ? "exit 0" : terminalPrefix(lesson.entryFile)}</span></div>
                 <div className="terminal-output">
-                  <span className="command">$ node {lesson.entryFile}</span>
+                  <span className="command">{terminalPrefix(lesson.entryFile)}</span>
                   {(frame?.log ?? []).map((line, index) => <span key={`${line}-${index}`}><i>{String(index + 1).padStart(2, "0")}</i>{line}</span>)}
                   {status === "running" && <span className="cursor">▋</span>}
                   {!frame && <span className="terminal-placeholder">正确回答后，这里会显示真实执行顺序</span>}

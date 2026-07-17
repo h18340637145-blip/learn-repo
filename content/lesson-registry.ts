@@ -11,6 +11,8 @@ import { stageSevenProcessConcurrencyLessons } from "./lessons/stage-07-process-
 import { stageEightRealtimeLessons } from "./lessons/stage-08-realtime";
 import { stageNineTestingSecurityLessons } from "./lessons/stage-09-testing-security";
 import { stageTenDiagnosticsProductionLessons } from "./lessons/stage-10-diagnostics-production";
+// Next.js lessons
+import { nextjsStageZeroFoundationsLessons } from "./lessons/nextjs/stage-00-foundations";
 
 type MigrationMetadata = {
   id: string;
@@ -142,6 +144,7 @@ const legacyStageFourLessons = legacyLessons
   .filter((legacy) => legacy.id === "streams" || legacy.id === "stage-project")
   .map(migrateLesson);
 
+// ── Node.js published lessons ──────────────────────────────
 export const publishedLessons = [
   stageZeroFoundationsLessons,
   stageOneRuntimeCliLessons,
@@ -155,8 +158,25 @@ export const publishedLessons = [
   stageNineTestingSecurityLessons,
   stageTenDiagnosticsProductionLessons
 ].flat() satisfies LessonSpec[];
+
 const lessonById = new Map(publishedLessons.map((lesson) => [lesson.id, lesson]));
 
 export function getLesson(id: string): LessonSpec | undefined {
   return lessonById.get(id);
+}
+
+// ── Next.js published lessons ──────────────────────────────
+export const nextjsPublishedLessons = [
+  nextjsStageZeroFoundationsLessons
+].flat() satisfies LessonSpec[];
+
+const nextjsLessonById = new Map(nextjsPublishedLessons.map((lesson) => [lesson.id, lesson]));
+
+export function getNextjsLesson(id: string): LessonSpec | undefined {
+  return nextjsLessonById.get(id);
+}
+
+// ── Course-based access ────────────────────────────────────
+export function getLessonsByCourse(courseId: "nodejs" | "nextjs"): LessonSpec[] {
+  return courseId === "nextjs" ? nextjsPublishedLessons : publishedLessons;
 }

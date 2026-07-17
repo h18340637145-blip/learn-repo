@@ -2,7 +2,7 @@
 
 ## Current State
 
-Project: NodePath, a visual Node.js learning website built on Next.js 16.
+Project: NodePath, a visual Node.js / Next.js learning website built on Next.js 16.
 
 Current branch:
 
@@ -10,7 +10,7 @@ Current branch:
 codex/nodepath-particle-world
 ```
 
-当前应用是带沉浸式视觉层的课程驱动学习原型。UI 仍在 `/` 渲染学习工作台，但课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。阶段 00–03、05–10 已完整发布 Node.js 学习内容和阶段项目，阶段 04 当前保留两个已发布案例。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 阶段 00 已发布 8 个知识点和阶段项目。
 
 ## What Exists
 
@@ -20,6 +20,9 @@ Curriculum foundation:
 - 88 knowledge points.
 - 11 stage projects.
 - 92 currently published playable cases.
+- Next.js 路线包含 10 个阶段、80 个计划知识点、10 个阶段项目。
+- Next.js 阶段 00 已发布 9 个 playable cases。
+- 当前总计 101 个已发布 playable cases。
 
 Published cases:
 
@@ -37,6 +40,8 @@ Published cases:
 
 Core interaction:
 
+- `/` 展示 Node.js 与 Next.js 课程卡片。
+- `/nodejs` 与 `/nextjs` 都复用 `app/_components/learning-studio.tsx` 共享工作台。
 - Learner reads concept and code.
 - Learner chooses an answer.
 - Wrong answer shows option-specific feedback.
@@ -50,6 +55,7 @@ Core interaction:
 - Terminal panel shows simulated logs.
 - Summary appears after completion.
 - Completion is saved to browser local progress and restored after refresh.
+- ProgressSnapshot 按 `courseId` 隔离，Node.js 与 Next.js 进度互不污染。
 - 支持 `prefers-reduced-motion` 降级。
 
 Important product boundary:
@@ -75,6 +81,8 @@ Important product boundary:
 ## Important Files
 
 - `content/curriculum.ts`: 00 基础训练营 + 10-stage/88-point master curriculum catalog.
+- `content/curriculum-nextjs.ts`: Next.js 10-stage/80-point catalog.
+- `content/curriculum-registry.ts`: Node.js / Next.js CourseSpec registry.
 - `content/legacy-lessons.ts`: migrated original 4 prototype cases.
 - `content/lessons/lesson-factory.ts`: helper for standard LessonSpec creation.
 - `content/lessons/stage-00-foundations.ts`: complete stage 00 foundations bootcamp content.
@@ -88,7 +96,9 @@ Important product boundary:
 - `content/lessons/stage-08-realtime.ts`: complete stage 08 content.
 - `content/lessons/stage-09-testing-security.ts`: complete stage 09 content.
 - `content/lessons/stage-10-diagnostics-production.ts`: complete stage 10 content.
-- `content/lesson-registry.ts`: published lesson registry, stage 00–03 and 05–10 aggregation, and stage 04 migration metadata.
+- `content/lessons/nextjs/nextjs-lesson-factory.ts`: Next.js lesson factory with `Next.js 16.x` runtime label.
+- `content/lessons/nextjs/stage-00-foundations.ts`: complete Next.js stage 00 foundations content.
+- `content/lesson-registry.ts`: published lesson registry, Node.js aggregation, Next.js aggregation, and stage 04 migration metadata.
 - `lib/curriculum/types.ts`: shared curriculum and lesson types.
 - `lib/curriculum/validate.ts`: catalog and lesson validators.
 - `lib/curriculum/view-model.ts`: roadmap view model.
@@ -101,12 +111,30 @@ Important product boundary:
 - `components/learning-space/*`: 阶段入口和当前阶段星图组件。
 - `components/visualizers/*`: Three.js 运行舱、知识环绕运行场景、粒子增强层和 fallback。
 - `scripts/validate-curriculum.ts`: curriculum validation CLI.
-- `app/learning-studio.tsx`: client learning studio consuming registry, roadmap, runner, and progress.
+- `app/page.tsx`: course selection home.
+- `app/_components/learning-studio.tsx`: shared client learning studio consuming registry, roadmap, runner, and progress.
+- `app/nodejs/page.tsx`, `app/nodejs/learning-studio.tsx`: Node.js route wrapper.
+- `app/nextjs/page.tsx`, `app/nextjs/learning-studio.tsx`: Next.js route wrapper.
 - `app/globals.css`: visual system and responsive behavior.
 - `docs/PRODUCT.md`: product and curriculum harness.
 - `docs/ARTICHECTURE.md`: architecture harness.
 
 ## Validation History
+
+Latest targeted validation for the Next.js route expansion:
+
+```bash
+npm test -- tests/curriculum/course-registry.test.ts tests/curriculum/nextjs-foundations.test.ts tests/progress/local-progress-repository.test.ts -> pass. 78 tests, 78 pass, 0 fail.
+npm test -- tests/learning-studio/course-routing.test.ts tests/learning-space/source.test.ts tests/learning-studio/sidebar-navigation.test.ts -> pass. 81 tests, 81 pass, 0 fail.
+```
+
+Implementation notes:
+
+- 新增 `content/curriculum-registry.ts` 聚合 Node.js 与 Next.js 课程。
+- Next.js 阶段 00 使用 `createNextjsLessonSpec()`，运行环境标签为 `Next.js 16.x`。
+- 进度仓储现在按课程隔离 localStorage key，并在快照中保留 `courseId`。
+- 删除旧 `app/learning-studio.tsx` 重复实现，路由工作台统一走 `app/_components/learning-studio.tsx`。
+- `scripts/validate-curriculum.ts` 现在从 `allCourses` 动态校验多课程目录。
 
 Latest automatic validation for the stage 00 foundations bootcamp:
 

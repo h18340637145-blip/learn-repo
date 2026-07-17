@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const source = readFileSync("app/learning-studio.tsx", "utf8");
+const source = readFileSync("app/_components/learning-studio.tsx", "utf8");
 
 test("左侧路线单元和知识点都能点击跳转到课程", () => {
   assert.match(source, /lessonIndexById/);

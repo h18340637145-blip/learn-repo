@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const source = readFileSync("app/learning-studio.tsx", "utf8");
+const source = readFileSync("app/_components/learning-studio.tsx", "utf8");
 
 test("LearningStudio 使用阶段空间组件替代全局课程切换器", () => {
   assert.match(source, /selectedStageId/);
@@ -31,7 +31,7 @@ test("LearningStudio 答案选项包含空间粒子层", () => {
 
 test("LearningStudio 代码面板提供 Chrome 可见标题和空间光晕", () => {
   assert.match(source, /code-panel__title/);
-  assert.match(source, /Node\.js 案例代码/);
+  assert.match(source, /codeLabel/);
   assert.match(source, /code-panel__aurora/);
 });
 
