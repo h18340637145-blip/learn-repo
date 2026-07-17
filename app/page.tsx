@@ -1,9 +1,9 @@
 import Link from "next/link";
+import { KnowledgeNetwork } from "@/components/immersive";
 
 export default function Home() {
   return (
     <div className="course-home">
-      <div className="course-starfield" aria-hidden="true" />
       <header className="course-hero">
         <div className="course-hero__brand">
           <span className="brand-mark">N<span>_</span></span>
@@ -44,6 +44,8 @@ export default function Home() {
           <span className="course-card__cta">开始学习 <span>→</span></span>
         </Link>
       </section>
+
+      <KnowledgeNetwork />
 
       <footer className="course-footer">
         <p>先预测，再运行。用可视化建立你的心智模型。</p>

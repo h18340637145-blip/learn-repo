@@ -41,6 +41,7 @@ Published cases:
 Core interaction:
 
 - `/` 展示 Node.js 与 Next.js 课程卡片。
+- 首页课程卡片下方现在有独立“知识点连接星链”底部展厅，知识核心球进一步放大铺满展厅空间且隐藏中心文字，知识点球保持当前尺寸并以内嵌文字环绕核心呈现。
 - `/nodejs` 与 `/nextjs` 都复用 `app/_components/learning-studio.tsx` 共享工作台。
 - Learner reads concept and code.
 - Learner chooses an answer.

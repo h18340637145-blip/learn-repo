@@ -323,6 +323,13 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
               <p className="feedback wrong-feedback">{selectedOption.feedback}</p>
             )}
             {status === "running" && <p className="feedback running-feedback"><span /> {courseTitle} 正在解析并执行案例…</p>}
+            {status === "success" && selectedOption && (
+              <div className="feedback success-feedback" style={{ marginTop: "24px", padding: "16px", borderRadius: "12px", background: "rgba(159, 232, 112, 0.08)", border: "1px solid rgba(159, 232, 112, 0.3)" }}>
+                <h3 style={{ color: "var(--green-bright)", fontSize: "12px", margin: "0 0 8px" }}>解析详情：</h3>
+                <p style={{ color: "#dbe7f5", fontSize: "11px", lineHeight: "1.6", margin: "0 0 8px" }}><strong style={{ color: "var(--green)" }}>反馈：</strong>{selectedOption.feedback}</p>
+                <p style={{ color: "#aab2bf", fontSize: "11px", lineHeight: "1.6", margin: "0" }}><strong style={{ color: "var(--cyan)" }}>深度解析：</strong>{question.correctExplanation}</p>
+              </div>
+            )}
           </section>
 
           <EnergyRunway status={status} />
