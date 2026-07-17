@@ -11,7 +11,7 @@ import {
 import { curriculum } from "@/content/curriculum";
 import { publishedLessons } from "@/content/lesson-registry";
 import type { RunnerFrame } from "@/lib/curriculum/types";
-import { buildRoadmap } from "@/lib/curriculum/view-model";
+import { buildRoadmap, type RoadmapStage } from "@/lib/curriculum/view-model";
 import { streamAuthoredTrace } from "@/lib/execution/authored-trace";
 import { getBrowserProgressRepository } from "@/lib/progress/browser-progress-repository";
 import { emptyProgress, type ProgressSnapshot } from "@/lib/progress/types";
@@ -35,6 +35,10 @@ export function LearningStudio() {
   const isProject = lesson.kind === "stage-project";
   const codeFile = lesson.files.find((file) => file.name === lesson.entryFile) ?? lesson.files[0]!;
   const roadmap = useMemo(() => buildRoadmap(curriculum, progress), [progress]);
+  const lessonIndexById = useMemo(
+    () => new Map(publishedLessons.map((item, index) => [item.id, index])),
+    []
+  );
   const publishedCount = publishedLessons.length;
   const completedCount = progress.completedLessonIds.length + progress.completedProjectIds.length;
   const progressPercent = publishedCount === 0 ? 0 : Math.round((completedCount / publishedCount) * 100);
@@ -66,6 +70,24 @@ export function LearningStudio() {
     setStatus("idle");
     setFrameIndex(-1);
     setFrame(null);
+  }
+
+  function openPublishedLessonById(id: string) {
+    const targetIndex = lessonIndexById.get(id);
+
+    if (targetIndex === undefined) return;
+
+    openLesson(targetIndex);
+  }
+
+  function openStageFirstLesson(section: RoadmapStage) {
+    const firstPublishedLesson = section.items.find((item) =>
+      item.status === "published" && lessonIndexById.has(item.id)
+    );
+
+    if (!firstPublishedLesson) return;
+
+    openPublishedLessonById(firstPublishedLesson.id);
   }
 
   async function chooseAnswer(answer: string) {
@@ -138,14 +160,30 @@ export function LearningStudio() {
           <div className="roadmap-list">
             {roadmap.map((section) => (
               <div className={`roadmap-section ${section.state}`} key={section.id}>
-                <div className="roadmap-title">
+                <button
+                  aria-current={section.id === activeStageId ? "step" : undefined}
+                  className="roadmap-title"
+                  disabled={section.state === "planned" || section.state === "locked"}
+                  onClick={() => openStageFirstLesson(section)}
+                  type="button"
+                >
                   <span className="roadmap-number">{section.state === "done" ? "✓" : String(section.number).padStart(2, "0")}</span>
                   <div><strong>{section.title}</strong><span>{section.publishedLessons} 已发布 / {section.totalLessons} 知识点</span></div>
                   <span className="section-state">{section.state === "planned" ? "即将推出" : section.state === "locked" ? "锁定" : ""}</span>
-                </div>
+                </button>
                 {section.state !== "planned" && section.state !== "locked" && (
                   <div className="roadmap-items">
-                    {section.items.filter((item) => item.status === "published").map((item) => <span key={item.id}>{item.title}</span>)}
+                    {section.items.filter((item) => item.status === "published").map((item) => (
+                      <button
+                        aria-current={item.id === lesson.id ? "step" : undefined}
+                        className={`roadmap-item ${item.id === lesson.id ? "active" : ""}`}
+                        key={item.id}
+                        onClick={() => openPublishedLessonById(item.id)}
+                        type="button"
+                      >
+                        {item.title}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>
