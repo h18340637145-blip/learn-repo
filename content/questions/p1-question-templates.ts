@@ -1,4 +1,4 @@
-import type { CodeLanguage, LessonKind, LessonQuestion, LessonSpec, QuestionType, StageId } from "@/lib/curriculum/types";
+import type { CodeLanguage, LessonQuestion, LessonSpec, QuestionType, StageId } from "@/lib/curriculum/types";
 
 import type { QuestionBankEntry } from "./apply-question-bank";
 
