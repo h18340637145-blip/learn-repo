@@ -7,10 +7,10 @@ Project: NodePath (with-supabase), a visual Node.js / Next.js learning website b
 Current branch:
 
 ```text
-main
+codex/nodepath-v11-question-system
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。当前分支正在实现 NodePath V1.1 题型系统：扩展题型模型、支持单课多题、引入 implementation 代码方案题，并为 Node.js / Next.js 基础训练营补充首批真实实现题。
 
 ## What Exists
 
@@ -46,7 +46,8 @@ Core interaction:
 - Learner reads concept and code.
 - Learner chooses an answer.
 - Wrong answer shows option-specific feedback.
-- Correct answer starts a cancellable authored trace.
+- 单节课程现在可以包含多道题；答对中间题显示解析和“进入下一题”，答完全部必答题后才启动可取消 authored trace。
+- Correct final required answer starts a cancellable authored trace.
 - 已实现 Runtime Cockpit + Knowledge Nebula 沉浸式视觉层。
 - Runtime Cockpit、Knowledge Nebula、EnergyRunway 和 CompletionBurst 会响应答题正确、运行中和完成状态。
 - 已新增阶段星图导航，课程不再全部平铺在全局导航中。
@@ -55,6 +56,8 @@ Core interaction:
 - 已新增游戏化 Mission HUD、鼠标火花、HUD 扫描线、3D hover 和成就解锁弹层。
 - Terminal panel shows simulated logs.
 - Summary appears after completion.
+- 实现型代码题通过 `QuestionOptions` 展示代码方案卡片，支持语言标签、差异行提示和折叠/展开代码预览。
+- 移动端代码题已单独适配：选项卡片单列、代码横向滚动、解析区纵向排列。
 - Completion is saved to browser local progress and restored after refresh.
 - ProgressSnapshot 按 `courseId` 隔离，Node.js 与 Next.js 进度互不污染。
 - 支持 `prefers-reduced-motion` 降级。
@@ -86,7 +89,7 @@ Important product boundary:
 - `content/curriculum-registry.ts`: Node.js / Next.js CourseSpec registry.
 - `content/legacy-lessons.ts`: migrated original 4 prototype cases.
 - `content/lessons/lesson-factory.ts`: helper for standard LessonSpec creation.
-- `content/lessons/stage-00-foundations.ts`: complete stage 00 foundations bootcamp content.
+- `content/lessons/stage-00-foundations.ts`: complete stage 00 foundations bootcamp content，`foundations-functions` 已包含首个 Node.js implementation 代码题。
 - `content/lessons/stage-01-runtime-cli.ts`: complete stage 01 content.
 - `content/lessons/stage-02-modules-packages.ts`: complete stage 02 content.
 - `content/lessons/stage-03-async-events.ts`: complete stage 03 content.
@@ -99,7 +102,7 @@ Important product boundary:
 - `content/lessons/stage-10-diagnostics-production.ts`: complete stage 10 content.
 - `content/lessons/nextjs/nextjs-lesson-factory.ts`: Next.js lesson factory with `Next.js 16.x` runtime label.
 - `content/lessons/nextjs/nextjs-quick-lesson.ts`: Next.js 后续题库的轻量课程工厂。
-- `content/lessons/nextjs/stage-00-foundations.ts`: complete Next.js stage 00 foundations content.
+- `content/lessons/nextjs/stage-00-foundations.ts`: complete Next.js stage 00 foundations content，`nextjs-foundations-app-router` 已包含首个 App Router implementation 代码题。
 - `content/lessons/nextjs/stage-01-routing.ts` ... `stage-09-architecture.ts`: complete Next.js stages 01–09 content, including testing/deployment and advanced realtime dashboard project.
 - `content/lesson-registry.ts`: published lesson registry, Node.js aggregation, Next.js aggregation, and stage 04 migration metadata.
 - `lib/curriculum/types.ts`: shared curriculum and lesson types.
@@ -116,6 +119,7 @@ Important product boundary:
 - `scripts/validate-curriculum.ts`: curriculum validation CLI.
 - `app/page.tsx`: course selection home.
 - `app/_components/learning-studio.tsx`: shared client learning studio consuming registry, roadmap, runner, and progress.
+- `app/_components/question-options.tsx`: 统一题目选项组件，支持普通选择题和实现型代码题。
 - `app/nodejs/page.tsx`, `app/nodejs/learning-studio.tsx`: Node.js route wrapper.
 - `app/nextjs/page.tsx`, `app/nextjs/learning-studio.tsx`: Next.js route wrapper.
 - `app/globals.css`: visual system and responsive behavior.

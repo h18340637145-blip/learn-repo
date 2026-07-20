@@ -61,3 +61,19 @@ test("运行舱 Canvas 自身保持深色背景避免白屏", () => {
   assert.ok(css.includes(".spatial-runtime-canvas {"));
   assert.ok(css.includes("background: #080b0f"));
 });
+
+test("代码实现题在移动端保持可读和可横向滚动", () => {
+  const mobileStart = css.indexOf("@media (max-width: 760px)");
+  assert.notEqual(mobileStart, -1, "移动端媒体查询应存在");
+  const mobileCss = css.slice(mobileStart);
+
+  for (const selector of [
+    ".code-answer-card__select",
+    ".code-answer-card__code",
+    ".success-feedback"
+  ]) {
+    assert.ok(mobileCss.includes(selector), `${selector} 应在移动端单独适配`);
+  }
+
+  assert.match(mobileCss, /overflow-x:\s*auto/);
+});

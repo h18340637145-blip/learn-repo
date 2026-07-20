@@ -64,7 +64,7 @@ content/legacy-lessons.ts
   -> 从原型迁移来的 4 个旧案例原始内容
 
 content/lessons/lesson-factory.ts
-  -> 生成标准 LessonSpec，统一默认运行环境标签、题目结构、authored trace 和来源日期
+  -> 生成标准 LessonSpec，统一默认运行环境标签、题目结构、可追加多题、authored trace 和来源日期
 
 content/lessons/nextjs/nextjs-lesson-factory.ts
   -> Next.js 专属 LessonSpec 工厂，默认运行环境标签为 Next.js 16.x
@@ -152,7 +152,10 @@ components/visualizers/*
   -> Three.js 运行舱、知识环绕场景、粒子增强层和 WebGL / 减少动态效果 fallback
 
 app/_components/learning-studio.tsx
-  -> 共享课程工作台 Client Component，通过 CourseConfig 接收课程、目录、代码标签、终端命令和课程切换信息
+  -> 共享课程工作台 Client Component，通过 CourseConfig 接收课程、目录、代码标签、终端命令和课程切换信息，并管理单课多题流程
+
+app/_components/question-options.tsx
+  -> 统一题目选项 Client Component，支持普通选择题和 implementation 代码方案卡片
 ```
 
 ## Runtime Boundaries
@@ -161,7 +164,9 @@ app/_components/learning-studio.tsx
 
 - 浏览器渲染学习工作台。
 - 用户选择答案。
-- 正确答案启动 `streamAuthoredTrace()`。
+- 单节课程通过 `questionIndex` 展示当前题，`selectedByQuestion` 记录每题选项，`answeredQuestionIds` 记录已答对题目。
+- 答对非最后一道必答题时只显示解析和“进入下一题”，不会写入课程完成进度。
+- 完成全部必答题后才启动 `streamAuthoredTrace()`。
 - `AbortController` 负责切换课程或重新作答时取消旧轨迹。
 - 终端面板显示课程内预设日志。
 - 完整运行结束后写入本地进度仓储。
@@ -192,6 +197,8 @@ app/_components/learning-studio.tsx
 - `objectives`, `prerequisites`, `summary`: 学习目标和总结。
 - `files`, `entryFile`: 展示给学习者的代码文件。
 - `questions`: 题目、选项、正确答案和定向反馈。
+- `questions[].type`: 当前支持 prediction、implementation、diagnosis、repair、completion、execution-order、best-practice、concept-match、equivalent-code、sequence 和 transfer。
+- `questions[].options[].code/language/diffLines`: implementation 等代码题使用的代码方案、语言标签和重点行。
 - `execution`: authored trace 可视化配置，包含结构化 `visualizer`。
 - `sources`: 官方来源和校验日期。
 
@@ -200,6 +207,7 @@ app/_components/learning-studio.tsx
 - 至少 1 个代码文件，且入口文件必须存在。
 - 至少 1 道选择题，正确答案必须存在于选项中。
 - 每个选项都必须提供定向反馈。
+- implementation 题至少包含一个代码选项；代码选项必须声明 `language`，`diffLines` 必须是正整数数组。
 - 至少 3 个 authored trace 运行帧。
 - 至少 3 条知识总结。
 - 至少 1 个官方来源。
@@ -228,15 +236,20 @@ app/_components/learning-studio.tsx
 ```text
 openLesson(index)
   -> abort current run
-  -> reset selected answer, status, frame, frame index
+  -> reset questionIndex, selectedByQuestion, answeredQuestionIds, status, frame, frame index
 
 chooseAnswer(answer)
   -> wrong answer: status = "wrong"
-  -> correct answer: status = "running"
+  -> correct answer before final required question: record answered question and show explanation
+  -> final required answer: status = "running"
     -> stream authored frames
     -> update frame and frameIndex
     -> status = "success"
     -> save progress
+
+goToNextQuestion()
+  -> questionIndex + 1
+  -> reset transient status and frame
 
 nextLesson()
   -> open the next published lesson
