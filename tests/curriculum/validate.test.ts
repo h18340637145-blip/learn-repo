@@ -88,6 +88,10 @@ function createValidCatalog(): CurriculumStage[] {
   }));
 }
 
+function cloneLesson(): LessonSpec {
+  return structuredClone(validLesson);
+}
+
 test("有效课程规格没有校验错误", () => {
   assert.deepEqual(validateLessonSpec(validLesson), []);
 });
@@ -175,4 +179,86 @@ test("课程规格包含可视化轨迹、总结和官方来源", () => {
     assert.ok(lesson.summary.length >= 3, `${lesson.id} 至少包含 3 条总结`);
     assert.ok(lesson.sources.some((source) => source.type === "official"), `${lesson.id} 至少包含一个官方来源`);
   }
+});
+
+test("P1 题型必须声明难度和预计作答时间", () => {
+  const invalid = cloneLesson();
+  invalid.questions.push({
+    id: "http-diagnosis",
+    type: "diagnosis",
+    prompt: "为什么响应状态码不正确？",
+    options: [
+      { id: "a", label: "没有设置 statusCode", detail: "默认 200", feedback: "正确。" },
+      { id: "b", label: "没有调用 listen", detail: "混淆启动和响应", feedback: "listen 影响服务启动，不决定单次响应状态。" }
+    ],
+    answerId: "a",
+    correctExplanation: "Node.js HTTP 响应默认状态码为 200，错误分支需要显式设置状态码。"
+  });
+
+  assert.deepEqual(validateLessonSpec(invalid), [
+    "课程 event-loop-order 的 P1 题 http-diagnosis 必须声明 difficulty",
+    "课程 event-loop-order 的 P1 题 http-diagnosis 必须声明 estimatedSeconds"
+  ]);
+});
+
+test("repair 和 completion 题至少需要两个代码选项", () => {
+  const invalid = cloneLesson();
+  invalid.questions.push({
+    id: "repair-http-status",
+    type: "repair",
+    prompt: "选择正确修复方案。",
+    difficulty: "beginner",
+    estimatedSeconds: 80,
+    options: [
+      {
+        id: "a",
+        label: "设置 statusCode",
+        detail: "修复响应状态",
+        feedback: "正确。",
+        language: "js",
+        code: "res.statusCode = 404;"
+      },
+      { id: "b", label: "只打印日志", detail: "没有修复响应", feedback: "日志不影响响应状态。" }
+    ],
+    answerId: "a",
+    correctExplanation: "repair 题需要可比较的代码修复方案。"
+  });
+
+  assert.deepEqual(validateLessonSpec(invalid), [
+    "课程 event-loop-order 的 repair 题 repair-http-status 至少需要 2 个代码选项"
+  ]);
+});
+
+test("execution-order 提供 orderItems 时至少需要三个步骤", () => {
+  const invalid = cloneLesson();
+  invalid.questions.push({
+    id: "event-order",
+    type: "execution-order",
+    prompt: "选择正确执行顺序。",
+    materialTitle: "事件循环片段",
+    materialCode: "console.log('sync'); Promise.resolve().then(() => console.log('micro'));",
+    materialLanguage: "js",
+    orderItems: ["sync", "micro"],
+    difficulty: "beginner",
+    estimatedSeconds: 60,
+    options: [
+      { id: "a", label: "sync -> micro", detail: "同步后微任务", feedback: "正确。" },
+      { id: "b", label: "micro -> sync", detail: "微任务抢先", feedback: "同步代码先执行。" }
+    ],
+    answerId: "a",
+    correctExplanation: "同步调用栈先清空，然后执行微任务。"
+  });
+
+  assert.deepEqual(validateLessonSpec(invalid), [
+    "课程 event-loop-order 的 execution-order 题 event-order 的 orderItems 至少需要 3 项"
+  ]);
+});
+
+test("同一课程内题目 ID 不能重复", () => {
+  const invalid = cloneLesson();
+  invalid.questions.push({ ...invalid.questions[0] });
+
+  assert.deepEqual(validateLessonSpec(invalid), [
+    "课程 event-loop-order 的题目 ID 重复：event-loop-order-prediction"
+  ]);
 });

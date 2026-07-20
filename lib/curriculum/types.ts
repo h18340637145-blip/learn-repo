@@ -112,6 +112,11 @@ export type LessonQuestion = {
   id: string;
   type: QuestionType;
   prompt: string;
+  materialTitle?: string;
+  materialCode?: string;
+  materialLanguage?: CodeLanguage;
+  expectedOutput?: string;
+  orderItems?: string[];
   options: AnswerOption[];
   answerId: string;
   correctExplanation: string;

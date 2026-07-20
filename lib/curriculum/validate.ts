@@ -14,10 +14,13 @@ const supportedQuestionTypes = new Set<QuestionType>([
   "transfer"
 ]);
 
+const p1QuestionTypes = new Set<QuestionType>(["diagnosis", "repair", "completion", "execution-order"]);
+
 const supportedCodeLanguages = new Set<CodeLanguage>(["js", "ts", "tsx", "json", "bash", "text"]);
 
 export function validateLessonSpec(lesson: LessonSpec): string[] {
   const errors: string[] = [];
+  const questionIds = new Set<string>();
 
   if (lesson.questions.length === 0) errors.push(`课程 ${lesson.id} 没有题目`);
   if (lesson.sources.length === 0) errors.push(`课程 ${lesson.id} 没有来源`);
@@ -26,6 +29,11 @@ export function validateLessonSpec(lesson: LessonSpec): string[] {
   }
 
   for (const question of lesson.questions) {
+    if (questionIds.has(question.id)) {
+      errors.push(`课程 ${lesson.id} 的题目 ID 重复：${question.id}`);
+    }
+    questionIds.add(question.id);
+
     if (!supportedQuestionTypes.has(question.type)) {
       errors.push(`课程 ${lesson.id} 的题目 ${question.id} 使用了不支持的题型 ${question.type}`);
     }
@@ -37,6 +45,24 @@ export function validateLessonSpec(lesson: LessonSpec): string[] {
     }
     if (question.type === "implementation" && !question.options.some((option) => option.code?.trim())) {
       errors.push(`课程 ${lesson.id} 的 implementation 题 ${question.id} 至少需要一个代码选项`);
+    }
+    if (p1QuestionTypes.has(question.type) && !question.difficulty) {
+      errors.push(`课程 ${lesson.id} 的 P1 题 ${question.id} 必须声明 difficulty`);
+    }
+    if (p1QuestionTypes.has(question.type) && !question.estimatedSeconds) {
+      errors.push(`课程 ${lesson.id} 的 P1 题 ${question.id} 必须声明 estimatedSeconds`);
+    }
+    if (question.materialLanguage && !supportedCodeLanguages.has(question.materialLanguage)) {
+      errors.push(`课程 ${lesson.id} 的题目 ${question.id} 使用了不支持的材料语言 ${question.materialLanguage}`);
+    }
+    if (question.type === "repair" && question.options.filter((option) => option.code?.trim()).length < 2) {
+      errors.push(`课程 ${lesson.id} 的 repair 题 ${question.id} 至少需要 2 个代码选项`);
+    }
+    if (question.type === "completion" && question.options.filter((option) => option.code?.trim()).length < 2) {
+      errors.push(`课程 ${lesson.id} 的 completion 题 ${question.id} 至少需要 2 个代码选项`);
+    }
+    if (question.type === "execution-order" && question.orderItems && question.orderItems.length < 3) {
+      errors.push(`课程 ${lesson.id} 的 execution-order 题 ${question.id} 的 orderItems 至少需要 3 项`);
     }
     for (const option of question.options) {
       if (option.feedback.trim() === "") {
