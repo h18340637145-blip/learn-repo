@@ -205,6 +205,11 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     setStatus("idle");
     setFrameIndex(-1);
     setFrame(null);
+
+    // 切换到下一题时，自动滚动回“理解概念”处，避免用户需要手动上滑
+    setTimeout(() => {
+      document.getElementById("concept-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   }
 
   return (
@@ -314,7 +319,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
           </section>
 
           <div className="learning-grid">
-            <article className="concept-panel">
+            <article className="concept-panel" id="concept-panel">
               <div className="panel-label"><span>01</span> 理解概念</div>
               <h2>{isProject ? "项目目标" : "先建立心智模型"}</h2>
               <p>{lesson.concept}</p>
@@ -351,14 +356,19 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
               <span className="choose-tip">选择后自动运行</span>
             </div>
             <QuestionOptions
-              disabled={status === "running" || currentQuestionAnswered}
+              disabled={status === "running" || currentQuestionAnswered || status === "wrong"}
               onChoose={chooseAnswer}
               question={question}
               selectedId={selected}
               status={currentQuestionAnswered ? "success" : status}
             />
             {status === "wrong" && selectedOption && (
-              <p className="feedback wrong-feedback">{selectedOption.feedback}</p>
+              <div className="feedback wrong-feedback">
+                <p><strong>错误：</strong>{selectedOption.feedback}</p>
+                <button className="retry-button" onClick={() => setStatus("idle")} type="button">
+                  重新作答
+                </button>
+              </div>
             )}
             {status === "running" && <p className="feedback running-feedback"><span /> {courseTitle} 正在解析并执行案例…</p>}
             {(status === "success" || currentQuestionAnswered) && selectedOption && (

@@ -37,6 +37,69 @@ export default function Page() {
       answerId: "b",
       correctExplanation: "Next.js App Router 默认使用 Server Components。这意味着组件的代码（包括 console.log）只在服务端执行，然后将渲染好的 HTML 发送给浏览器，所以日志只能在服务端终端看到。"
     },
+    additionalQuestions: [{
+      id: "nextjs-foundations-what-is-nextjs-implementation",
+      type: "implementation",
+      prompt: "如果你需要在这个组件中使用只在浏览器才有的 `window` 对象，哪种实现方式是正确的？",
+      options: [
+        {
+          id: "a",
+          label: "在文件顶部添加 'use client' 指令",
+          detail: "将组件转换为 Client Component",
+          feedback: "正确：'use client' 告诉 Next.js 该组件及其导入的组件需要在客户端渲染，这样就可以安全使用 window 对象了。",
+          language: "tsx",
+          diffLines: [1, 2],
+          code: `'use client';
+
+export default function Page() {
+  const message = typeof window !== 'undefined' ? "Hello Client!" : "Hello Server!";
+  return (
+    <main>
+      <h1>{message}</h1>
+      <p>这是 Next.js 渲染的页面。</p>
+    </main>
+  );
+}`
+        },
+        {
+          id: "b",
+          label: "直接在组件内使用 window",
+          detail: "不改变组件类型",
+          feedback: "Server Component 在服务端执行，服务端没有 window 对象，直接使用会报错 window is not defined。",
+          language: "tsx",
+          diffLines: [3],
+          code: `// 这个组件运行在服务端
+export default function Page() {
+  const width = window.innerWidth;
+  return (
+    <main>
+      <h1>Width: {width}</h1>
+    </main>
+  );
+}`
+        },
+        {
+          id: "c",
+          label: "在 useEffect 中使用但不加 'use client'",
+          detail: "使用 Hook 解决",
+          feedback: "Server Component 不支持使用如 useEffect、useState 等 React hooks，会抛出错误。",
+          language: "tsx",
+          diffLines: [3],
+          code: `import { useEffect } from 'react';
+
+export default function Page() {
+  useEffect(() => {
+    console.log(window.innerWidth);
+  }, []);
+  return <main><h1>Page</h1></main>;
+}`
+        }
+      ],
+      answerId: "a",
+      correctExplanation: "App Router 中默认是 Server Component，要使用浏览器 API 或 React hooks，必须在文件开头声明 'use client'，将其变为 Client Component。",
+      difficulty: "beginner",
+      estimatedSeconds: 80,
+    }],
     execution: {
       visualizer: { type: "nextjs-render-pipeline", title: "Next.js 渲染管线", nodes: ["源码", "编译", "Server Component", "HTML", "Hydration"] },
       lanes: ["源码解析", "服务端渲染", "响应 HTML"],

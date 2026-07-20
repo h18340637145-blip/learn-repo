@@ -43,6 +43,68 @@ console.log(total(100));`
       answerId: "a",
       correctExplanation: "命名导入 total 指向 math.mjs 导出的函数，计算结果为 108。"
     },
+    additionalQuestions: [{
+      id: "modules-esm-implementation",
+      type: "implementation",
+      prompt: "现在我们需要把 `total` 函数改为默认导出 (default export) 并被 `app.mjs` 导入，哪段代码是正确的？",
+      options: [
+        {
+          id: "a",
+          label: "使用 export default 和默认导入",
+          detail: "不需要花括号",
+          feedback: "正确：默认导出时不需要声明名称，导入时可以任意命名且无需花括号。",
+          language: "js",
+          diffLines: [3, 8],
+          code: `// math.mjs
+export const taxRate = 0.08;
+export default function total(price) {
+  return price + price * taxRate;
+}
+
+// app.mjs
+import total from "./math.mjs";
+console.log(total(100));`
+        },
+        {
+          id: "b",
+          label: "保持命名导入语法",
+          detail: "错误混用了默认导出和命名导入",
+          feedback: "如果使用 export default，导入时不需要花括号 { total }。",
+          language: "js",
+          diffLines: [3],
+          code: `// math.mjs
+export const taxRate = 0.08;
+export default function total(price) {
+  return price + price * taxRate;
+}
+
+// app.mjs
+import { total } from "./math.mjs";
+console.log(total(100));`
+        },
+        {
+          id: "c",
+          label: "使用 require 语法",
+          detail: "混用了 ESM 和 CommonJS",
+          feedback: "ESM 环境下应统一使用 import 和 export default。",
+          language: "js",
+          diffLines: [3, 8],
+          code: `// math.mjs
+export const taxRate = 0.08;
+module.exports = function total(price) {
+  return price + price * taxRate;
+}
+
+// app.mjs
+const total = require("./math.mjs");
+console.log(total(100));`
+        }
+      ],
+      answerId: "a",
+      correctExplanation: "ESM 中，export default 可以导出一个主要绑定，在导入时无需花括号即可引入。",
+      difficulty: "beginner",
+      estimatedSeconds: 60,
+    }],
     execution: {
       lanes: ["解析依赖", "执行 math.mjs", "执行 app.mjs"],
       frames: frames(["先发现 app 依赖 math。", "初始化导出的 taxRate 和 total。", "app 调用 total 并打印。"], ["import ./math.mjs", "taxRate=0.08", "108"], ["load math.mjs", "bind total", "108"])

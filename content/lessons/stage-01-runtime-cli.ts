@@ -281,6 +281,53 @@ console.log("target:", target);`
       answerId: "a",
       correctExplanation: "用户参数从 process.argv 的第三项开始。"
     },
+    additionalQuestions: [{
+      id: "cli-process-arguments-implementation",
+      type: "implementation",
+      prompt: "如果我们要实现一个简单的 `node build.mjs --watch`，且在有 `--watch` 参数时开启监听模式，你会如何实现？",
+      options: [
+        {
+          id: "a",
+          label: "使用 includes 检查 process.argv",
+          detail: "最简单直接的检查方式",
+          feedback: "正确：process.argv.includes('--watch') 能有效地检测是否传入了该标志参数。",
+          language: "js",
+          diffLines: [1, 2],
+          code: `const watchMode = process.argv.includes("--watch");
+if (watchMode) {
+  console.log("Starting in watch mode...");
+}`
+        },
+        {
+          id: "b",
+          label: "只检查 process.argv[2]",
+          detail: "硬编码参数位置",
+          feedback: "这样只能检测当 --watch 是第一个参数的情况，如果有其他参数就会失效。",
+          language: "js",
+          diffLines: [1],
+          code: `const watchMode = process.argv[2] === "--watch";
+if (watchMode) {
+  console.log("Starting in watch mode...");
+}`
+        },
+        {
+          id: "c",
+          label: "从 process.env 中读取",
+          detail: "混淆了环境变量和命令行参数",
+          feedback: "环境变量是 process.env，而 --watch 是通过命令行参数 process.argv 传递的。",
+          language: "js",
+          diffLines: [1],
+          code: `const watchMode = process.env.watch === "true";
+if (watchMode) {
+  console.log("Starting in watch mode...");
+}`
+        }
+      ],
+      answerId: "a",
+      correctExplanation: "命令行参数被保存在 process.argv 数组中，使用 includes 方法可以安全地检查该数组中是否包含特定参数，无需关心它的具体位置。",
+      difficulty: "beginner",
+      estimatedSeconds: 60,
+    }],
     execution: {
       lanes: ["原始 argv", "slice(2)", "业务参数"],
       frames: frames(["argv 含 node 和脚本路径。", "切出用户输入。", "解构 command/target。"], "4 项", "scan ./src", "command + target", ["command: scan", "target: ./src"])
