@@ -27,8 +27,20 @@ export type StageId =
 
 export type LessonKind = "knowledge" | "stage-project" | "final-project";
 export type LessonStatus = "published" | "planned";
-export type QuestionType = "prediction" | "diagnosis" | "transfer";
+export type QuestionType =
+  | "prediction"
+  | "implementation"
+  | "diagnosis"
+  | "repair"
+  | "completion"
+  | "execution-order"
+  | "best-practice"
+  | "concept-match"
+  | "equivalent-code"
+  | "sequence"
+  | "transfer";
 export type SourceType = "official" | "engineering-extension";
+export type CodeLanguage = "js" | "ts" | "tsx" | "json" | "bash" | "text";
 export type VisualizerType =
   | "lane-flow"
   | "http-pipeline"
@@ -90,6 +102,10 @@ export type AnswerOption = {
   label: string;
   detail: string;
   feedback: string;
+  code?: string;
+  language?: CodeLanguage;
+  diffLines?: number[];
+  summary?: string;
 };
 
 export type LessonQuestion = {
@@ -99,6 +115,9 @@ export type LessonQuestion = {
   options: AnswerOption[];
   answerId: string;
   correctExplanation: string;
+  required?: boolean;
+  estimatedSeconds?: number;
+  difficulty?: "beginner" | "intermediate" | "advanced";
 };
 
 export type RunnerFrame = {

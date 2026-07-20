@@ -100,6 +100,45 @@ test("正确答案不存在时返回具体错误", () => {
   ]);
 });
 
+test("implementation 题必须包含带语言声明的代码选项", () => {
+  const invalid = structuredClone(validLesson);
+  invalid.questions.push({
+    id: "array-map-implementation",
+    type: "implementation",
+    prompt: "选择能把 [1, 2, 3] 变成 [2, 4, 6] 的实现",
+    options: [
+      { id: "a", label: "map", detail: "使用 map", feedback: "正确但这里故意缺少 code" },
+      { id: "b", label: "filter", detail: "使用 filter", feedback: "filter 不会改变元素值" }
+    ],
+    answerId: "a",
+    correctExplanation: "map 会逐项转换数组元素。"
+  });
+
+  assert.deepEqual(validateLessonSpec(invalid), [
+    "课程 event-loop-order 的 implementation 题 array-map-implementation 至少需要一个代码选项"
+  ]);
+});
+
+test("含代码的选项必须声明语言且 diffLines 必须为正整数数组", () => {
+  const invalid = structuredClone(validLesson);
+  invalid.questions.push({
+    id: "array-map-implementation",
+    type: "implementation",
+    prompt: "选择正确实现",
+    options: [
+      { id: "a", label: "map", detail: "转换", feedback: "正确", code: "[1,2,3].map(n => n * 2)", diffLines: [0] }
+    ],
+    answerId: "a",
+    correctExplanation: "map 会返回新数组。"
+  });
+
+  assert.deepEqual(validateLessonSpec(invalid), [
+    "课程 event-loop-order 的题目 array-map-implementation 至少需要 2 个选项",
+    "课程 event-loop-order 的题目 array-map-implementation 选项 a 含代码但缺少 language",
+    "课程 event-loop-order 的题目 array-map-implementation 选项 a 的 diffLines 必须是正整数数组"
+  ]);
+});
+
 test("有效 00 到 10 阶段课程目录没有校验错误", () => {
   assert.deepEqual(validateCatalog(createValidCatalog()), []);
 });
