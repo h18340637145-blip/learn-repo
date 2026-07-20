@@ -143,6 +143,16 @@ test("每个已发布课程通过规格校验并提供定向错误反馈", () =>
   }
 });
 
+test("Node.js 每个已发布知识点至少包含 2 道题，阶段项目至少 3 道题", () => {
+  for (const lesson of publishedLessons) {
+    const minimum = lesson.kind === "stage-project" ? 3 : 2;
+    assert.ok(
+      lesson.questions.length >= minimum,
+      `${lesson.id} 应至少包含 ${minimum} 道题，实际为 ${lesson.questions.length}`
+    );
+  }
+});
+
 test("每个已发布课程都有结构化运行可视化配置", () => {
   for (const lesson of publishedLessons) {
     assert.ok(lesson.execution.visualizer.title.length > 0);
