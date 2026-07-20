@@ -13,8 +13,9 @@ import {
 } from "@/components/immersive";
 import { StageSidebar, StageSpaceMap } from "@/components/learning-space";
 import { SpatialRuntimeVisualizer } from "@/components/visualizers";
+import { QuestionOptions } from "@/app/_components/question-options";
 import { buildStageSpaces } from "@/lib/curriculum/stage-space";
-import type { CurriculumStage, LessonSpec, RunnerFrame, StageId } from "@/lib/curriculum/types";
+import type { CurriculumStage, LessonSpec, QuestionType, RunnerFrame, StageId } from "@/lib/curriculum/types";
 import { buildRoadmap } from "@/lib/curriculum/view-model";
 import { streamAuthoredTrace } from "@/lib/execution/authored-trace";
 import { getBrowserProgressRepository } from "@/lib/progress/browser-progress-repository";
@@ -22,6 +23,20 @@ import { emptyProgress, type ProgressSnapshot } from "@/lib/progress/types";
 
 const delay = (milliseconds: number) =>
   new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+
+const questionTypeLabels: Record<QuestionType, string> = {
+  "best-practice": "最佳实践",
+  completion: "补全代码",
+  "concept-match": "概念配对",
+  diagnosis: "诊断题",
+  "equivalent-code": "等价代码",
+  "execution-order": "执行顺序",
+  implementation: "实现题",
+  prediction: "先做预测",
+  repair: "修复题",
+  sequence: "流程排序",
+  transfer: "迁移应用"
+};
 
 type CourseConfig = {
   courseId: "nodejs" | "nextjs";
@@ -39,16 +54,26 @@ type CourseConfig = {
 export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   const { courseId, courseTitle, sidebarTitle, codeLabel, terminalPrefix, curriculum, publishedLessons, finalProjectTitle, finalProjectTags, peerCourse } = config;
   const [lessonIndex, setLessonIndex] = useState(0);
+  const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedStageId, setSelectedStageId] = useState<StageId>(publishedLessons[0]?.stageId ?? curriculum[0].id);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selectedByQuestion, setSelectedByQuestion] = useState<Record<string, string>>({});
+  const [answeredQuestionIds, setAnsweredQuestionIds] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle" | "running" | "wrong" | "success">("idle");
   const [frameIndex, setFrameIndex] = useState(-1);
   const [frame, setFrame] = useState<RunnerFrame | null>(null);
   const [progress, setProgress] = useState<ProgressSnapshot>(() => emptyProgress(courseId));
   const activeRun = useRef<AbortController | null>(null);
   const lesson = publishedLessons[lessonIndex]!;
-  const question = lesson.questions[0]!;
+  const question = lesson.questions[questionIndex] ?? lesson.questions[0]!;
+  const selected = selectedByQuestion[question.id] ?? null;
   const selectedOption = question.options.find((option) => option.id === selected);
+  const requiredQuestions = lesson.questions.filter((item) => item.required !== false);
+  const currentQuestionAnswered = answeredQuestionIds.includes(question.id);
+  const answeredRequiredCount = requiredQuestions.filter((item) => answeredQuestionIds.includes(item.id)).length;
+  const nextRequiredQuestionIndex = lesson.questions.findIndex(
+    (item, index) => index > questionIndex && item.required !== false && !answeredQuestionIds.includes(item.id)
+  );
+  const hasMoreRequiredQuestions = nextRequiredQuestionIndex !== -1;
   const frames = lesson.execution.frames;
   const isProject = lesson.kind === "stage-project";
   const codeFile = lesson.files.find((file) => file.name === lesson.entryFile) ?? lesson.files[0]!;
@@ -96,8 +121,10 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     if (!next) return;
 
     setLessonIndex(index);
+    setQuestionIndex(0);
     setSelectedStageId(next.stageId);
-    setSelected(null);
+    setSelectedByQuestion({});
+    setAnsweredQuestionIds([]);
     setStatus("idle");
     setFrameIndex(-1);
     setFrame(null);
@@ -126,12 +153,25 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
 
   async function chooseAnswer(answer: string) {
     cancelRun();
-    setSelected(answer);
+    setSelectedByQuestion((current) => ({ ...current, [question.id]: answer }));
     setFrameIndex(-1);
     setFrame(null);
 
     if (answer !== question.answerId) {
       setStatus("wrong");
+      return;
+    }
+
+    const nextAnsweredQuestionIds = Array.from(new Set([...answeredQuestionIds, question.id]));
+    setAnsweredQuestionIds(nextAnsweredQuestionIds);
+
+    const nextUnansweredRequiredQuestionIndex = lesson.questions.findIndex(
+      (item, index) => index > questionIndex && item.required !== false && !nextAnsweredQuestionIds.includes(item.id)
+    );
+    const hasMoreRequiredQuestions = nextUnansweredRequiredQuestionIndex !== -1;
+
+    if (hasMoreRequiredQuestions) {
+      setStatus("idle");
       return;
     }
 
@@ -157,6 +197,15 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   }
 
   const nextLesson = () => openLesson((lessonIndex + 1) % publishedLessons.length);
+
+  function goToNextQuestion() {
+    if (!hasMoreRequiredQuestions) return;
+
+    setQuestionIndex((current) => current + 1);
+    setStatus("idle");
+    setFrameIndex(-1);
+    setFrame(null);
+  }
 
   return (
     <div className={`app-shell visual-${status}`}>
@@ -291,43 +340,39 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
             </article>
           </div>
 
-          <section className="challenge" aria-live="polite">
+          <section className="challenge" aria-live="polite" data-particle-layer="answer-particle-field answer-orbit answer-core">
             <div className="challenge-title">
-              <div><span className="panel-label"><span>02</span> 先做预测</span><h2>{question.prompt}</h2></div>
+              <div>
+                <span className="panel-label">
+                  <span>02</span> 第 {questionIndex + 1} / {lesson.questions.length} 题 · {questionTypeLabels[question.type]}
+                </span>
+                <h2>{question.prompt}</h2>
+              </div>
               <span className="choose-tip">选择后自动运行</span>
             </div>
-            <div className="answer-grid">
-              {question.options.map((option) => {
-                const isSelected = selected === option.id;
-                const isCorrect = option.id === question.answerId;
-                const state = isSelected ? (status === "wrong" ? "wrong" : status !== "idle" ? "correct" : "") : "";
-                return (
-                  <button
-                    className={`answer ${state}`}
-                    disabled={status === "running"}
-                    key={option.id}
-                    onClick={() => chooseAnswer(option.id)}
-                    type="button"
-                  >
-                    <span className="answer-particle-field" aria-hidden="true" />
-                    <span className="answer-orbit" aria-hidden="true" />
-                    <span className="answer-letter">{option.id.toUpperCase()}</span>
-                    <span className="answer-core"><strong>{option.label}</strong><small>{option.detail}</small></span>
-                    {isSelected && status === "wrong" && <span className="answer-mark">×</span>}
-                    {isSelected && isCorrect && status !== "idle" && <span className="answer-mark">✓</span>}
-                  </button>
-                );
-              })}
-            </div>
+            <QuestionOptions
+              disabled={status === "running" || currentQuestionAnswered}
+              onChoose={chooseAnswer}
+              question={question}
+              selectedId={selected}
+              status={currentQuestionAnswered ? "success" : status}
+            />
             {status === "wrong" && selectedOption && (
               <p className="feedback wrong-feedback">{selectedOption.feedback}</p>
             )}
             {status === "running" && <p className="feedback running-feedback"><span /> {courseTitle} 正在解析并执行案例…</p>}
-            {status === "success" && selectedOption && (
-              <div className="feedback success-feedback" style={{ marginTop: "24px", padding: "16px", borderRadius: "12px", background: "rgba(159, 232, 112, 0.08)", border: "1px solid rgba(159, 232, 112, 0.3)" }}>
-                <h3 style={{ color: "var(--green-bright)", fontSize: "12px", margin: "0 0 8px" }}>解析详情：</h3>
-                <p style={{ color: "#dbe7f5", fontSize: "11px", lineHeight: "1.6", margin: "0 0 8px" }}><strong style={{ color: "var(--green)" }}>反馈：</strong>{selectedOption.feedback}</p>
-                <p style={{ color: "#aab2bf", fontSize: "11px", lineHeight: "1.6", margin: "0" }}><strong style={{ color: "var(--cyan)" }}>深度解析：</strong>{question.correctExplanation}</p>
+            {(status === "success" || currentQuestionAnswered) && selectedOption && (
+              <div className="feedback success-feedback">
+                <div>
+                  <h3>解析详情：</h3>
+                  <p><strong>反馈：</strong>{selectedOption.feedback}</p>
+                  <p><strong>深度解析：</strong>{question.correctExplanation}</p>
+                </div>
+                {hasMoreRequiredQuestions && (
+                  <button className="next-question-button" onClick={goToNextQuestion} type="button">
+                    进入下一题 <span>{answeredRequiredCount} / {requiredQuestions.length}</span>
+                  </button>
+                )}
               </div>
             )}
           </section>
