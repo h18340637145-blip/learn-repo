@@ -221,7 +221,7 @@ console.log("report: " + report);`,
       ],
       answerId: "a",
       correctExplanation: "函数先 return 可复用的字符串，调用点再 console.log，是 Node CLI 中最容易测试和组合的写法。",
-      difficulty: "基础",
+      difficulty: "beginner",
       estimatedSeconds: 90,
     }],
     execution: {

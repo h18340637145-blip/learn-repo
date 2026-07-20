@@ -130,7 +130,7 @@ export default function SettingsPage() {
       ],
       answerId: "a",
       correctExplanation: "App Router 根据 app 目录下的路由段匹配 URL；只有特殊文件 `page.tsx` 才会把这个路由段公开给浏览器访问。",
-      difficulty: "基础",
+      difficulty: "beginner",
       estimatedSeconds: 100,
     }],
     execution: {
