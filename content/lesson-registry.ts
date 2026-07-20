@@ -22,6 +22,9 @@ import { nextjsStageSixAuthMiddlewareLessons } from "./lessons/nextjs/stage-06-a
 import { nextjsStageSevenDatabaseLessons } from "./lessons/nextjs/stage-07-database";
 import { nextjsStageEightTestingDeploymentLessons } from "./lessons/nextjs/stage-08-testing-deployment";
 import { nextjsStageNineArchitectureAdvancedLessons } from "./lessons/nextjs/stage-09-architecture";
+import { applyQuestionBank } from "./questions/apply-question-bank";
+import { nextjsP1QuestionBank } from "./questions/nextjs-p1-question-bank";
+import { nodejsP1QuestionBank } from "./questions/nodejs-p1-question-bank";
 
 type MigrationMetadata = {
   id: string;
@@ -154,7 +157,7 @@ const legacyStageFourLessons = legacyLessons
   .map(migrateLesson);
 
 // ── Node.js published lessons ──────────────────────────────
-export const publishedLessons = [
+const basePublishedLessons = [
   stageZeroFoundationsLessons,
   stageOneRuntimeCliLessons,
   stageTwoModulesPackagesLessons,
@@ -168,6 +171,8 @@ export const publishedLessons = [
   stageTenDiagnosticsProductionLessons
 ].flat() satisfies LessonSpec[];
 
+export const publishedLessons = applyQuestionBank(basePublishedLessons, nodejsP1QuestionBank) satisfies LessonSpec[];
+
 const lessonById = new Map(publishedLessons.map((lesson) => [lesson.id, lesson]));
 
 export function getLesson(id: string): LessonSpec | undefined {
@@ -175,7 +180,7 @@ export function getLesson(id: string): LessonSpec | undefined {
 }
 
 // ── Next.js published lessons ──────────────────────────────
-export const nextjsPublishedLessons = [
+const baseNextjsPublishedLessons = [
   nextjsStageZeroFoundationsLessons,
   nextjsStageOneRoutingLessons,
   nextjsStageTwoRenderingLessons,
@@ -187,6 +192,11 @@ export const nextjsPublishedLessons = [
   nextjsStageEightTestingDeploymentLessons,
   nextjsStageNineArchitectureAdvancedLessons
 ].flat() satisfies LessonSpec[];
+
+export const nextjsPublishedLessons = applyQuestionBank(
+  baseNextjsPublishedLessons,
+  nextjsP1QuestionBank
+) satisfies LessonSpec[];
 
 const nextjsLessonById = new Map(nextjsPublishedLessons.map((lesson) => [lesson.id, lesson]));
 

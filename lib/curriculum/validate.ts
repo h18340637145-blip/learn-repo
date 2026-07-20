@@ -1,3 +1,5 @@
+import type { QuestionBankEntry } from "@/content/questions/apply-question-bank";
+
 import type { CodeLanguage, CourseSpec, CurriculumStage, LessonSpec, QuestionType } from "./types";
 
 const supportedQuestionTypes = new Set<QuestionType>([
@@ -77,6 +79,54 @@ export function validateLessonSpec(lesson: LessonSpec): string[] {
       if (option.diffLines && !option.diffLines.every((line) => Number.isInteger(line) && line > 0)) {
         errors.push(`课程 ${lesson.id} 的题目 ${question.id} 选项 ${option.id} 的 diffLines 必须是正整数数组`);
       }
+    }
+  }
+
+  return errors;
+}
+
+type QuestionCoverageOptions = {
+  minKnowledgeQuestions: number;
+  minProjectQuestions: number;
+  minStageQuestionTypes: number;
+};
+
+export function validateQuestionBank(lessons: readonly LessonSpec[], bank: readonly QuestionBankEntry[]): string[] {
+  const errors: string[] = [];
+  const lessonIds = new Set(lessons.map((lesson) => lesson.id));
+  const questionIds = new Set<string>();
+
+  for (const entry of bank) {
+    if (!lessonIds.has(entry.lessonId)) errors.push(`题库引用了不存在的课程 ${entry.lessonId}`);
+
+    for (const question of entry.questions) {
+      if (questionIds.has(question.id)) errors.push(`题库题目 ID 重复：${question.id}`);
+      questionIds.add(question.id);
+    }
+  }
+
+  return errors;
+}
+
+export function validateQuestionCoverage(
+  lessons: readonly LessonSpec[],
+  options: QuestionCoverageOptions
+): string[] {
+  const errors: string[] = [];
+  const lessonsByStage = new Map<string, LessonSpec[]>();
+
+  for (const lesson of lessons) {
+    const minimum = lesson.kind === "stage-project" ? options.minProjectQuestions : options.minKnowledgeQuestions;
+    if (lesson.questions.length < minimum) {
+      errors.push(`课程 ${lesson.id} 至少需要 ${minimum} 道题，实际为 ${lesson.questions.length}`);
+    }
+    lessonsByStage.set(lesson.stageId, [...(lessonsByStage.get(lesson.stageId) ?? []), lesson]);
+  }
+
+  for (const [stageId, stageLessons] of lessonsByStage) {
+    const types = new Set(stageLessons.flatMap((lesson) => lesson.questions.map((question) => question.type)));
+    if (types.size < options.minStageQuestionTypes) {
+      errors.push(`阶段 ${stageId} 至少需要 ${options.minStageQuestionTypes} 种题型，实际为 ${types.size}`);
     }
   }
 
