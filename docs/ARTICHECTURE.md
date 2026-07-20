@@ -118,11 +118,16 @@ content/lesson-registry.ts
   -> 聚合 Next.js 90 个已发布案例
   -> 导出 Node.js 兼容别名 publishedLessons、nextjsPublishedLessons 和 getLessonsByCourse(courseId)
 
+content/questions/*
+  -> P1 题库补丁层
+  -> 将 diagnosis、repair、completion、execution-order 追加到已发布课程
+  -> 通过课程真实标题、概念、入口代码和阶段题型分配生成大规模题库条目
+
 lib/curriculum/types.ts
   -> CourseId、CourseSpec、课程目录、题目、来源、运行帧和 Next.js 可视化类型
 
 lib/curriculum/validate.ts
-  -> 无副作用课程校验函数；Node.js 校验 11 个阶段，Next.js 校验 10 个阶段，每阶段 8 个知识点和 1 个阶段项目
+  -> 无副作用课程校验函数；Node.js 校验 11 个阶段，Next.js 校验 10 个阶段，每阶段 8 个知识点和 1 个阶段项目，并校验 P1 题型结构、题库引用、课程题量和阶段题型多样性
 
 lib/curriculum/view-model.ts
   -> 课程目录 + 进度 -> 侧边栏路线视图模型
@@ -155,7 +160,7 @@ app/_components/learning-studio.tsx
   -> 共享课程工作台 Client Component，通过 CourseConfig 接收课程、目录、代码标签、终端命令和课程切换信息，并管理单课多题流程
 
 app/_components/question-options.tsx
-  -> 统一题目选项 Client Component，支持普通选择题和 implementation 代码方案卡片
+  -> 统一题目选项 Client Component，支持普通选择题、implementation / repair / completion 代码方案卡片、diagnosis 题干材料和 execution-order 顺序方案卡片
 ```
 
 ## Runtime Boundaries
@@ -198,6 +203,7 @@ app/_components/question-options.tsx
 - `files`, `entryFile`: 展示给学习者的代码文件。
 - `questions`: 题目、选项、正确答案和定向反馈。
 - `questions[].type`: 当前支持 prediction、implementation、diagnosis、repair、completion、execution-order、best-practice、concept-match、equivalent-code、sequence 和 transfer。
+- `questions[].materialTitle/materialCode/materialLanguage/expectedOutput/orderItems`: P1 题型材料字段，用于展示诊断现场、补全任务、预期输出和执行顺序。
 - `questions[].options[].code/language/diffLines`: implementation 等代码题使用的代码方案、语言标签和重点行。
 - `execution`: authored trace 可视化配置，包含结构化 `visualizer`。
 - `sources`: 官方来源和校验日期。
@@ -208,6 +214,10 @@ app/_components/question-options.tsx
 - 至少 1 道选择题，正确答案必须存在于选项中。
 - 每个选项都必须提供定向反馈。
 - implementation 题至少包含一个代码选项；代码选项必须声明 `language`，`diffLines` 必须是正整数数组。
+- diagnosis、repair、completion、execution-order 作为 P1 题必须声明 `difficulty` 和 `estimatedSeconds`。
+- repair 和 completion 至少包含 2 个代码选项。
+- execution-order 如果提供 `orderItems`，至少需要 3 个步骤。
+- 已发布知识点至少 2 道题，阶段项目至少 3 道题；每个已发布阶段至少 3 种题型。
 - 至少 3 个 authored trace 运行帧。
 - 至少 3 条知识总结。
 - 至少 1 个官方来源。

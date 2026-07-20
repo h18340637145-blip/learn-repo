@@ -7,10 +7,10 @@ Project: NodePath (with-supabase), a visual Node.js / Next.js learning website b
 Current branch:
 
 ```text
-codex/nodepath-v11-question-system
+codex/nodepath-p1-question-bank-scale
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。当前分支正在实现 NodePath V1.1 题型系统：扩展题型模型、支持单课多题、引入 implementation 代码方案题，并为 Node.js / Next.js 基础训练营补充首批真实实现题。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。当前分支正在实现 NodePath P1 题型大规模铺开：新增 diagnosis、repair、completion、execution-order 题型 UI，并让 Node.js / Next.js 已发布知识点至少包含 2 道题、阶段项目至少包含 3 道题。
 
 ## What Exists
 
@@ -57,6 +57,8 @@ Core interaction:
 - Terminal panel shows simulated logs.
 - Summary appears after completion.
 - 实现型代码题通过 `QuestionOptions` 展示代码方案卡片，支持语言标签、差异行提示和折叠/展开代码预览。
+- `diagnosis`、`repair`、`completion`、`execution-order` 已具备专属题型 UI；诊断题可展示题干材料，修复/补全题复用代码方案卡片，执行顺序题展示运行链路选择。
+- P1 题库通过 `content/questions/*` 作为补丁层挂载到已发布课程，Node.js 与 Next.js 已发布课程都已满足知识点至少 2 题、阶段项目至少 3 题。
 - 移动端代码题已单独适配：选项卡片单列、代码横向滚动、解析区纵向排列。
 - Completion is saved to browser local progress and restored after refresh.
 - ProgressSnapshot 按 `courseId` 隔离，Node.js 与 Next.js 进度互不污染。
@@ -105,8 +107,12 @@ Important product boundary:
 - `content/lessons/nextjs/stage-00-foundations.ts`: complete Next.js stage 00 foundations content，`nextjs-foundations-app-router` 已包含首个 App Router implementation 代码题。
 - `content/lessons/nextjs/stage-01-routing.ts` ... `stage-09-architecture.ts`: complete Next.js stages 01–09 content, including testing/deployment and advanced realtime dashboard project.
 - `content/lesson-registry.ts`: published lesson registry, Node.js aggregation, Next.js aggregation, and stage 04 migration metadata.
+- `content/questions/apply-question-bank.ts`: P1 题库补丁挂载工具。
+- `content/questions/p1-question-templates.ts`: 根据课程真实标题、概念、入口代码和阶段题型分配生成 P1 题的共享模板。
+- `content/questions/nodejs-p1-question-bank.ts`: Node.js 92 个已发布案例的 P1 题库补丁。
+- `content/questions/nextjs-p1-question-bank.ts`: Next.js 90 个已发布案例的 P1 题库补丁。
 - `lib/curriculum/types.ts`: shared curriculum and lesson types.
-- `lib/curriculum/validate.ts`: catalog and lesson validators.
+- `lib/curriculum/validate.ts`: catalog、lesson、P1 题型结构、题库引用和覆盖率 validators。
 - `lib/curriculum/view-model.ts`: roadmap view model.
 - `lib/curriculum/stage-space.ts`: 阶段空间 view model。
 - `lib/curriculum/visualizers.ts`: 课程运行可视化配置映射。
@@ -120,6 +126,7 @@ Important product boundary:
 - `app/page.tsx`: course selection home.
 - `app/_components/learning-studio.tsx`: shared client learning studio consuming registry, roadmap, runner, and progress.
 - `app/_components/question-options.tsx`: 统一题目选项组件，支持普通选择题和实现型代码题。
+- `tests/curriculum/question-bank.test.ts`: P1 题库引用、题量和阶段题型多样性覆盖率测试。
 - `app/nodejs/page.tsx`, `app/nodejs/learning-studio.tsx`: Node.js route wrapper.
 - `app/nextjs/page.tsx`, `app/nextjs/learning-studio.tsx`: Next.js route wrapper.
 - `app/globals.css`: visual system and responsive behavior.
@@ -127,6 +134,21 @@ Important product boundary:
 - `docs/ARTICHECTURE.md`: architecture harness.
 
 ## Validation History
+
+Latest targeted validation for the P1 question-bank scale work:
+
+```bash
+npm test -- tests/learning-studio/question-options.test.tsx tests/visualizers/styles.test.ts -> pass. 106 tests, 106 pass, 0 fail.
+npm run validate:curriculum -> pass. 输出包含：课程校验通过：Node.js 11 个阶段 92 个案例，Next.js 10 个阶段 90 个案例，共 182 个已发布案例。
+npm test -- tests/curriculum/question-bank.test.ts tests/curriculum/nextjs-complete.test.ts -> pass. 111 tests, 111 pass, 0 fail.
+```
+
+Implementation notes:
+
+- 已新增 P1 题型材料字段：`materialTitle`、`materialCode`、`materialLanguage`、`expectedOutput`、`orderItems`。
+- 已新增 P1 题型 UI 与题库补丁层。
+- Node.js / Next.js 已发布课程完成 P1 题库覆盖。
+- `npm run validate:curriculum` 会输出课程数、案例数和题目数，并把题库覆盖率错误纳入非 0 退出。
 
 Latest targeted validation for the Next.js route expansion:
 
