@@ -15,26 +15,70 @@ type QuestionOptionsProps = {
 };
 
 export function QuestionOptions({ question, selectedId, status, disabled, onChoose }: QuestionOptionsProps) {
-  if (question.type === "implementation") {
+  if (question.type === "implementation" || question.type === "repair" || question.type === "completion") {
     return (
-      <CodeQuestionOptions
+      <>
+        <QuestionMaterial question={question} />
+        <CodeQuestionOptions
+          disabled={disabled}
+          onChoose={onChoose}
+          question={question}
+          selectedId={selectedId}
+          status={status}
+        />
+      </>
+    );
+  }
+
+  if (question.type === "execution-order") {
+    return (
+      <>
+        <QuestionMaterial question={question} />
+        <OrderQuestionOptions
+          disabled={disabled}
+          onChoose={onChoose}
+          question={question}
+          selectedId={selectedId}
+          status={status}
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <QuestionMaterial question={question} />
+      <TextQuestionOptions
         disabled={disabled}
         onChoose={onChoose}
         question={question}
         selectedId={selectedId}
         status={status}
       />
-    );
+    </>
+  );
+}
+
+function QuestionMaterial({ question }: { question: LessonQuestion }) {
+  if (!question.materialTitle && !question.materialCode && !question.expectedOutput && !question.orderItems?.length) {
+    return null;
   }
 
   return (
-    <TextQuestionOptions
-      disabled={disabled}
-      onChoose={onChoose}
-      question={question}
-      selectedId={selectedId}
-      status={status}
-    />
+    <aside className="question-material">
+      {question.materialTitle && <span className="question-material__title">{question.materialTitle}</span>}
+      {question.materialCode && (
+        <pre className="question-material__code" data-language={question.materialLanguage}>
+          <code>{question.materialCode}</code>
+        </pre>
+      )}
+      {question.expectedOutput && <p className="expected-output">{question.expectedOutput}</p>}
+      {question.orderItems && (
+        <ol className="order-items">
+          {question.orderItems.map((item) => <li key={item}>{item}</li>)}
+        </ol>
+      )}
+    </aside>
   );
 }
 
@@ -56,6 +100,33 @@ function TextQuestionOptions({ question, selectedId, status, disabled, onChoose 
             <span className="answer-orbit" aria-hidden="true" />
             <span className="answer-letter">{option.id.toUpperCase()}</span>
             <span className="answer-core"><strong>{option.label}</strong><small>{option.detail}</small></span>
+            <AnswerMark option={option} answerId={question.answerId} selectedId={selectedId} status={status} />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function OrderQuestionOptions({ question, selectedId, status, disabled, onChoose }: QuestionOptionsProps) {
+  return (
+    <div className="order-answer-grid">
+      {question.options.map((option) => {
+        const state = optionState(option, question.answerId, selectedId, status);
+
+        return (
+          <button
+            className={`order-answer-card ${state}`}
+            disabled={disabled}
+            key={option.id}
+            onClick={() => onChoose(option.id)}
+            type="button"
+          >
+            <span className="answer-letter">{option.id.toUpperCase()}</span>
+            <span className="order-answer-card__copy">
+              <strong>{option.label}</strong>
+              <small>{option.detail}</small>
+            </span>
             <AnswerMark option={option} answerId={question.answerId} selectedId={selectedId} status={status} />
           </button>
         );
@@ -110,7 +181,7 @@ function CodeQuestionOptions({ question, selectedId, status, disabled, onChoose 
                       onClick={() => toggleExpanded(option.id)}
                       type="button"
                     >
-                      {expanded ? "收起代码" : "展开差异"}
+                      {expanded ? "收起代码" : "展开代码"}
                     </button>
                     <button
                       className="code-answer-card__toggle"

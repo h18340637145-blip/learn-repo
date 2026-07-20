@@ -77,3 +77,21 @@ test("代码实现题在移动端保持可读和可横向滚动", () => {
 
   assert.match(mobileCss, /overflow-x:\s*auto/);
 });
+
+test("样式包含 P1 题型材料和顺序题移动端适配", () => {
+  for (const selector of [
+    ".question-material",
+    ".question-material__code",
+    ".expected-output",
+    ".order-answer-grid",
+    ".order-answer-card"
+  ]) {
+    assert.ok(css.includes(selector), `${selector} 应存在`);
+  }
+
+  const mobileStart = css.indexOf("@media (max-width: 760px)");
+  assert.notEqual(mobileStart, -1, "移动端媒体查询应存在");
+  const mobileCss = css.slice(mobileStart);
+  assert.ok(mobileCss.includes(".question-material__code"));
+  assert.ok(mobileCss.includes(".order-answer-card"));
+});
