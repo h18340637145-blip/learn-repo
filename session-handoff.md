@@ -2,12 +2,12 @@
 
 ## Current State
 
-Project: NodePath, a visual Node.js / Next.js learning website built on Next.js 16.
+Project: NodePath (with-supabase), a visual Node.js / Next.js learning website built on Next.js 16.
 
 Current branch:
 
 ```text
-codex/nodepath-particle-world
+main
 ```
 
 当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储和沉浸式视觉状态已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。
@@ -259,10 +259,10 @@ Manual browser acceptance on `http://localhost:55460/`:
 
 Highest-value next plan:
 
-1. Complete the remaining stage 04 file, Buffer, and Stream lessons from official Node.js learning docs.
-2. Add at least 3 question variants per knowledge point.
-3. Add visualizers beyond `lane-flow` for module resolution, event loop flow, Stream/HTTP flow and concurrency.
-4. Keep normal lessons on authored traces.
+1. Integrate Supabase for user authentication and login.
+2. Migrate local progress storage to Supabase database for cross-device sync.
+3. Implement strict cross-stage unlocking rules using the backend.
+4. Complete the remaining stage 04 file, Buffer, and Stream lessons from official Node.js learning docs.
 5. Design the first real sandbox separately for later stage projects.
 
 Later plans:
@@ -270,7 +270,6 @@ Later plans:
 - Stage 04 content plus Stream/HTTP visualizers.
 - Expand stages 05–10 with concurrency, security, and diagnostics-specific visualizers.
 - Final real-time collaboration project.
-- Supabase-backed user progress and cross-device sync.
 
 ## Operating Notes
 

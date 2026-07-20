@@ -166,7 +166,7 @@ app/_components/learning-studio.tsx
 - 终端面板显示课程内预设日志。
 - 完整运行结束后写入本地进度仓储。
 
-当前没有后端 API、数据库、认证或任意代码执行。已发布课程虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
+当前即将引入 Supabase 作为后端服务。之前没有后端 API、数据库、认证，现计划通过 Supabase 提供用户认证、跨设备进度同步和数据库支持。已发布课程虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
 
 沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId`、`lesson.kind` 和当前课程标题。它不写入学习进度，不执行学习者代码；课程切换由 App Router 链接 `/nodejs` / `/nextjs` 处理。
 
@@ -242,7 +242,7 @@ nextLesson()
   -> open the next published lesson
 ```
 
-`localStorage` 只通过 `lib/progress/browser-progress-repository.ts` 进入 UI。损坏进度数据会回退为空进度。
+`localStorage` 只通过 `lib/progress/browser-progress-repository.ts` 进入 UI。损坏进度数据会回退为空进度。后续将替换为或结合 Supabase 的云端进度仓储。
 
 ## Styling Architecture
 
