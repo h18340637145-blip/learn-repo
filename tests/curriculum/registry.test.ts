@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getLesson, publishedLessons } from "../../content/lesson-registry";
+import { getLesson, getNextjsLesson, publishedLessons } from "../../content/lesson-registry";
 import { validateLessonSpec } from "../../lib/curriculum/validate";
 
 const stageZeroFoundationIds = [
@@ -149,6 +149,22 @@ test("每个已发布课程都有结构化运行可视化配置", () => {
     assert.ok(lesson.execution.visualizer.nodes.length >= 3);
     assert.notEqual(lesson.execution.visualizer.type, "lane-flow");
   }
+});
+
+test("Node.js 基础训练营包含真实代码实现题", () => {
+  const lesson = getLesson("foundations-functions");
+  const question = lesson?.questions.find((item) => item.type === "implementation");
+
+  assert.ok(question);
+  assert.ok(question.options.some((option) => option.language === "js" && option.code?.includes("return")));
+});
+
+test("Next.js 基础训练营包含 App Router 真实实现题", () => {
+  const lesson = getNextjsLesson("nextjs-foundations-app-router");
+  const question = lesson?.questions.find((item) => item.type === "implementation");
+
+  assert.ok(question);
+  assert.ok(question.options.some((option) => option.language === "tsx" && option.code?.includes("page.tsx")));
 });
 
 test("按 ID 查询课程，未知 ID 返回 undefined", () => {

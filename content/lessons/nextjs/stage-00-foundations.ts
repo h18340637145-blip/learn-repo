@@ -86,6 +86,53 @@ export default function DashboardStats() {
       answerId: "b",
       correctExplanation: "在 App Router 中，你可以安全地将组件、样式文件等直接放在路由文件夹中（称为 Colocation）。只有命名为 `page.tsx`、`route.ts` 等约定的文件才会被 Next.js 作为路由终点暴露出来。"
     },
+    additionalQuestions: [{
+      id: "nextjs-foundations-app-router-implementation",
+      type: "implementation",
+      prompt: "要发布 `/dashboard/settings` 页面，哪组文件结构是正确的？",
+      options: [
+        {
+          id: "a",
+          label: "在路由段内放置 page.tsx",
+          detail: "文件夹负责路径，page.tsx 负责公开页面",
+          feedback: "正确：`app/dashboard/settings/page.tsx` 会公开 `/dashboard/settings` 路由。",
+          language: "tsx",
+          diffLines: [1, 2, 3],
+          code: `// app/dashboard/settings/page.tsx
+export default function SettingsPage() {
+  return <h1>Settings</h1>;
+}`,
+        },
+        {
+          id: "b",
+          label: "只创建普通组件文件",
+          detail: "组件不会自动成为路由",
+          feedback: "普通组件可以被 page.tsx 引用，但自身不会变成可访问页面。",
+          language: "tsx",
+          diffLines: [1],
+          code: `// app/dashboard/settings.tsx
+export default function Settings() {
+  return <h1>Settings</h1>;
+}`,
+        },
+        {
+          id: "c",
+          label: "把页面写在 lib 目录",
+          detail: "脱离 app 路由树",
+          feedback: "`lib` 适合工具函数和服务端模块，不参与 App Router 的路由匹配。",
+          language: "tsx",
+          diffLines: [1],
+          code: `// lib/dashboard/settings/page.tsx
+export default function SettingsPage() {
+  return <h1>Settings</h1>;
+}`,
+        },
+      ],
+      answerId: "a",
+      correctExplanation: "App Router 根据 app 目录下的路由段匹配 URL；只有特殊文件 `page.tsx` 才会把这个路由段公开给浏览器访问。",
+      difficulty: "基础",
+      estimatedSeconds: 100,
+    }],
     execution: {
       visualizer: { type: "nextjs-routing-tree", title: "文件系统路由树", nodes: ["app/", "layout", "page", "loading", "error"] },
       lanes: ["请求匹配", "查找文件", "响应结果"],

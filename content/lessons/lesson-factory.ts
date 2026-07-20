@@ -1,14 +1,15 @@
-import type { LessonKind, LessonSpec, LessonSource, QuestionType, VisualizerSpec } from "../../lib/curriculum/types";
+import type { AnswerOption, LessonKind, LessonQuestion, LessonSpec, LessonSource, QuestionType, VisualizerSpec } from "../../lib/curriculum/types";
 import { getDefaultVisualizer } from "../../lib/curriculum/visualizers";
 
 export type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVersion" | "execution" | "kind" | "questions" | "sources"> & {
   answer: {
     type?: QuestionType;
     prompt: string;
-    options: { id: string; label: string; detail: string; feedback: string }[];
+    options: AnswerOption[];
     answerId: string;
     correctExplanation: string;
   };
+  additionalQuestions?: LessonQuestion[];
   execution: Omit<LessonSpec["execution"], "mode" | "visualizer"> & {
     visualizer?: LessonSpec["execution"]["visualizer"];
   };
@@ -46,7 +47,7 @@ export function createLessonSpec(input: LessonInput): LessonSpec {
       options: input.answer.options,
       answerId: input.answer.answerId,
       correctExplanation: input.answer.correctExplanation
-    }],
+    }, ...(input.additionalQuestions ?? [])],
     execution: {
       mode: "authored-trace",
       visualizer: cloneVisualizer(visualizer),

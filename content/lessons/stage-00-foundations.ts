@@ -172,6 +172,58 @@ console.log(line);`,
       answerId: "b",
       correctExplanation: "函数调用返回字符串，console.log 负责把字符串写入终端。",
     },
+    additionalQuestions: [{
+      id: "foundations-functions-implementation",
+      type: "implementation",
+      prompt: "把分数格式化成终端报告，哪段实现最稳妥？",
+      options: [
+        {
+          id: "a",
+          label: "返回模板字符串，再由调用点打印",
+          detail: "函数只负责生成值，输出留给 console.log",
+          feedback: "正确：函数职责清晰，return 把结果交回调用点，后续更容易复用和测试。",
+          language: "js",
+          diffLines: [2, 6],
+          code: `function formatScore(name, score) {
+  return \`\${name}: \${score} pts\`;
+}
+
+const report = formatScore("cli", 8);
+console.log(report);`,
+        },
+        {
+          id: "b",
+          label: "在函数内部直接打印并隐式返回",
+          detail: "调用点拿不到格式化后的字符串",
+          feedback: "这样能看到日志，但 formatScore 的返回值是 undefined，后续无法组合更多逻辑。",
+          language: "js",
+          diffLines: [2, 5],
+          code: `function formatScore(name, score) {
+  console.log(name + ": " + score + " pts");
+}
+
+const report = formatScore("cli", 8);`,
+        },
+        {
+          id: "c",
+          label: "返回对象但直接拼接对象",
+          detail: "输出会变成 [object Object]",
+          feedback: "对象适合结构化传递，但如果目标是终端字符串，需要先明确格式化。",
+          language: "js",
+          diffLines: [2, 6],
+          code: `function formatScore(name, score) {
+  return { name, score };
+}
+
+const report = formatScore("cli", 8);
+console.log("report: " + report);`,
+        },
+      ],
+      answerId: "a",
+      correctExplanation: "函数先 return 可复用的字符串，调用点再 console.log，是 Node CLI 中最容易测试和组合的写法。",
+      difficulty: "基础",
+      estimatedSeconds: 90,
+    }],
     execution: {
       lanes: ["声明函数", "调用函数", "打印返回值"],
       frames: frames(["labelScore 被定义但未输出。", "参数 cli 和 8 进入函数。", "console.log 打印返回值。"], ["函数可用", "cli:8", "1 行日志"], ["cli:8"]),
