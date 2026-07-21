@@ -63,6 +63,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   const [frameIndex, setFrameIndex] = useState(-1);
   const [frame, setFrame] = useState<RunnerFrame | null>(null);
   const [progress, setProgress] = useState<ProgressSnapshot>(() => emptyProgress(courseId));
+  const progressRef = useRef<ProgressSnapshot>(emptyProgress(courseId));
   const activeRun = useRef<AbortController | null>(null);
   const lesson = publishedLessons[lessonIndex]!;
   const question = lesson.questions[questionIndex] ?? lesson.questions[0]!;
@@ -123,8 +124,14 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   }, []);
 
   useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
+
+  useEffect(() => {
     const timer = window.setTimeout(() => {
-      setProgress(getBrowserProgressRepository(courseId).load());
+      const loadedProgress = getBrowserProgressRepository(courseId).load();
+      progressRef.current = loadedProgress;
+      setProgress(loadedProgress);
     }, 0);
 
     return () => window.clearTimeout(timer);
@@ -173,13 +180,16 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     setFrame(null);
 
     const repository = getBrowserProgressRepository(courseId);
-    const nextProgress = repository.recordQuestionAttempt(progress, {
+    const latestProgress = repository.load();
+    progressRef.current = latestProgress;
+    const nextProgress = repository.recordQuestionAttempt(latestProgress, {
       lessonId: lesson.id,
       stageId: lesson.stageId,
       questionId: question.id,
       selectedOptionId: answer,
       isCorrect: answer === question.answerId
     });
+    progressRef.current = nextProgress;
     setProgress(nextProgress);
 
     if (answer !== question.answerId) {
@@ -214,9 +224,13 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     if (!controller.signal.aborted) {
       activeRun.current = null;
       setStatus("success");
-      setProgress((current) => lesson.kind === "stage-project"
-        ? repository.completeProject(current, lesson.id)
-        : repository.completeLesson(current, lesson.id));
+      setProgress((current) => {
+        const completedProgress = lesson.kind === "stage-project"
+          ? repository.completeProject(current, lesson.id)
+          : repository.completeLesson(current, lesson.id);
+        progressRef.current = completedProgress;
+        return completedProgress;
+      });
     }
   }
 
