@@ -51,3 +51,11 @@ test("LearningStudio 接入游戏化任务 HUD 和成就解锁反馈", () => {
   assert.match(source, /MISSION STATUS/);
   assert.match(source, /lessonTitle=\{lesson\.title\}/);
 });
+
+test("LearningStudio 写入题目级作答记录并展示学习报告", () => {
+  assert.match(source, /buildLearningReport/);
+  assert.match(source, /recordQuestionAttempt/);
+  assert.match(source, /learning-report-panel/);
+  assert.match(source, /首次正确率/);
+  assert.match(source, /待复习/);
+});

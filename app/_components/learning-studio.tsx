@@ -19,6 +19,7 @@ import type { CurriculumStage, LessonSpec, QuestionType, RunnerFrame, StageId } 
 import { buildRoadmap } from "@/lib/curriculum/view-model";
 import { streamAuthoredTrace } from "@/lib/execution/authored-trace";
 import { getBrowserProgressRepository } from "@/lib/progress/browser-progress-repository";
+import { buildLearningReport } from "@/lib/progress/learning-report";
 import { emptyProgress, type ProgressSnapshot } from "@/lib/progress/types";
 
 const delay = (milliseconds: number) =>
@@ -93,6 +94,14 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     publishedCaseCount: publishedLessons.length,
     questionCount: publishedLessons.reduce((total, item) => total + item.questions.length, 0)
   }), [curriculum, publishedLessons]);
+  const learningReport = useMemo(
+    () => buildLearningReport(progress, publishedLessons),
+    [progress, publishedLessons]
+  );
+  const lastAnsweredLabel = learningReport.lastAnsweredAt
+    ? new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+        .format(new Date(learningReport.lastAnsweredAt))
+    : "等待首次作答";
   const completedCount = progress.completedLessonIds.length + progress.completedProjectIds.length;
   const progressPercent = publishedCount === 0 ? 0 : Math.round((completedCount / publishedCount) * 100);
   const projectLessonIndex = publishedLessons.findIndex((item) => item.kind === "stage-project");
@@ -163,6 +172,16 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     setFrameIndex(-1);
     setFrame(null);
 
+    const repository = getBrowserProgressRepository(courseId);
+    const nextProgress = repository.recordQuestionAttempt(progress, {
+      lessonId: lesson.id,
+      stageId: lesson.stageId,
+      questionId: question.id,
+      selectedOptionId: answer,
+      isCorrect: answer === question.answerId
+    });
+    setProgress(nextProgress);
+
     if (answer !== question.answerId) {
       setStatus("wrong");
       return;
@@ -195,7 +214,6 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     if (!controller.signal.aborted) {
       activeRun.current = null;
       setStatus("success");
-      const repository = getBrowserProgressRepository(courseId);
       setProgress((current) => lesson.kind === "stage-project"
         ? repository.completeProject(current, lesson.id)
         : repository.completeLesson(current, lesson.id));
@@ -264,6 +282,17 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
               <span><strong>{routeStats.knowledgeCount}</strong><small>知识点</small></span>
               <span><strong>{routeStats.projectCount}</strong><small>阶段项目</small></span>
             </div>
+          </section>
+
+          <section className="learning-report-panel" aria-label={`${courseTitle} 学习报告`}>
+            <span className="kicker">LEARNING REPORT</span>
+            <div className="learning-report-grid">
+              <span><strong>{learningReport.answeredQuestions}</strong><small>已作答题</small></span>
+              <span><strong>{learningReport.firstTryAccuracy}%</strong><small>首次正确率</small></span>
+              <span><strong>{learningReport.reviewQuestions}</strong><small>待复习</small></span>
+              <span><strong>{lastAnsweredLabel}</strong><small>最近学习</small></span>
+            </div>
+            <p>{learningReport.answeredQuestions} / {learningReport.totalQuestions} 道互动题已经留下学习记录。</p>
           </section>
 
           <NebulaProgress
