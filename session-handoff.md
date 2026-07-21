@@ -10,7 +10,7 @@ Current branch:
 codex/nodepath-question-progress
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。当前分支正在实现 NodePath 题目级学习记录：每次选择答案都会保存题目尝试，侧边栏学习报告会展示已作答题、首次正确率、待复习题和最近学习时间。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。当前分支已完成本轮 NodePath 题目级学习记录实现：每次选择答案都会保存题目尝试，侧边栏学习报告会展示已作答题、首次正确率、待复习题和最近学习时间，并包含稳定的最近学习时间统计。
 
 ## What Exists
 
@@ -144,8 +144,13 @@ Important product boundary:
 Latest targeted validation for the question-level progress work:
 
 ```bash
+npm test -- tests/progress/local-progress-repository.test.ts -> pass. 116 tests, 116 pass, 0 fail（仓储修复后）。
+npm test -- tests/progress/learning-report.test.ts tests/progress/local-progress-repository.test.ts -> pass. 119 tests, 119 pass, 0 fail（报告优化后）。
+npm test -- tests/learning-space/source.test.ts tests/progress/local-progress-repository.test.ts tests/progress/learning-report.test.ts -> pass. 120 tests, 120 pass, 0 fail（UI 接入后）。
 git diff --check -> pass. 无输出。
 ```
+
+验证说明：`tsx` 在当前沙箱内会遇到 IPC `EPERM`，相关测试已使用提升权限重跑通过。
 
 Implementation notes:
 
