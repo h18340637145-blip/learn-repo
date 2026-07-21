@@ -1,6 +1,8 @@
 import type { LessonSpec } from "../curriculum/types";
 import type { ProgressSnapshot } from "./types";
 
+type LessonQuestions = Pick<LessonSpec, "questions">;
+
 export type LearningReport = {
   answeredQuestions: number;
   totalQuestions: number;
@@ -10,7 +12,10 @@ export type LearningReport = {
   lastAnsweredAt: string | null;
 };
 
-export function buildLearningReport(progress: ProgressSnapshot, publishedLessons: LessonSpec[]): LearningReport {
+export function buildLearningReport(
+  progress: ProgressSnapshot,
+  publishedLessons: readonly LessonQuestions[]
+): LearningReport {
   const publishedQuestionIds = new Set(
     publishedLessons.flatMap((lesson) => lesson.questions.map((question) => question.id))
   );
@@ -19,10 +24,10 @@ export function buildLearningReport(progress: ProgressSnapshot, publishedLessons
   const answeredQuestions = records.length;
   const firstTryCorrect = records.filter((record) => record.firstAttemptCorrect).length;
   const reviewQuestions = records.filter((record) => record.needsReview).length;
-  const lastAnsweredAt = records
-    .map((record) => record.lastAnsweredAt)
-    .sort()
-    .at(-1) ?? null;
+  const lastAnsweredAt = records.reduce<string | null>((latest, record) => {
+    if (latest === null) return record.lastAnsweredAt;
+    return Date.parse(record.lastAnsweredAt) > Date.parse(latest) ? record.lastAnsweredAt : latest;
+  }, null);
 
   return {
     answeredQuestions,

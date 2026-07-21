@@ -3,7 +3,6 @@ import test from "node:test";
 
 import { buildLearningReport } from "../../lib/progress/learning-report";
 import { emptyProgress, type ProgressSnapshot } from "../../lib/progress/types";
-import type { LessonSpec } from "../../lib/curriculum/types";
 
 const lessons = [
   {
@@ -14,7 +13,7 @@ const lessons = [
     id: "modules-esm",
     questions: [{ id: "q3" }]
   }
-] as LessonSpec[];
+];
 
 test("学习报告统计已作答、首次正确率和待复习数量", () => {
   const progress: ProgressSnapshot = {
@@ -84,4 +83,41 @@ test("学习报告忽略课程外题目记录且保留空报告默认值", () =>
     reviewQuestions: 0,
     lastAnsweredAt: null
   });
+});
+
+test("学习报告按真实时间而不是字符串字典序选取最近作答时间", () => {
+  const progress: ProgressSnapshot = {
+    ...emptyProgress("nodejs"),
+    questionAttempts: {
+      q1: {
+        questionId: "q1",
+        lessonId: "runtime-introduction",
+        stageId: "runtime-cli",
+        selectedOptionId: "a",
+        isCorrect: true,
+        firstAttemptCorrect: true,
+        attempts: 1,
+        firstAnsweredAt: "Wed, 01 Jan 2025 00:00:00 GMT",
+        lastAnsweredAt: "Wed, 01 Jan 2025 00:00:00 GMT",
+        needsReview: false
+      },
+      q2: {
+        questionId: "q2",
+        lessonId: "runtime-introduction",
+        stageId: "runtime-cli",
+        selectedOptionId: "b",
+        isCorrect: true,
+        firstAttemptCorrect: true,
+        attempts: 1,
+        firstAnsweredAt: "2026-07-21T02:00:00.000Z",
+        lastAnsweredAt: "2026-07-21T02:00:00.000Z",
+        needsReview: false
+      }
+    }
+  };
+
+  assert.equal(
+    buildLearningReport(progress, lessons).lastAnsweredAt,
+    "2026-07-21T02:00:00.000Z"
+  );
 });
