@@ -43,6 +43,7 @@ Core interaction:
 - `/` 展示 Node.js 与 Next.js 课程卡片。
 - 首页课程卡片下方现在有独立“知识点连接星链”底部展厅，知识核心球进一步放大铺满展厅空间且隐藏中心文字，知识点球保持当前尺寸并以内嵌文字环绕核心呈现。
 - `/nodejs` 与 `/nextjs` 都复用 `app/_components/learning-studio.tsx` 共享工作台。
+- 学习工作台左侧已新增路线统计卡，动态展示已发布案例、互动题、知识点和阶段项目；Node.js 当前显示 92 个已发布案例、198 道互动题、88 个知识点和 11 个阶段项目。
 - Learner reads concept and code.
 - Learner chooses an answer.
 - Wrong answer shows option-specific feedback.

@@ -158,6 +158,7 @@ components/visualizers/*
 
 app/_components/learning-studio.tsx
   -> 共享课程工作台 Client Component，通过 CourseConfig 接收课程、目录、代码标签、终端命令和课程切换信息，并管理单课多题流程
+  -> 从 curriculum 与 publishedLessons 动态计算路线统计卡：已发布案例、互动题、知识点和阶段项目
 
 app/_components/question-options.tsx
   -> 统一题目选项 Client Component，支持普通选择题、implementation / repair / completion 代码方案卡片、diagnosis 题干材料和 execution-order 顺序方案卡片

@@ -28,6 +28,8 @@ test("样式包含移动端和减少动态效果降级", () => {
 test("样式包含更多空间面板和答案粒子特效", () => {
   for (const selector of [
     ".nebula-stage-button",
+    ".route-stats-panel",
+    ".route-stats-grid",
     ".course-orbital-dashboard",
     ".orbital-card",
     ".answer-particle-field",

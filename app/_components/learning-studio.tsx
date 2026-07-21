@@ -87,6 +87,12 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     [publishedLessons]
   );
   const publishedCount = publishedLessons.length;
+  const routeStats = useMemo(() => ({
+    knowledgeCount: curriculum.reduce((total, stage) => total + stage.lessons.length, 0),
+    projectCount: curriculum.length,
+    publishedCaseCount: publishedLessons.length,
+    questionCount: publishedLessons.reduce((total, item) => total + item.questions.length, 0)
+  }), [curriculum, publishedLessons]);
   const completedCount = progress.completedLessonIds.length + progress.completedProjectIds.length;
   const progressPercent = publishedCount === 0 ? 0 : Math.round((completedCount / publishedCount) * 100);
   const projectLessonIndex = publishedLessons.findIndex((item) => item.kind === "stage-project");
@@ -249,6 +255,17 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
           <div className="progress-track" aria-label={`当前已发布课程进度 ${progressPercent}%`}>
             <span style={{ "--progress": `${progressPercent}%` } as React.CSSProperties} />
           </div>
+
+          <section className="route-stats-panel" aria-label={`${courseTitle} 路线统计`}>
+            <span className="kicker">{courseTitle} 路线</span>
+            <div className="route-stats-grid">
+              <span><strong>{routeStats.publishedCaseCount}</strong><small>已发布案例</small></span>
+              <span><strong>{routeStats.questionCount}</strong><small>互动题</small></span>
+              <span><strong>{routeStats.knowledgeCount}</strong><small>知识点</small></span>
+              <span><strong>{routeStats.projectCount}</strong><small>阶段项目</small></span>
+            </div>
+          </section>
+
           <NebulaProgress
             activeStageId={selectedStageId}
             onSelectStage={selectStage}

@@ -23,6 +23,15 @@ test("LearningStudio 提供可点击左侧驾驶舱和课程轨道面板", () =>
   assert.match(source, /lesson\.execution\.visualizer\.title/);
 });
 
+test("LearningStudio 在左侧展示路线统计卡", () => {
+  assert.match(source, /routeStats/);
+  assert.match(source, /route-stats-panel/);
+  assert.match(source, /已发布案例/);
+  assert.match(source, /互动题/);
+  assert.match(source, /知识点/);
+  assert.match(source, /阶段项目/);
+});
+
 test("LearningStudio 答案选项包含空间粒子层", () => {
   assert.match(source, /answer-particle-field/);
   assert.match(source, /answer-orbit/);
