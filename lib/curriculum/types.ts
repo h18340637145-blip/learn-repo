@@ -140,6 +140,16 @@ export type AuthoredTraceExecution = {
   frames: RunnerFrame[];
 };
 
+export type ProjectStep = {
+  id: string;
+  title: string;
+  context: string;
+  files: { name: string; code: string }[];
+  entryFile: string;
+  question: LessonQuestion;
+  execution?: AuthoredTraceExecution;
+};
+
 export type LessonSpec = {
   id: string;
   stageId: StageId;
@@ -160,4 +170,10 @@ export type LessonSpec = {
   execution: AuthoredTraceExecution;
   summary: string[];
   sources: LessonSource[];
+
+  // Multi-step project extensions (V1.3)
+  brief?: string;
+  steps?: ProjectStep[];
+  finalFiles?: { name: string; code: string }[];
+  finalExecution?: AuthoredTraceExecution;
 };

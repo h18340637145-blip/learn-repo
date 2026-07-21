@@ -66,19 +66,25 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   const progressRef = useRef<ProgressSnapshot>(emptyProgress(courseId));
   const activeRun = useRef<AbortController | null>(null);
   const lesson = publishedLessons[lessonIndex]!;
-  const question = lesson.questions[questionIndex] ?? lesson.questions[0]!;
+  const isProject = lesson.kind === "stage-project";
+  const isMultiStepProject = isProject && lesson.steps && lesson.steps.length > 0;
+  const currentStep = isMultiStepProject ? lesson.steps![questionIndex] : null;
+  const questionsList = isMultiStepProject ? lesson.steps!.map(s => s.question) : lesson.questions;
+  const question = currentStep ? currentStep.question : (lesson.questions[questionIndex] ?? lesson.questions[0]!);
   const selected = selectedByQuestion[question.id] ?? null;
   const selectedOption = question.options.find((option) => option.id === selected);
-  const requiredQuestions = lesson.questions.filter((item) => item.required !== false);
+  const requiredQuestions = questionsList.filter((item) => item.required !== false);
   const currentQuestionAnswered = answeredQuestionIds.includes(question.id);
   const answeredRequiredCount = requiredQuestions.filter((item) => answeredQuestionIds.includes(item.id)).length;
-  const nextRequiredQuestionIndex = lesson.questions.findIndex(
+  const nextRequiredQuestionIndex = questionsList.findIndex(
     (item, index) => index > questionIndex && item.required !== false && !answeredQuestionIds.includes(item.id)
   );
   const hasMoreRequiredQuestions = nextRequiredQuestionIndex !== -1;
-  const frames = lesson.execution.frames;
-  const isProject = lesson.kind === "stage-project";
-  const codeFile = lesson.files.find((file) => file.name === lesson.entryFile) ?? lesson.files[0]!;
+  const frames = currentStep?.execution?.frames ?? lesson.execution.frames;
+  const codeFile = currentStep 
+    ? (currentStep.files.find((file) => file.name === currentStep.entryFile) ?? currentStep.files[0]!)
+    : (lesson.files.find((file) => file.name === lesson.entryFile) ?? lesson.files[0]!);
+  const entryFile = currentStep ? currentStep.entryFile : lesson.entryFile;
   const roadmap = useMemo(() => buildRoadmap(curriculum, progress), [curriculum, progress]);
   const stageSpaces = useMemo(
     () => buildStageSpaces(curriculum, publishedLessons, progress),
@@ -93,7 +99,10 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     knowledgeCount: curriculum.reduce((total, stage) => total + stage.lessons.length, 0),
     projectCount: curriculum.length,
     publishedCaseCount: publishedLessons.length,
-    questionCount: publishedLessons.reduce((total, item) => total + item.questions.length, 0)
+    questionCount: publishedLessons.reduce((total, item) => {
+      const qCount = item.steps ? item.steps.length : item.questions.length;
+      return total + qCount;
+    }, 0)
   }), [curriculum, publishedLessons]);
   const learningReport = useMemo(
     () => buildLearningReport(progress, publishedLessons),
@@ -200,7 +209,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     const nextAnsweredQuestionIds = Array.from(new Set([...answeredQuestionIds, question.id]));
     setAnsweredQuestionIds(nextAnsweredQuestionIds);
 
-    const nextUnansweredRequiredQuestionIndex = lesson.questions.findIndex(
+    const nextUnansweredRequiredQuestionIndex = questionsList.findIndex(
       (item, index) => index > questionIndex && item.required !== false && !nextAnsweredQuestionIds.includes(item.id)
     );
     const hasMoreRequiredQuestions = nextUnansweredRequiredQuestionIndex !== -1;
@@ -380,25 +389,27 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
 
           <div className="learning-grid">
             <article className="concept-panel" id="concept-panel">
-              <div className="panel-label"><span>01</span> 理解概念</div>
-              <h2>{isProject ? "项目目标" : "先建立心智模型"}</h2>
-              <p>{lesson.concept}</p>
-              <ul>{lesson.points.map((point) => <li key={point}>{point}</li>)}</ul>
-              <div className="memory-card">
-                <span>记忆钩子</span>
-                <strong>{lesson.memoryHook}</strong>
-              </div>
+              <div className="panel-label"><span>01</span> {isMultiStepProject ? "项目任务" : "理解概念"}</div>
+              <h2>{isMultiStepProject ? currentStep!.title : (isProject ? "项目目标" : "先建立心智模型")}</h2>
+              <p>{isMultiStepProject ? currentStep!.context : lesson.concept}</p>
+              {!isMultiStepProject && <ul>{lesson.points.map((point) => <li key={point}>{point}</li>)}</ul>}
+              {!isMultiStepProject && (
+                <div className="memory-card">
+                  <span>记忆钩子</span>
+                  <strong>{lesson.memoryHook}</strong>
+                </div>
+              )}
             </article>
 
             <article className="code-panel">
               <span className="code-panel__aurora" aria-hidden="true" />
               <div className="code-panel__title">
                 <span>{codeLabel}</span>
-                <strong>{lesson.entryFile}</strong>
+                <strong>{entryFile}</strong>
               </div>
               <div className="code-toolbar">
                 <div><i /><i /><i /></div>
-                <span>{lesson.entryFile}</span>
+                <span>{entryFile}</span>
                 <span className="node-version">{lesson.nodeVersion}</span>
               </div>
               <pre aria-label={codeLabel}><code>{codeFile.code}</code></pre>
@@ -409,7 +420,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
             <div className="challenge-title">
               <div>
                 <span className="panel-label">
-                  <span>02</span> 第 {questionIndex + 1} / {lesson.questions.length} 题 · {questionTypeLabels[question.type]}
+                  <span>02</span> 第 {questionIndex + 1} / {questionsList.length} 题 · {questionTypeLabels[question.type]}
                 </span>
                 <h2>{question.prompt}</h2>
               </div>
@@ -465,9 +476,9 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
                 visualizer={lesson.execution.visualizer}
               />
               <div className="terminal">
-                <div className="terminal-bar"><span>CONSOLE</span><span>{status === "success" ? "exit 0" : terminalPrefix(lesson.entryFile)}</span></div>
+                <div className="terminal-bar"><span>CONSOLE</span><span>{status === "success" ? "exit 0" : terminalPrefix(entryFile)}</span></div>
                 <div className="terminal-output">
-                  <span className="command">{terminalPrefix(lesson.entryFile)}</span>
+                  <span className="command">{terminalPrefix(entryFile)}</span>
                   {(frame?.log ?? []).map((line, index) => <span key={`${line}-${index}`}><i>{String(index + 1).padStart(2, "0")}</i>{line}</span>)}
                   {status === "running" && <span className="cursor">▋</span>}
                   {!frame && <span className="terminal-placeholder">正确回答后，这里会显示真实执行顺序</span>}

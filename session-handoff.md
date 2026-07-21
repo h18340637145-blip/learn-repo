@@ -7,10 +7,10 @@ Project: NodePath (with-supabase), a visual Node.js / Next.js learning website b
 Current branch:
 
 ```text
-codex/nodepath-question-progress
+codex/nodepath-project-steps
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。当前分支已完成本轮 NodePath 题目级学习记录实现：每次选择答案都会保存题目尝试，侧边栏学习报告会展示已作答题、首次正确率、待复习题和最近学习时间，并包含稳定的最近学习时间统计。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。当前分支已完成本轮 NodePath 题目级学习记录实现，并已实现 V1.3 连续式阶段项目（多步骤项目改造）：新增 `ProjectStep` 类型支持连续多步骤决策的项目，学习台现可原生渲染步骤级任务、代码与题目。Node.js 阶段 00 的 CLI 项目已成功改造为 3 步体验。
 
 ## What Exists
 

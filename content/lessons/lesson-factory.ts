@@ -2,7 +2,7 @@ import type { AnswerOption, LessonKind, LessonQuestion, LessonSpec, LessonSource
 import { getDefaultVisualizer } from "../../lib/curriculum/visualizers";
 
 export type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVersion" | "execution" | "kind" | "questions" | "sources"> & {
-  answer: {
+  answer?: {
     type?: QuestionType;
     prompt: string;
     options: AnswerOption[];
@@ -18,6 +18,12 @@ export type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "n
   difficulty?: LessonSpec["difficulty"];
   kind?: LessonKind;
   nodeVersion?: string;
+
+  // Multi-step project fields
+  brief?: string;
+  steps?: LessonSpec["steps"];
+  finalFiles?: LessonSpec["finalFiles"];
+  finalExecution?: LessonSpec["finalExecution"];
 };
 
 export function createLessonSpec(input: LessonInput): LessonSpec {
@@ -40,14 +46,19 @@ export function createLessonSpec(input: LessonInput): LessonSpec {
     memoryHook: input.memoryHook,
     files: input.files,
     entryFile: input.entryFile,
-    questions: [{
-      id: `${input.id}-prediction`,
-      type: input.answer.type ?? "prediction",
-      prompt: input.answer.prompt,
-      options: input.answer.options,
-      answerId: input.answer.answerId,
-      correctExplanation: input.answer.correctExplanation
-    }, ...(input.additionalQuestions ?? [])],
+    questions: input.steps 
+      ? input.steps.map(step => step.question)
+      : [
+          ...(input.answer ? [{
+            id: `${input.id}-prediction`,
+            type: input.answer.type ?? "prediction",
+            prompt: input.answer.prompt,
+            options: input.answer.options,
+            answerId: input.answer.answerId,
+            correctExplanation: input.answer.correctExplanation
+          }] : []),
+          ...(input.additionalQuestions ?? [])
+        ],
     execution: {
       mode: "authored-trace",
       visualizer: cloneVisualizer(visualizer),
@@ -60,7 +71,11 @@ export function createLessonSpec(input: LessonInput): LessonSpec {
       title: source.title,
       url: source.url,
       verifiedAt: "2026-07-15"
-    }))
+    })),
+    brief: input.brief,
+    steps: input.steps,
+    finalFiles: input.finalFiles,
+    finalExecution: input.finalExecution
   };
 }
 

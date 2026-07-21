@@ -402,46 +402,149 @@ console.log("chars:", text.length);`,
     objectives: ["组合参数、路径、文件读取、函数和条件判断", "输出一个可读的文件统计报告"],
     prerequisites: ["foundations-process-files"],
     concept: "这个小项目把基础训练营的语法和 Node 边界串起来：从命令行参数拿到文件名，读取文本，调用函数统计行数和字符数，再把结果打印成报告。",
+    brief: "你需要分步骤完成一个 CLI 工具，它可以读取任意传入的文件并输出统计信息。",
     points: ["参数决定读取目标", "函数封装统计逻辑", "错误分支给出可读提示"],
     memoryHook: "参数进来，文件读出，函数统计，终端报告",
-    files: [{
-      name: "file-inspector.mjs",
-      code: `import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
-
-function summarize(text) {
-  const lines = text.split("\\n").length;
-  return { chars: text.length, lines };
-}
-
-const input = process.argv[2] ?? "README.md";
-
-try {
-  const text = await readFile(resolve(input), "utf8");
-  const report = summarize(text);
-  console.log("file:", input);
-  console.log("lines:", report.lines);
-  console.log("chars:", report.chars);
-} catch (error) {
-  console.error("无法读取文件:", error.message);
-}`,
-    }],
+    files: [{ name: "file-inspector.mjs", code: "// 载入中...\n" }],
     entryFile: "file-inspector.mjs",
-    answer: {
-      type: "transfer",
-      prompt: "这个项目里 summarize 函数最重要的职责是什么？",
-      options: [
-        { id: "a", label: "负责解析命令行参数", detail: "参数在函数外处理", feedback: "input 来自 process.argv，summarize 不应该关心参数来源。" },
-        { id: "b", label: "把文本转换成统计对象", detail: "封装纯统计逻辑", feedback: "正确：summarize 接收文本，返回 chars 和 lines，职责清晰。" },
-        { id: "c", label: "负责捕获文件读取错误", detail: "错误在 try/catch 处理", feedback: "读取错误由外层 try/catch 处理，summarize 只做统计。" },
-      ],
-      answerId: "b",
-      correctExplanation: "阶段项目把 I/O 边界和纯函数统计分开，summarize 只负责文本统计。",
-    },
     execution: {
-      lanes: ["读取输入", "统计文本", "输出报告"],
-      frames: frames(["process.argv 决定文件名。", "summarize 计算行数和字符数。", "终端展示统计报告。"], ["README.md", "{ lines, chars }", "3 行报告"], ["file: README.md", "lines: 42", "chars: 1280"]),
+      lanes: ["准备阶段", "就绪", "完成"],
+      frames: frames(["", "", ""], ["", "", ""], [""])
     },
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：处理输入与路径",
+        context: "我们要让工具能从命令行接受参数，如果没有提供，默认统计 README.md。",
+        files: [{
+          name: "file-inspector.mjs",
+          code: `import { resolve } from "node:path";\n\n// TODO: 获取输入参数并生成绝对路径`
+        }],
+        entryFile: "file-inspector.mjs",
+        question: {
+          id: "project-cli-step-1",
+          type: "implementation",
+          prompt: "你会如何获取命令行参数并解析出绝对路径？",
+          options: [
+            {
+              id: "a",
+              label: "从 process.argv[2] 获取",
+              detail: "优先取用业务参数",
+              feedback: "正确：argv[2] 是第一个业务参数，缺失时降级到默认文件。",
+              language: "js",
+              diffLines: [3, 4],
+              code: `const input = process.argv[2] ?? "README.md";\nconst targetPath = resolve(input);`
+            },
+            {
+              id: "b",
+              label: "直接使用 process.env",
+              detail: "把参数和环境变量混淆",
+              feedback: "环境变量不适合用来传递这种一次性的操作目标。",
+              language: "js",
+              diffLines: [3],
+              code: `const input = process.env.FILE ?? "README.md";`
+            }
+          ],
+          answerId: "a",
+          correctExplanation: "Node CLI 通常把前两个参数留给执行环境，业务参数从 process.argv[2] 开始。",
+          difficulty: "beginner"
+        },
+        execution: {
+          mode: "authored-trace",
+          visualizer: { type: "generic-particle-flow", title: "步骤 1 运行", nodes: ["输入参数", "路径解析"] },
+          lanes: ["输入", "路径", "解析完毕"],
+          frames: frames(["读取 process.argv", "生成 targetPath", "完成"], ["README.md", "绝对路径", "完成"], ["获取到目标文件: README.md", "路径: /path/to/README.md"])
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：封装纯函数统计逻辑",
+        context: "在实际读取文件前，先准备好统计文本的核心逻辑。独立的函数会让后续测试更容易。",
+        files: [{
+          name: "file-inspector.mjs",
+          code: `import { resolve } from "node:path";\n\nconst input = process.argv[2] ?? "README.md";\nconst targetPath = resolve(input);\n\n// TODO: 实现 summarize 统计函数`
+        }],
+        entryFile: "file-inspector.mjs",
+        question: {
+          id: "project-cli-step-2",
+          type: "implementation",
+          prompt: "如何实现 summarize 函数？",
+          options: [
+            {
+              id: "a",
+              label: "接收文本，返回包含行数和字符数的对象",
+              detail: "封装纯计算",
+              feedback: "正确：把文本转换成结构化数据，不负责打印日志，纯度最高。",
+              language: "js",
+              diffLines: [1, 2, 3, 4],
+              code: `function summarize(text) {\n  const lines = text.split("\\n").length;\n  return { chars: text.length, lines };\n}`
+            },
+            {
+              id: "b",
+              label: "直接在函数里读取并打印结果",
+              detail: "包含副作用",
+              feedback: "这样会让核心逻辑和 I/O 耦合，难以复用。",
+              language: "js",
+              diffLines: [1, 2, 3],
+              code: `function summarize(text) {\n  console.log("chars:", text.length);\n}`
+            }
+          ],
+          answerId: "a",
+          correctExplanation: "将复杂的解析与外部 I/O 隔离，是 Node 脚本的典型最佳实践。",
+          difficulty: "beginner"
+        },
+        execution: {
+          mode: "authored-trace",
+          visualizer: { type: "generic-particle-flow", title: "步骤 2 运行", nodes: ["文本", "统计结构"] },
+          lanes: ["分割文本", "字符数", "组装返回"],
+          frames: frames(["模拟分割", "提取长度", "组装"], ["模拟 2 行", "模拟 10 字符", "返回对象"], ["准备调用统计函数", "函数就绪"])
+        }
+      },
+      {
+        id: "step-3",
+        title: "步骤 3：文件读取与错误处理",
+        context: "现在我们要组装所有片段。读取文件可能是失败的（如文件不存在），必须处理这种异常。",
+        files: [{
+          name: "file-inspector.mjs",
+          code: `import { readFile } from "node:fs/promises";\nimport { resolve } from "node:path";\n\nfunction summarize(text) {\n  const lines = text.split("\\n").length;\n  return { chars: text.length, lines };\n}\n\nconst input = process.argv[2] ?? "README.md";\nconst targetPath = resolve(input);\n\n// TODO: 读取并处理可能的错误`
+        }],
+        entryFile: "file-inspector.mjs",
+        question: {
+          id: "project-cli-step-3",
+          type: "implementation",
+          prompt: "你会如何读取文件并输出最终结果？",
+          options: [
+            {
+              id: "a",
+              label: "使用 try/catch 包装 await readFile，并格式化输出",
+              detail: "安全可靠的处理",
+              feedback: "正确：try/catch 处理异步异常，然后交由 summarize 计算并格式化日志。",
+              language: "js",
+              diffLines: [1, 2, 3, 4, 5, 6, 7, 8],
+              code: `try {\n  const text = await readFile(targetPath, "utf8");\n  const report = summarize(text);\n  console.log("file:", input);\n  console.log("lines:", report.lines);\n  console.log("chars:", report.chars);\n} catch (error) {\n  console.error("无法读取文件:", error.message);\n}`
+            },
+            {
+              id: "b",
+              label: "直接读取，不捕获错误",
+              detail: "异常会导致进程崩溃",
+              feedback: "在 CLI 工具里，直接崩溃并打印长堆栈是对用户极不友好的体验，应该捕获并提供明确提示。",
+              language: "js",
+              diffLines: [1, 2, 3],
+              code: `const text = await readFile(targetPath, "utf8");\nconst report = summarize(text);\nconsole.log(report);`
+            }
+          ],
+          answerId: "a",
+          correctExplanation: "将易错的 I/O 包含在 try/catch 中，并确保 catch 分支给出人类可读的错误。",
+          difficulty: "beginner"
+        },
+        execution: {
+          mode: "authored-trace",
+          visualizer: { type: "generic-particle-flow", title: "最终执行", nodes: ["读取文件", "执行函数", "输出结果"] },
+          lanes: ["读取文件", "调用函数", "输出报告"],
+          frames: frames(["成功读取 README.md", "summarize 处理数据", "全部就绪"], ["1280 字节", "{ lines, chars }", "3 行输出"], ["file: README.md", "lines: 42", "chars: 1280"])
+        }
+      }
+    ],
     summary: ["阶段项目组合了参数、路径、文件读取、函数和错误处理", "I/O 边界和纯统计函数分开能降低理解成本", "CLI 工具要把成功报告和错误提示都设计清楚"],
     sources: [
       source("Run Node.js scripts from the command line", "https://nodejs.org/en/learn/command-line/run-nodejs-scripts-from-the-command-line"),
