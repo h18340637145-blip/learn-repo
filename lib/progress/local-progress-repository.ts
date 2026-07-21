@@ -13,6 +13,11 @@ function storageKey(courseId?: CourseId): string {
   return `${baseKey}.${courseId}.v1`;
 }
 
+function normalizeStringIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return unique(value.filter((item): item is string => typeof item === "string" && item.length > 0));
+}
+
 function normalizeSnapshot(raw: unknown, courseId: CourseId): ProgressSnapshot {
   if (!raw || typeof raw !== "object") return emptyProgress(courseId);
 
@@ -22,9 +27,9 @@ function normalizeSnapshot(raw: unknown, courseId: CourseId): ProgressSnapshot {
   return {
     version: 1,
     courseId,
-    completedLessonIds: Array.isArray(parsed.completedLessonIds) ? unique(parsed.completedLessonIds) : [],
-    completedProjectIds: Array.isArray(parsed.completedProjectIds) ? unique(parsed.completedProjectIds) : [],
-    reviewLessonIds: Array.isArray(parsed.reviewLessonIds) ? unique(parsed.reviewLessonIds) : [],
+    completedLessonIds: normalizeStringIds(parsed.completedLessonIds),
+    completedProjectIds: normalizeStringIds(parsed.completedProjectIds),
+    reviewLessonIds: normalizeStringIds(parsed.reviewLessonIds),
     questionAttempts: normalizeQuestionAttempts(parsed.questionAttempts),
     updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : null
   };
@@ -34,23 +39,28 @@ function normalizeQuestionAttempts(value: unknown): ProgressSnapshot["questionAt
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
 
   return Object.fromEntries(
-    Object.entries(value).filter(([, record]) => isQuestionAttemptRecord(record))
+    Object.entries(value).filter(([key, record]) => isQuestionAttemptRecord(key, record))
   );
 }
 
-function isQuestionAttemptRecord(value: unknown): value is ProgressSnapshot["questionAttempts"][string] {
+function isQuestionAttemptRecord(key: string, value: unknown): value is ProgressSnapshot["questionAttempts"][string] {
   if (!value || typeof value !== "object") return false;
   const record = value as ProgressSnapshot["questionAttempts"][string];
-  return typeof record.questionId === "string"
-    && typeof record.lessonId === "string"
+  if (typeof record.questionId !== "string" || record.questionId !== key) return false;
+  if (!Number.isInteger(record.attempts) || record.attempts < 1) return false;
+  if (!isValidDateString(record.firstAnsweredAt) || !isValidDateString(record.lastAnsweredAt)) return false;
+  if (Date.parse(record.lastAnsweredAt) < Date.parse(record.firstAnsweredAt)) return false;
+
+  return typeof record.lessonId === "string"
     && typeof record.stageId === "string"
     && typeof record.selectedOptionId === "string"
     && typeof record.isCorrect === "boolean"
     && typeof record.firstAttemptCorrect === "boolean"
-    && Number.isInteger(record.attempts)
-    && typeof record.firstAnsweredAt === "string"
-    && typeof record.lastAnsweredAt === "string"
     && typeof record.needsReview === "boolean";
+}
+
+function isValidDateString(value: unknown): value is string {
+  return typeof value === "string" && !Number.isNaN(Date.parse(value));
 }
 
 export function createLocalProgressRepository(storage: Storage, courseId?: CourseId): ProgressRepository {
@@ -89,13 +99,14 @@ export function createLocalProgressRepository(storage: Storage, courseId?: Cours
     },
     recordQuestionAttempt(snapshot, input) {
       const now = new Date().toISOString();
-      const previous = snapshot.questionAttempts[input.questionId];
+      const questionAttempts = normalizeQuestionAttempts(snapshot.questionAttempts ?? {});
+      const previous = questionAttempts[input.questionId];
       const nextRecord = previous
         ? {
             ...previous,
             selectedOptionId: input.selectedOptionId,
             isCorrect: input.isCorrect,
-            attempts: previous.attempts + 1,
+            attempts: Math.max(previous.attempts, 0) + 1,
             lastAnsweredAt: now,
             needsReview: previous.needsReview || !previous.firstAttemptCorrect
           }
@@ -115,7 +126,7 @@ export function createLocalProgressRepository(storage: Storage, courseId?: Cours
       return save({
         ...snapshot,
         questionAttempts: {
-          ...snapshot.questionAttempts,
+          ...questionAttempts,
           [input.questionId]: nextRecord
         },
         updatedAt: now

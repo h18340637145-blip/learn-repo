@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createLocalProgressRepository } from "../../lib/progress/local-progress-repository";
+import type { ProgressSnapshot } from "../../lib/progress/types";
 
 class MemoryStorage implements Storage {
   private data = new Map<string, string>();
@@ -104,4 +105,100 @@ test("首次答错题目会进入待复习，重答不会覆盖首次结果", ()
   assert.equal(record?.attempts, 2);
   assert.equal(record?.needsReview, true);
   assert.equal(record?.selectedOptionId, "b");
+});
+
+test("污染结构迁移时会过滤非法字段且记录作答时保持防御", () => {
+  const storage = new MemoryStorage();
+  storage.setItem("nodepath.progress.v1", JSON.stringify({
+    version: 1,
+    courseId: "nodejs",
+    completedLessonIds: ["runtime-introduction", "", 12, "runtime-introduction"],
+    completedProjectIds: ["runtime-project", null, ""],
+    reviewLessonIds: ["runtime-introduction", false, ""],
+    questionAttempts: {
+      "mismatched-key": {
+        questionId: "runtime-introduction-prediction",
+        lessonId: "runtime-introduction",
+        stageId: "runtime-cli",
+        selectedOptionId: "a",
+        isCorrect: false,
+        firstAttemptCorrect: false,
+        attempts: 1,
+        firstAnsweredAt: "2026-07-21T01:00:00.000Z",
+        lastAnsweredAt: "2026-07-21T01:01:00.000Z",
+        needsReview: true
+      },
+      "negative-attempts": {
+        questionId: "negative-attempts",
+        lessonId: "runtime-introduction",
+        stageId: "runtime-cli",
+        selectedOptionId: "a",
+        isCorrect: false,
+        firstAttemptCorrect: false,
+        attempts: -1,
+        firstAnsweredAt: "2026-07-21T01:00:00.000Z",
+        lastAnsweredAt: "2026-07-21T01:01:00.000Z",
+        needsReview: true
+      },
+      "invalid-date": {
+        questionId: "invalid-date",
+        lessonId: "runtime-introduction",
+        stageId: "runtime-cli",
+        selectedOptionId: "a",
+        isCorrect: false,
+        firstAttemptCorrect: false,
+        attempts: 1,
+        firstAnsweredAt: "not-a-date",
+        lastAnsweredAt: "2026-07-21T01:01:00.000Z",
+        needsReview: true
+      },
+      "reversed-time": {
+        questionId: "reversed-time",
+        lessonId: "runtime-introduction",
+        stageId: "runtime-cli",
+        selectedOptionId: "a",
+        isCorrect: false,
+        firstAttemptCorrect: false,
+        attempts: 1,
+        firstAnsweredAt: "2026-07-21T01:02:00.000Z",
+        lastAnsweredAt: "2026-07-21T01:01:00.000Z",
+        needsReview: true
+      },
+      "valid-question": {
+        questionId: "valid-question",
+        lessonId: "runtime-introduction",
+        stageId: "runtime-cli",
+        selectedOptionId: "b",
+        isCorrect: true,
+        firstAttemptCorrect: true,
+        attempts: 1,
+        firstAnsweredAt: "2026-07-21T01:00:00.000Z",
+        lastAnsweredAt: "2026-07-21T01:01:00.000Z",
+        needsReview: false
+      }
+    },
+    updatedAt: "2026-07-21T02:00:00.000Z"
+  }));
+  const repository = createLocalProgressRepository(storage, "nodejs");
+
+  const progress = repository.load();
+
+  assert.deepEqual(progress.completedLessonIds, ["runtime-introduction"]);
+  assert.deepEqual(progress.completedProjectIds, ["runtime-project"]);
+  assert.deepEqual(progress.reviewLessonIds, ["runtime-introduction"]);
+  assert.deepEqual(Object.keys(progress.questionAttempts), ["valid-question"]);
+
+  const contaminatedSnapshot = {
+    ...progress,
+    questionAttempts: undefined
+  } as unknown as ProgressSnapshot;
+  const saved = repository.recordQuestionAttempt(contaminatedSnapshot, {
+    lessonId: "runtime-introduction",
+    stageId: "runtime-cli",
+    questionId: "runtime-introduction-prediction",
+    selectedOptionId: "b",
+    isCorrect: true
+  });
+
+  assert.equal(saved.questionAttempts["runtime-introduction-prediction"]?.attempts, 1);
 });
