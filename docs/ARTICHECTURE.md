@@ -142,7 +142,10 @@ lib/execution/authored-trace.ts
   -> 可取消的预设轨迹异步生成器
 
 lib/progress/*
-  -> 与 UI 解耦的本地进度仓储；按 courseId 隔离 localStorage key，并在 ProgressSnapshot 中保留 courseId
+  -> 与 UI 解耦的本地进度仓储；按 courseId 隔离 localStorage key，并在 ProgressSnapshot 中保留 courseId 和 questionAttempts
+
+lib/progress/learning-report.ts
+  -> 题目级进度报告纯函数层；根据 ProgressSnapshot 和已发布课程题目计算已作答题、首次正确率、待复习题和最近作答时间
 
 lib/immersive/visual-state.ts
   -> 学习状态到沉浸式视觉状态的纯函数映射
@@ -171,8 +174,9 @@ app/_components/question-options.tsx
 - 浏览器渲染学习工作台。
 - 用户选择答案。
 - 单节课程通过 `questionIndex` 展示当前题，`selectedByQuestion` 记录每题选项，`answeredQuestionIds` 记录已答对题目。
+- 每次选择答案都会通过 `ProgressRepository.recordQuestionAttempt()` 写入题目尝试，UI 不直接读写 `localStorage`。
 - 答对非最后一道必答题时只显示解析和“进入下一题”，不会写入课程完成进度。
-- 完成全部必答题后才启动 `streamAuthoredTrace()`。
+- 完成全部必答题后才启动 `streamAuthoredTrace()`，并在完整运行结束后写入课程或阶段项目完成进度。
 - `AbortController` 负责切换课程或重新作答时取消旧轨迹。
 - 终端面板显示课程内预设日志。
 - 完整运行结束后写入本地进度仓储。
@@ -238,9 +242,10 @@ app/_components/question-options.tsx
 进度使用 `ProgressSnapshot`：
 
 - `courseId`: 进度所属课程。
+- `questionAttempts`: 按题目 ID 保存题目级记录；每条记录包含课程、阶段、最近选择、最近是否正确、首次是否答对、尝试次数、首次作答时间、最近作答时间和待复习状态。
 - Node.js 使用兼容 key `nodepath.progress.v1`。
 - Next.js 使用 `nodepath.progress.nextjs.v1`。
-- 损坏或旧格式进度会按当前课程回退为空快照。
+- 损坏进度会按当前课程回退为空快照；旧格式进度会补齐 `questionAttempts` 结构，但不会伪造历史题目记录。
 
 ## State Flow
 
@@ -250,13 +255,14 @@ openLesson(index)
   -> reset questionIndex, selectedByQuestion, answeredQuestionIds, status, frame, frame index
 
 chooseAnswer(answer)
+  -> record question attempt through progress repository
   -> wrong answer: status = "wrong"
   -> correct answer before final required question: record answered question and show explanation
   -> final required answer: status = "running"
     -> stream authored frames
     -> update frame and frameIndex
     -> status = "success"
-    -> save progress
+    -> save lesson or project completion progress
 
 goToNextQuestion()
   -> questionIndex + 1

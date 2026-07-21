@@ -7,10 +7,10 @@ Project: NodePath (with-supabase), a visual Node.js / Next.js learning website b
 Current branch:
 
 ```text
-codex/nodepath-p1-question-bank-scale
+codex/nodepath-question-progress
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。当前分支正在实现 NodePath P1 题型大规模铺开：新增 diagnosis、repair、completion、execution-order 题型 UI，并让 Node.js / Next.js 已发布知识点至少包含 2 道题、阶段项目至少包含 3 道题。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。当前分支正在实现 NodePath 题目级学习记录：每次选择答案都会保存题目尝试，侧边栏学习报告会展示已作答题、首次正确率、待复习题和最近学习时间。
 
 ## What Exists
 
@@ -46,7 +46,9 @@ Core interaction:
 - 学习工作台左侧已新增路线统计卡，动态展示已发布案例、互动题、知识点和阶段项目；Node.js 当前显示 92 个已发布案例、198 道互动题、88 个知识点和 11 个阶段项目。
 - Learner reads concept and code.
 - Learner chooses an answer.
+- 每次选择答案都会写入题目级本地记录，记录最近选择、尝试次数、首次是否答对、首次作答时间、最近作答时间和待复习状态。
 - Wrong answer shows option-specific feedback.
+- 首次答错的题目会进入待复习统计，后续答对也保留待复习标记。
 - 单节课程现在可以包含多道题；答对中间题显示解析和“进入下一题”，答完全部必答题后才启动可取消 authored trace。
 - Correct final required answer starts a cancellable authored trace.
 - 已实现 Runtime Cockpit + Knowledge Nebula 沉浸式视觉层。
@@ -62,7 +64,9 @@ Core interaction:
 - P1 题库通过 `content/questions/*` 作为补丁层挂载到已发布课程，Node.js 与 Next.js 已发布课程都已满足知识点至少 2 题、阶段项目至少 3 题。
 - 移动端代码题已单独适配：选项卡片单列、代码横向滚动、解析区纵向排列。
 - Completion is saved to browser local progress and restored after refresh.
-- ProgressSnapshot 按 `courseId` 隔离，Node.js 与 Next.js 进度互不污染。
+- ProgressSnapshot 按 `courseId` 隔离，Node.js 与 Next.js 进度互不污染，并包含 `questionAttempts` 题目级记录。
+- 侧边栏已新增学习报告卡片，从已发布题库和题目级记录计算已作答题、首次正确率、待复习题和最近学习时间。
+- 旧版本地进度会自动补齐题目记录结构，不会伪造历史题目作答。
 - 支持 `prefers-reduced-motion` 降级。
 
 Important product boundary:
@@ -119,7 +123,8 @@ Important product boundary:
 - `lib/curriculum/visualizers.ts`: 课程运行可视化配置映射。
 - `lib/execution/authored-trace.ts`: cancellable authored trace runner.
 - `lib/immersive/visual-state.ts`: 学习状态到沉浸式视觉状态的纯函数映射。
-- `lib/progress/*`: local progress repository boundary.
+- `lib/progress/*`: local progress repository boundary，包含按课程隔离的完成进度和题目级作答记录。
+- `lib/progress/learning-report.ts`: 题目级学习报告纯函数，计算已作答题、首次正确率、待复习题和最近学习时间。
 - `components/immersive/*`: Runtime Cockpit、Knowledge Nebula、EnergyRunway、CompletionBurst、CursorSparks、AchievementUnlock 和相关视觉组件。
 - `components/learning-space/*`: 阶段入口和当前阶段星图组件。
 - `components/visualizers/*`: Three.js 运行舱、知识环绕运行场景、粒子增强层和 fallback。
@@ -135,6 +140,19 @@ Important product boundary:
 - `docs/ARTICHECTURE.md`: architecture harness.
 
 ## Validation History
+
+Latest targeted validation for the question-level progress work:
+
+```bash
+git diff --check -> pass. 无输出。
+```
+
+Implementation notes:
+
+- 新增 `ProgressSnapshot.questionAttempts` 与 `ProgressRepository.recordQuestionAttempt()`，本地仓储会记录每道题的最近选择、尝试次数、首次是否答对、首次作答时间、最近作答时间和待复习状态。
+- 新增 `lib/progress/learning-report.ts`，从题目级记录和已发布课程题目计算侧边栏学习报告。
+- `LearningStudio` 在选择答案时记录题目尝试；完成全部必答题并跑完 authored trace 后，才写入课程或阶段项目完成进度。
+- 旧版本地进度会自动补齐题目记录结构，不会补造历史题目作答。
 
 Latest targeted validation for the P1 question-bank scale work:
 
