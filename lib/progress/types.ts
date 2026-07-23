@@ -11,6 +11,10 @@ export type QuestionAttemptRecord = {
   firstAnsweredAt: string;
   lastAnsweredAt: string;
   needsReview: boolean;
+  easinessFactor?: number;
+  intervalDays?: number;
+  nextReviewAt?: string;
+  reviewState?: "new" | "reviewing" | "mastered";
 };
 
 export type QuestionAttemptInput = {

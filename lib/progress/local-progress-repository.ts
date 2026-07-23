@@ -1,5 +1,6 @@
 import { emptyProgress, type ProgressRepository, type ProgressSnapshot } from "./types";
 import type { CourseId } from "../curriculum/types";
+import { calculateSM2NextReview } from "./spaced-repetition";
 
 const baseKey = "nodepath.progress";
 const unique = (values: string[]) => [...new Set(values)];
@@ -104,14 +105,25 @@ export function createLocalProgressRepository(storage: Storage, courseId?: Cours
       const now = new Date().toISOString();
       const questionAttempts = normalizeQuestionAttempts(snapshot.questionAttempts ?? {});
       const previous = questionAttempts[input.questionId];
+
+      const attemptsCount = previous ? Math.max(previous.attempts, 0) + 1 : 1;
+      const prevEf = previous?.easinessFactor ?? 2.5;
+      const prevInterval = previous?.intervalDays ?? 1;
+
+      const sm2 = calculateSM2NextReview(input.isCorrect, attemptsCount, prevEf, prevInterval);
+
       const nextRecord = previous
         ? {
             ...previous,
             selectedOptionId: input.selectedOptionId,
             isCorrect: input.isCorrect,
-            attempts: Math.max(previous.attempts, 0) + 1,
+            attempts: attemptsCount,
             lastAnsweredAt: now,
-            needsReview: previous.needsReview || !previous.firstAttemptCorrect
+            needsReview: previous.needsReview || !previous.firstAttemptCorrect,
+            easinessFactor: sm2.easinessFactor,
+            intervalDays: sm2.intervalDays,
+            nextReviewAt: sm2.nextReviewAt,
+            reviewState: sm2.reviewState
           }
         : {
             questionId: input.questionId,
@@ -123,7 +135,11 @@ export function createLocalProgressRepository(storage: Storage, courseId?: Cours
             attempts: 1,
             firstAnsweredAt: now,
             lastAnsweredAt: now,
-            needsReview: !input.isCorrect
+            needsReview: !input.isCorrect,
+            easinessFactor: sm2.easinessFactor,
+            intervalDays: sm2.intervalDays,
+            nextReviewAt: sm2.nextReviewAt,
+            reviewState: sm2.reviewState
           };
 
       return save({

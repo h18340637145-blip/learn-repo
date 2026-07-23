@@ -334,6 +334,15 @@ Current beginner lessons should prefer authored traces. Real project execution s
 - Log capture.
 - Error serialization.
 
+## P1 Development Architecture & Specifications (P1 开发架构与规范)
+
+P1 阶段（提升理解与留存）的模块拓扑、离线优先与数据同步算法、题型架构及复习引擎规范详见：
+
+- [P1 开发总纲](file:///Users/huo2wx/coding/react/learning-app/with-supabase/docs/P1-DEVELOPMENT-GUIDE.md)
+- [P1 题型与交互开发规范](file:///Users/huo2wx/coding/react/learning-app/with-supabase/docs/specs/p1-question-interaction-spec.md)
+- [P1 艾宾浩斯复习与留存引擎规范](file:///Users/huo2wx/coding/react/learning-app/with-supabase/docs/specs/p1-spaced-repetition-retention-spec.md)
+- [P1 Supabase 数据架构与同步规范](file:///Users/huo2wx/coding/react/learning-app/with-supabase/docs/specs/p1-supabase-data-architecture.md)
+
 ## Validation
 
 Use:

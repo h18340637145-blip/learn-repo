@@ -8,7 +8,14 @@ export type ReviewCardItem = {
   reason: "needs-review" | "ebbinghaus-due" | "practice";
 };
 
-// Spaced repetition intervals in milliseconds
+export type SM2Result = {
+  easinessFactor: number;
+  intervalDays: number;
+  nextReviewAt: string;
+  reviewState: "new" | "reviewing" | "mastered";
+};
+
+// Spaced repetition fallback intervals in milliseconds
 const INTERVALS_MS = [
   1 * 24 * 60 * 60 * 1000,  // 1 day
   3 * 24 * 60 * 60 * 1000,  // 3 days
@@ -17,7 +24,64 @@ const INTERVALS_MS = [
   30 * 24 * 60 * 60 * 1000, // 30 days
 ];
 
+export function calculateSM2NextReview(
+  isCorrect: boolean,
+  attemptsCount: number,
+  prevEf = 2.5,
+  prevInterval = 1
+): SM2Result {
+  // Quality q: 5 if first try correct, 3 if 2nd try, 1 if 3+ tries, 0 if wrong
+  let q = 0;
+  if (isCorrect) {
+    if (attemptsCount <= 1) q = 5;
+    else if (attemptsCount === 2) q = 3;
+    else q = 1;
+  } else {
+    q = 0;
+  }
+
+  // SM-2 formula
+  const newEf = Math.max(1.3, prevEf + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)));
+
+  let intervalDays = 1;
+  if (q >= 3) {
+    if (prevInterval <= 1) {
+      intervalDays = 3;
+    } else if (prevInterval <= 3) {
+      intervalDays = 7;
+    } else {
+      intervalDays = Math.round(prevInterval * newEf);
+    }
+  } else {
+    intervalDays = 1;
+  }
+
+  const nextDate = new Date();
+  nextDate.setDate(nextDate.getDate() + intervalDays);
+
+  let reviewState: "new" | "reviewing" | "mastered" = "reviewing";
+  if (isCorrect && attemptsCount <= 1 && newEf >= 2.4) {
+    reviewState = "mastered";
+  } else if (!isCorrect) {
+    reviewState = "reviewing";
+  }
+
+  return {
+    easinessFactor: Number(newEf.toFixed(2)),
+    intervalDays,
+    nextReviewAt: nextDate.toISOString(),
+    reviewState
+  };
+}
+
 function isEbbinghausDue(record: QuestionAttemptRecord, nowMs: number): boolean {
+  if (record.nextReviewAt) {
+    const nextTime = Date.parse(record.nextReviewAt);
+    if (!Number.isNaN(nextTime)) {
+      return nowMs >= nextTime;
+    }
+  }
+
   const lastTime = Date.parse(record.lastAnsweredAt);
   if (Number.isNaN(lastTime)) return false;
 

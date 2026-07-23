@@ -10,7 +10,7 @@ Current branch:
 main
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量实现四大认知记忆与游戏化闭环：Supabase Auth 登录与云端 `useProgressSync` 进度同步、`CheatSheetModal` 知识扫描台、`DailyReviewModal` 框架复习任务舱、`ParameterPlayground` 因果演练控制台、`SkillTreeModal` 技能星图轨道、P0 重磅交互升级 —— `MicroBrowser` 微型浏览器预览舱、`ProductionIncidentHUD` 生产事故救援模式，以及 `TraceTimelineScrubber` 按帧轨迹控制条。本轮已补齐运行面板状态层，Scrubber 播放/暂停/重播和拖拽选帧不再是空转交互。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量落地 P1 开发与实施规范套件 (`docs/P1-DEVELOPMENT-GUIDE.md` 及 `docs/specs/*`)：已升级 `supabase-migration.sql` 规范建表 Schema 及 RLS 策略，全量实现离线优先智能合并算法 (`lib/progress/sync-strategy.ts`) 与 `useProgressSync` 挂载同步，并在 `spaced-repetition.ts` 及 `local-progress-repository.ts` 中完成了基于 SM-2 的艾宾浩斯复习与记忆衰减调度引擎。全量 149 项单元测试与 `npm run validate:curriculum` 校验 100% 通过。
 
 ## What Exists
 
