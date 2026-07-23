@@ -1,6 +1,6 @@
 import type { QuestionBankEntry } from "@/content/questions/apply-question-bank";
 
-import type { CodeLanguage, CourseSpec, CurriculumStage, LessonSpec, QuestionType } from "./types";
+import type { CodeLanguage, CourseSpec, CurriculumStage, LessonSpec, QuestionType, VisualizerType } from "./types";
 
 const supportedQuestionTypes = new Set<QuestionType>([
   "prediction",
@@ -13,12 +13,67 @@ const supportedQuestionTypes = new Set<QuestionType>([
   "concept-match",
   "equivalent-code",
   "sequence",
-  "transfer"
+  "transfer",
+  "trace-debug",
+  "network-debug",
+  "visual-math",
+  "agent-debug",
+  "android-stack-debug"
 ]);
 
-const p1QuestionTypes = new Set<QuestionType>(["diagnosis", "repair", "completion", "execution-order"]);
+const p1QuestionTypes = new Set<QuestionType>([
+  "diagnosis",
+  "repair",
+  "completion",
+  "execution-order",
+  "trace-debug",
+  "network-debug",
+  "visual-math",
+  "agent-debug",
+  "android-stack-debug"
+]);
 
-const supportedCodeLanguages = new Set<CodeLanguage>(["js", "ts", "tsx", "json", "bash", "text"]);
+const supportedCodeLanguages = new Set<CodeLanguage>([
+  "js",
+  "ts",
+  "tsx",
+  "json",
+  "bash",
+  "text",
+  "c",
+  "cpp",
+  "py",
+  "kt",
+  "java",
+  "html",
+  "css",
+  "math"
+]);
+
+const supportedVisualizerTypes = new Set<VisualizerType>([
+  "lane-flow",
+  "http-pipeline",
+  "service-boundary",
+  "worker-pool",
+  "realtime-mesh",
+  "quality-shield",
+  "diagnostics-tower",
+  "stage-project-core",
+  "generic-particle-flow",
+  "nextjs-render-pipeline",
+  "nextjs-routing-tree",
+  "nextjs-component-boundary",
+  "nextjs-data-flow",
+  "nextjs-middleware-chain",
+  "nextjs-build-output",
+  "frontend-error-stack",
+  "browser-network-debug",
+  "memory-stack",
+  "android-system-trace",
+  "agent-trace",
+  "math-graph-lab",
+  "transformer-attention"
+]);
 
 export function validateLessonSpec(lesson: LessonSpec): string[] {
   const errors: string[] = [];
@@ -38,6 +93,17 @@ export function validateLessonSpec(lesson: LessonSpec): string[] {
     }
   } else {
     errors.push(`课程 ${lesson.id} 没有定义 files 或 steps`);
+  }
+
+  for (const execution of [
+    lesson.execution,
+    lesson.finalExecution,
+    ...(lesson.steps?.map((step) => step.execution) ?? [])
+  ]) {
+    const type = execution?.visualizer.type;
+    if (type && !supportedVisualizerTypes.has(type)) {
+      errors.push(`课程 ${lesson.id} 使用了不支持的运行舱 ${type}`);
+    }
   }
 
   for (const question of lesson.questions) {
@@ -148,6 +214,9 @@ export function validateCourseCatalog(course: CourseSpec): string[] {
   const errors: string[] = [];
   const ids = new Set<string>();
 
+  if (!course.domainId) errors.push(`课程 ${course.id} 缺少学院 domainId`);
+  if (!course.slug?.trim()) errors.push(`课程 ${course.id} 缺少 slug`);
+  if (!course.runtimeSurfaces?.length) errors.push(`课程 ${course.id} 至少需要一个运行舱`);
   if (course.stages.length === 0) errors.push(`课程 ${course.id} 没有阶段`);
   if (course.id === "nodejs" && course.stages.length !== 11) {
     errors.push(`课程 ${course.id} 应有 11 个阶段，实际为 ${course.stages.length}`);
