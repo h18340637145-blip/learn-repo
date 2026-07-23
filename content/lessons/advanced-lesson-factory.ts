@@ -118,7 +118,9 @@ function stageMeta(stageId: StageId): { number: number; label: string } {
     "nextjs-auth-middleware": { number: 6, label: "认证与会话" },
     "nextjs-database": { number: 7, label: "数据库与 ORM" },
     "nextjs-testing-deployment": { number: 8, label: "测试与部署" },
-    "nextjs-advanced-patterns": { number: 9, label: "高级模式" }
+    "nextjs-advanced-patterns": { number: 9, label: "高级模式" },
+    // Frontend debugging stages
+    "frontend-debugging-console-stack": { number: 0, label: "浏览器控制台与错误栈" }
   };
 
   return meta[stageId];
