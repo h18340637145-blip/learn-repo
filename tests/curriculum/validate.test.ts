@@ -318,3 +318,18 @@ test("不支持的运行舱类型返回具体错误", () => {
     "课程 event-loop-order 使用了不支持的运行舱 unsupported-visualizer"
   ]);
 });
+
+test("旧课程缺少运行舱 visualizer 时返回错误而不是抛出异常", () => {
+  const lesson = cloneLesson();
+  const executionWithoutVisualizer: Omit<NonNullable<LessonSpec["execution"]>, "visualizer"> = {
+    mode: "authored-trace",
+    lanes: ["Call Stack"],
+    frames: [{ activeLane: 0, laneValues: ["console.log"], log: ["1"], note: "同步执行。", delayMs: 0 }]
+  };
+
+  lesson.execution = executionWithoutVisualizer as never;
+
+  assert.deepEqual(validateLessonSpec(lesson), [
+    "课程 event-loop-order 缺少运行舱 visualizer"
+  ]);
+});

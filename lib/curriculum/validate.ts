@@ -100,7 +100,15 @@ export function validateLessonSpec(lesson: LessonSpec): string[] {
     lesson.finalExecution,
     ...(lesson.steps?.map((step) => step.execution) ?? [])
   ]) {
-    const type = execution?.visualizer.type;
+    if (!execution) continue;
+
+    const visualizer = execution.visualizer;
+    if (!visualizer) {
+      errors.push(`课程 ${lesson.id} 缺少运行舱 visualizer`);
+      continue;
+    }
+
+    const type = visualizer.type;
     if (type && !supportedVisualizerTypes.has(type)) {
       errors.push(`课程 ${lesson.id} 使用了不支持的运行舱 ${type}`);
     }
