@@ -5,10 +5,11 @@ import { allCourses, getCourse } from "../../content/curriculum-registry";
 import { getLessonsByCourse, nextjsPublishedLessons, publishedLessons } from "../../content/lesson-registry";
 import { validateCourseCatalog, validateLessonSpec } from "../../lib/curriculum/validate";
 
-test("课程注册中心聚合 Node.js 与 Next.js 两条学习路径", () => {
-  assert.deepEqual(allCourses.map((course) => course.id), ["nodejs", "nextjs"]);
+test("课程注册中心聚合 Node.js、Next.js 与前端报错调试路线", () => {
+  assert.deepEqual(allCourses.map((course) => course.id), ["nodejs", "nextjs", "frontend-debugging"]);
   assert.equal(getCourse("nodejs").stages.length, 11);
   assert.equal(getCourse("nextjs").stages.length, 10);
+  assert.equal(getCourse("frontend-debugging").stages.length, 1);
 });
 
 test("每条学习路径可以独立校验目录和已发布课程", () => {

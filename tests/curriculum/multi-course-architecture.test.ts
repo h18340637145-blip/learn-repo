@@ -6,7 +6,8 @@ import { allCourses, courseDomains, getCourse, getCoursesByDomain } from "../../
 test("课程注册表暴露多学院元信息", () => {
   assert.ok(courseDomains.some((domain) => domain.id === "frontend"));
   assert.ok(courseDomains.some((domain) => domain.id === "server"));
-  assert.ok(courseDomains.some((domain) => domain.id === "ai"));
+  assert.ok(courseDomains.some((domain) => domain.id === "ai-application"));
+  assert.ok(courseDomains.some((domain) => domain.id === "ai-agent"));
 });
 
 test("课程路线带有学院、状态和运行舱元信息", () => {
