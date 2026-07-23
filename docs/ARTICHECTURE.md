@@ -163,13 +163,16 @@ components/gamification/*
   -> 技能星图和打卡成就工具舱，展示阶段轨道、节点掌握状态、连续学习和分享文案
 
 components/preview/*
-  -> 微型浏览器预览舱，提供 URL 地址栏、Status Code、Headers 抽屉与 JSON / HTML / UI 卡片切面渲染
+  -> 微型浏览器预览舱，提供 URL 地址栏、Status Code、Headers 抽屉与 JSON / HTML / UI 卡片切面渲染；内容仍来自 lesson / step preview 或确定性默认预览
 
 components/emergency/*
-  -> 生产事故救援模式 HUD，阶段项目触发现场警报与 CPU / Memory / Error 模拟指标与系统复苏反馈
+  -> 生产事故救援模式 HUD，阶段项目触发现场警报；支持 ProductionIncidentSpec 显式配置，也可生成确定性默认事故、修复中、严重故障和恢复状态
 
 components/visualizers/*
   -> Three.js 运行舱、知识环绕场景、粒子增强层、WebGL / 减少动态效果 fallback 与 TraceTimelineScrubber 按帧轨迹控制条
+
+lib/runtime/runtime-panel-state.ts
+  -> 运行面板轻量状态机，集中管理 Console / Browser Tab、Trace 播放状态、手动选帧和 authored trace 帧同步规则
 
 app/_components/learning-studio.tsx
   -> 共享课程工作台 Client Component，通过 CourseConfig 接收课程、目录、代码标签、终端命令和课程切换信息，并管理单课多题流程
@@ -192,7 +195,9 @@ app/_components/question-options.tsx
 - 答对非最后一道必答题时只显示解析和“进入下一题”，不会写入课程完成进度。
 - 完成全部必答题后才启动 `streamAuthoredTrace()`，并在完整运行结束后写入课程或阶段项目完成进度。
 - `AbortController` 负责切换课程或重新作答时取消旧轨迹。
-- 终端面板显示课程内预设日志。
+- `lib/runtime/runtime-panel-state.ts` 管理运行面板交互状态：Console / Browser Tab、`disabled | playing | paused | complete` 播放态、当前帧索引。
+- authored trace 只有在 `playbackState === "playing"` 时推进 UI 帧；暂停、拖拽 range、上一帧、下一帧和节点点击都会暂停自动播放，并忽略旧流继续覆盖当前帧。
+- 终端面板和微型浏览器面板显示课程内预设日志与预设响应，不执行学习者代码。
 - 完整运行结束后写入本地进度仓储。
 
 当前即将引入 Supabase 作为后端服务。之前没有后端 API、数据库、认证，现计划通过 Supabase 提供用户认证、跨设备进度同步和数据库支持。已发布课程虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
@@ -225,6 +230,9 @@ app/_components/question-options.tsx
 - `questions[].materialTitle/materialCode/materialLanguage/expectedOutput/orderItems`: P1 题型材料字段，用于展示诊断现场、补全任务、预期输出和执行顺序。
 - `questions[].options[].code/language/diffLines`: implementation 等代码题使用的代码方案、语言标签和重点行。
 - `execution`: authored trace 可视化配置，包含结构化 `visualizer`。
+- `preview`: 微型浏览器预览配置，支持 URL、状态码、Headers、JSON、HTML 和 UI 卡片切面。
+- `incident`: 阶段项目生产事故 HUD 配置，包含标题、摘要、metric 在 incident / patching / critical / restored 四类状态下的显示值、恢复文案和 runbook；普通知识点不会强制渲染 HUD。
+- `steps[].preview` / `steps[].incident`: 多步骤阶段项目可覆盖当前任务的浏览器预览和事故视图。
 - `sources`: 官方来源和校验日期。
 
 已发布课程的质量约束：

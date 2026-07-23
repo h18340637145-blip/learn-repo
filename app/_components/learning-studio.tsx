@@ -33,6 +33,18 @@ import { calculateStreak } from "@/lib/progress/streak";
 import { MicroBrowser } from "@/components/preview/micro-browser";
 import { ProductionIncidentHUD } from "@/components/emergency/production-incident-hud";
 import { TraceTimelineScrubber } from "@/components/visualizers/trace-timeline-scrubber";
+import {
+  acceptRunnerFrame,
+  completeTracePlayback,
+  createRuntimePanelState,
+  disableTracePlayback,
+  selectRuntimeTab,
+  selectTraceFrame,
+  startTracePlayback,
+  toggleTracePlayback,
+  type RuntimeOutputTab,
+  type RuntimePanelState
+} from "@/lib/runtime/runtime-panel-state";
 
 const delay = (milliseconds: number) =>
   new Promise((resolve) => window.setTimeout(resolve, milliseconds));
@@ -72,7 +84,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   const [selectedByQuestion, setSelectedByQuestion] = useState<Record<string, string>>({});
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle" | "running" | "wrong" | "success">("idle");
-  const [activeConsoleTab, setActiveConsoleTab] = useState<"console" | "browser">("console");
+  const [runtimePanel, setRuntimePanel] = useState<RuntimePanelState>(() => createRuntimePanelState());
   const [isCheatSheetOpen, setIsCheatSheetOpen] = useState(false);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isSkillTreeOpen, setIsSkillTreeOpen] = useState(false);
@@ -80,6 +92,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   const [frame, setFrame] = useState<RunnerFrame | null>(null);
   const [progress, setProgress] = useState<ProgressSnapshot>(() => emptyProgress(courseId));
   const progressRef = useRef<ProgressSnapshot>(emptyProgress(courseId));
+  const runtimePanelRef = useRef<RuntimePanelState>(createRuntimePanelState());
   const activeRun = useRef<AbortController | null>(null);
   const lesson = publishedLessons[lessonIndex]!;
   const isProject = lesson.kind === "stage-project";
@@ -147,10 +160,25 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   const activeStageProject = activeStageSpace.nodes.find((node) => node.kind === "stage-project");
   const activeStageProjectLessonIndex = activeStageProject?.lessonIndex ?? projectLessonIndex;
   const completionVariant = isProject ? "project" : "lesson";
+  const activeConsoleTab = runtimePanel.activeTab;
+  const visiblePlaybackState = status === "idle" || status === "wrong" ? "disabled" : runtimePanel.playbackState;
 
   function cancelRun() {
     activeRun.current?.abort();
     activeRun.current = null;
+  }
+
+  function updateRuntimePanel(nextState: RuntimePanelState) {
+    runtimePanelRef.current = nextState;
+    setRuntimePanel(nextState);
+  }
+
+  function updateRuntimePanelWith(updater: (current: RuntimePanelState) => RuntimePanelState) {
+    setRuntimePanel((current) => {
+      const next = updater(current);
+      runtimePanelRef.current = next;
+      return next;
+    });
   }
 
   useEffect(() => () => {
@@ -160,6 +188,10 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   useEffect(() => {
     progressRef.current = progress;
   }, [progress]);
+
+  useEffect(() => {
+    runtimePanelRef.current = runtimePanel;
+  }, [runtimePanel]);
 
   useProgressSync(courseId, progress, setProgress);
 
@@ -186,6 +218,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     setStatus("idle");
     setFrameIndex(-1);
     setFrame(null);
+    updateRuntimePanel(disableTracePlayback(runtimePanelRef.current));
   }
 
   function openPublishedLessonById(id: string) {
@@ -198,6 +231,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
 
   function selectStage(stageId: StageId) {
     cancelRun();
+    updateRuntimePanelWith(disableTracePlayback);
     setSelectedStageId(stageId);
 
     const firstLesson = stageSpaces
@@ -209,11 +243,108 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     }
   }
 
+  function selectRuntimeOutputTab(activeTab: RuntimeOutputTab) {
+    updateRuntimePanelWith((current) => selectRuntimeTab(current, activeTab));
+  }
+
+  function selectTraceFrameAndPause(index: number, sourceFrames = frames) {
+    if (sourceFrames.length <= 0) return;
+
+    cancelRun();
+    const nextRuntimePanel = selectTraceFrame(runtimePanelRef.current, index, sourceFrames.length);
+    updateRuntimePanel(nextRuntimePanel);
+    setFrameIndex(nextRuntimePanel.frameIndex);
+    setFrame(sourceFrames[nextRuntimePanel.frameIndex] ?? null);
+  }
+
+  async function playAuthoredTrace(
+    sourceFrames: RunnerFrame[],
+    options: {
+      fromIndex?: number;
+      markComplete?: boolean;
+      completeProgress?: () => void;
+      finishDelayMs?: number;
+    } = {}
+  ) {
+    cancelRun();
+
+    if (sourceFrames.length <= 0) {
+      updateRuntimePanel(disableTracePlayback(runtimePanelRef.current));
+      return;
+    }
+
+    const controller = new AbortController();
+    activeRun.current = controller;
+    const startIndex = Math.min(Math.max(options.fromIndex ?? 0, 0), sourceFrames.length - 1);
+    updateRuntimePanel(startTracePlayback(
+      {
+        ...runtimePanelRef.current,
+        frameIndex: startIndex - 1
+      },
+      sourceFrames.length
+    ));
+    setStatus("running");
+
+    let absoluteIndex = startIndex;
+    for await (const nextFrame of streamAuthoredTrace(sourceFrames.slice(startIndex), controller.signal)) {
+      if (controller.signal.aborted) return;
+
+      const acceptedPanel = acceptRunnerFrame(runtimePanelRef.current, absoluteIndex, sourceFrames.length);
+      if (acceptedPanel === runtimePanelRef.current) {
+        absoluteIndex += 1;
+        continue;
+      }
+
+      updateRuntimePanel(acceptedPanel);
+      setFrameIndex(acceptedPanel.frameIndex);
+      setFrame(sourceFrames[acceptedPanel.frameIndex] ?? nextFrame);
+      absoluteIndex += 1;
+    }
+
+    await delay(options.finishDelayMs ?? 480);
+    if (controller.signal.aborted) return;
+
+    activeRun.current = null;
+    setStatus("success");
+    const completePanel = completeTracePlayback(runtimePanelRef.current, sourceFrames.length);
+    updateRuntimePanel(completePanel);
+    setFrameIndex(completePanel.frameIndex);
+    setFrame(sourceFrames[completePanel.frameIndex] ?? null);
+    if (options.markComplete) {
+      options.completeProgress?.();
+    }
+  }
+
+  function toggleRuntimePlayback() {
+    const currentPanel = runtimePanelRef.current;
+    const nextPanel = toggleTracePlayback(currentPanel, frames.length);
+    updateRuntimePanel(nextPanel);
+
+    if (currentPanel.playbackState === "playing" && nextPanel.playbackState === "paused") {
+      cancelRun();
+      setFrameIndex(nextPanel.frameIndex);
+      setFrame(frames[nextPanel.frameIndex] ?? frame);
+      return;
+    }
+
+    if (nextPanel.playbackState !== "playing") return;
+
+    const nextIndex = currentPanel.playbackState === "complete"
+      ? 0
+      : Math.min(Math.max(currentPanel.frameIndex + 1, 0), frames.length - 1);
+
+    void playAuthoredTrace(frames, {
+      fromIndex: nextIndex,
+      markComplete: false
+    });
+  }
+
   async function chooseAnswer(answer: string) {
     cancelRun();
     setSelectedByQuestion((current) => ({ ...current, [question.id]: answer }));
     setFrameIndex(-1);
     setFrame(null);
+    updateRuntimePanelWith(disableTracePlayback);
 
     const repository = getBrowserProgressRepository(courseId);
     const latestProgress = repository.load();
@@ -230,6 +361,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
 
     if (answer !== question.answerId) {
       setStatus("wrong");
+      updateRuntimePanelWith(disableTracePlayback);
       return;
     }
 
@@ -243,52 +375,27 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
 
     if (hasMoreRequiredQuestions) {
       setStatus("idle");
+      updateRuntimePanelWith(disableTracePlayback);
       return;
     }
 
-    const controller = new AbortController();
-    activeRun.current = controller;
-    setStatus("running");
-    let index = 0;
-    for await (const nextFrame of streamAuthoredTrace(frames, controller.signal)) {
-      if (controller.signal.aborted) return;
-      setFrameIndex(index);
-      setFrame(nextFrame);
-      index += 1;
-    }
-    await delay(480);
-    if (!controller.signal.aborted) {
-      activeRun.current = null;
-      setStatus("success");
-      setProgress((current) => {
-        const completedProgress = lesson.kind === "stage-project"
-          ? repository.completeProject(current, lesson.id)
-          : repository.completeLesson(current, lesson.id);
-        progressRef.current = completedProgress;
-        return completedProgress;
-      });
-    }
+    await playAuthoredTrace(frames, {
+      markComplete: true,
+      completeProgress: () => {
+        setProgress((current) => {
+          const completedProgress = lesson.kind === "stage-project"
+            ? repository.completeProject(current, lesson.id)
+            : repository.completeLesson(current, lesson.id);
+          progressRef.current = completedProgress;
+          return completedProgress;
+        });
+      }
+    });
   }
 
   async function runSimulation(params: SimulationParameters) {
-    cancelRun();
-    const controller = new AbortController();
-    activeRun.current = controller;
-    setStatus("running");
-
     const simulatedFrames = transformFramesForSimulation(frames, params);
-    let index = 0;
-    for await (const nextFrame of streamAuthoredTrace(simulatedFrames, controller.signal)) {
-      if (controller.signal.aborted) return;
-      setFrameIndex(index);
-      setFrame(nextFrame);
-      index += 1;
-    }
-    await delay(300);
-    if (!controller.signal.aborted) {
-      activeRun.current = null;
-      setStatus("success");
-    }
+    await playAuthoredTrace(simulatedFrames, { finishDelayMs: 300 });
   }
 
   const nextLesson = () => openLesson((lessonIndex + 1) % publishedLessons.length);
@@ -300,6 +407,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     setStatus("idle");
     setFrameIndex(-1);
     setFrame(null);
+    updateRuntimePanelWith(disableTracePlayback);
 
     // 切换到下一题时，自动滚动回“理解概念”处，避免用户需要手动上滑
     setTimeout(() => {
@@ -439,6 +547,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
           />
 
           <ProductionIncidentHUD
+            incident={currentStep?.incident ?? lesson.incident}
             isProject={isProject}
             lessonTitle={lesson.title}
             status={status}
@@ -563,14 +672,9 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
 
               <TraceTimelineScrubber
                 currentFrameIndex={frameIndex < 0 ? 0 : frameIndex}
-                isPlaying={status === "running"}
-                onSelectFrame={(idx) => {
-                  if (idx >= 0 && idx < frames.length) {
-                    setFrameIndex(idx);
-                    setFrame(frames[idx] ?? null);
-                  }
-                }}
-                onTogglePlay={() => {}}
+                onSelectFrame={selectTraceFrameAndPause}
+                onTogglePlay={toggleRuntimePlayback}
+                playbackState={visiblePlaybackState}
                 totalFrames={frames.length}
               />
 
@@ -579,18 +683,26 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
                 isSimulating={status === "running"}
               />
 
-              <div className="console-tab-header">
+              <div className="console-tab-header" role="tablist" aria-label="运行输出视图">
                 <button
+                  aria-controls="runtime-console-panel"
+                  aria-selected={activeConsoleTab === "console"}
                   className={`tab-btn ${activeConsoleTab === "console" ? "active" : ""}`}
-                  onClick={() => setActiveConsoleTab("console")}
+                  id="runtime-console-tab"
+                  onClick={() => selectRuntimeOutputTab("console")}
+                  role="tab"
                   type="button"
                 >
                   💻 控制台 Console
                 </button>
 
                 <button
+                  aria-controls="runtime-browser-panel"
+                  aria-selected={activeConsoleTab === "browser"}
                   className={`tab-btn ${activeConsoleTab === "browser" ? "active" : ""}`}
-                  onClick={() => setActiveConsoleTab("browser")}
+                  id="runtime-browser-tab"
+                  onClick={() => selectRuntimeOutputTab("browser")}
+                  role="tab"
                   type="button"
                 >
                   🌐 微型浏览器 Preview
@@ -598,22 +710,34 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
               </div>
 
               {activeConsoleTab === "browser" ? (
-                <MicroBrowser
-                  courseTitle={courseTitle}
-                  entryFile={entryFile}
-                  lessonTitle={lesson.title}
-                  logs={frame?.log ?? []}
-                  spec={currentStep?.preview ?? lesson.preview}
-                  status={status}
-                />
+                <div
+                  aria-labelledby="runtime-browser-tab"
+                  id="runtime-browser-panel"
+                  role="tabpanel"
+                >
+                  <MicroBrowser
+                    courseTitle={courseTitle}
+                    entryFile={entryFile}
+                    lessonTitle={lesson.title}
+                    logs={frame?.log ?? []}
+                    spec={currentStep?.preview ?? lesson.preview}
+                    status={status}
+                  />
+                </div>
               ) : (
-                <div className="terminal">
-                  <div className="terminal-bar"><span>CONSOLE</span><span>{status === "success" ? "exit 0" : terminalPrefix(entryFile)}</span></div>
-                  <div className="terminal-output">
-                    <span className="command">{terminalPrefix(entryFile)}</span>
-                    {(frame?.log ?? []).map((line, index) => <span key={`${line}-${index}`}><i>{String(index + 1).padStart(2, "0")}</i>{line}</span>)}
-                    {status === "running" && <span className="cursor">▋</span>}
-                    {!frame && <span className="terminal-placeholder">正确回答后，这里会显示真实执行顺序</span>}
+                <div
+                  aria-labelledby="runtime-console-tab"
+                  id="runtime-console-panel"
+                  role="tabpanel"
+                >
+                  <div className="terminal">
+                    <div className="terminal-bar"><span>CONSOLE</span><span>{status === "success" ? "exit 0" : terminalPrefix(entryFile)}</span></div>
+                    <div className="terminal-output">
+                      <span className="command">{terminalPrefix(entryFile)}</span>
+                      {(frame?.log ?? []).map((line, index) => <span key={`${line}-${index}`}><i>{String(index + 1).padStart(2, "0")}</i>{line}</span>)}
+                      {status === "running" && <span className="cursor">▋</span>}
+                      {!frame && <span className="terminal-placeholder">正确回答后，这里会显示真实执行顺序</span>}
+                    </div>
                   </div>
                 </div>
               )}

@@ -150,6 +150,22 @@ export type MicroBrowserSpec = {
   headers?: Record<string, string>;
 };
 
+export type ProductionIncidentMetric = {
+  label: string;
+  incident: string;
+  patching: string;
+  critical: string;
+  restored: string;
+};
+
+export type ProductionIncidentSpec = {
+  title?: string;
+  summary: string;
+  metrics: ProductionIncidentMetric[];
+  recoveryMessage?: string;
+  runbook?: string[];
+};
+
 export type ProjectStep = {
   id: string;
   title: string;
@@ -159,6 +175,7 @@ export type ProjectStep = {
   question: LessonQuestion;
   execution?: AuthoredTraceExecution;
   preview?: MicroBrowserSpec;
+  incident?: ProductionIncidentSpec;
 };
 
 export type LessonSpec = {
@@ -180,6 +197,7 @@ export type LessonSpec = {
   questions: LessonQuestion[];
   execution?: AuthoredTraceExecution;
   preview?: MicroBrowserSpec;
+  incident?: ProductionIncidentSpec;
   summary: string[];
   sources: LessonSource[];
 

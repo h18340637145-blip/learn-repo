@@ -55,9 +55,9 @@ NodePath 是一个可视化编程学习平台，当前支持 Node.js 和 Next.js
 - 鼠标粒子火花、HUD 扫描线、3D hover 和成就弹层增强互动沉浸感。
 - 阶段星图导航：左侧阶段入口可切换单元，当前阶段知识点可直接跳转；主内容区仍提供空间星图选择。
 - 3D 空间运行舱：答对后根据课程 `visualizer` 展示 Three.js 场景、知识环绕轨道和粒子流，或在弱设备上使用轻量 fallback。
-- 微型浏览器预览舱 (`MicroBrowser`)：观察区提供控制台与仿真浏览器切换 Tab，展示仿真地址栏、HTTP 状态码、Headers 抽屉与 JSON / HTML / UI 结构渲染。
-- 生产事故救援模式 (`ProductionIncidentHUD`)：阶段项目触发战术警报 HUD，动态呈现 CPU/内存/错误率报警指标与绿灯复苏状态。
-- 运行轨迹时间轴控制条 (`TraceTimelineScrubber`)：支持按帧调阅、播放/暂停与单帧步进控制。
+- 微型浏览器预览舱 (`MicroBrowser`)：观察区提供可访问 Console / Browser Tab，保持 `lesson.preview` / `currentStep.preview` 数据驱动，展示 idle、running、success、wrong 四类预览状态、仿真地址栏、HTTP 状态码、Headers 抽屉与 JSON / HTML / UI 结构渲染。
+- 生产事故救援模式 (`ProductionIncidentHUD`)：仅阶段项目触发战术警报 HUD；支持课程显式 `incident` 配置，也可从课程标题和运行节点生成确定性默认事故视图，展示 incident、patching、critical、restored 四类状态。
+- 运行轨迹时间轴控制条 (`TraceTimelineScrubber`)：支持按帧调阅、播放/暂停/重播与单帧步进控制；暂停、拖拽、上一帧、下一帧和节点点击都会暂停自动播放，避免旧 authored trace 覆盖学习者手动选帧。
 - 运行舱响应式降级：浏览器 resize、移动端或运行舱容器过窄时自动切换到深色 fallback，避免 3D Canvas 白屏遮挡学习内容。
 - 代码案例面板：根据课程显示“Node.js 案例代码”或“Next.js 案例代码”标题、文件名和空间光晕，避免代码区语义弱化。
 - 代码题移动端适配：窄屏下代码方案卡片保持单列阅读，代码块可横向滚动，解析区纵向排列。

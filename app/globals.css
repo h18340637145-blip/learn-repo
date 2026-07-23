@@ -583,6 +583,18 @@ a { color: inherit; text-decoration: none; }
   padding: 8px 14px;
   margin-top: 12px;
 }
+.trace-scrubber-container.playback-disabled {
+  opacity: 0.72;
+}
+.trace-scrubber-container.playback-playing {
+  border-color: rgba(0, 229, 255, 0.32);
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.08);
+}
+.trace-scrubber-container.playback-complete .play-btn {
+  background: rgba(163, 230, 53, 0.18);
+  border-color: rgba(163, 230, 53, 0.48);
+  color: #a3e635;
+}
 .scrubber-controls {
   display: flex;
   gap: 4px;
@@ -629,6 +641,9 @@ a { color: inherit; text-decoration: none; }
   padding: 0;
   cursor: pointer;
 }
+.scrubber-steps-indicator .step-dot:disabled {
+  cursor: not-allowed;
+}
 .scrubber-steps-indicator .step-dot.passed {
   background: #00e5ff;
 }
@@ -651,6 +666,7 @@ a { color: inherit; text-decoration: none; }
   border-radius: 8px;
   overflow: hidden;
   margin-top: 12px;
+  max-width: 100%;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 .micro-browser-bar {
@@ -683,6 +699,7 @@ a { color: inherit; text-decoration: none; }
 .refresh-btn:hover { color: #00e5ff; }
 .url-bar {
   flex: 1;
+  min-width: 0;
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
@@ -694,7 +711,12 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
 }
 .url-bar .protocol { color: #10b981; }
-.url-bar .url-text { color: #94a3b8; }
+.url-bar .url-text {
+  color: #94a3b8;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .status-badge {
   font-size: 9px;
   font-weight: 700;
@@ -727,6 +749,7 @@ a { color: inherit; text-decoration: none; }
 .micro-browser-viewport {
   padding: 16px;
   min-height: 180px;
+  overflow-x: auto;
 }
 .micro-browser-empty {
   text-align: center;
@@ -736,6 +759,52 @@ a { color: inherit; text-decoration: none; }
 .micro-browser-empty .empty-icon { font-size: 24px; margin-bottom: 8px; }
 .micro-browser-empty .empty-title { color: #e2e8f0; font-weight: 600; font-size: 13px; }
 .micro-browser-empty .empty-sub { font-size: 11px; margin-top: 4px; }
+.micro-browser-running {
+  position: relative;
+  overflow: hidden;
+  min-height: 160px;
+  border: 1px solid rgba(0, 229, 255, 0.18);
+  border-radius: 10px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 24% 30%, rgba(0, 229, 255, 0.16), transparent 30%),
+    radial-gradient(circle at 78% 18%, rgba(163, 230, 53, 0.12), transparent 24%),
+    rgba(0, 0, 0, 0.38);
+}
+.micro-browser-running h4 {
+  margin: 10px 0 6px;
+  color: #e0f2fe;
+}
+.micro-browser-running p {
+  max-width: 58ch;
+  margin: 0 0 14px;
+  color: #8aa3b8;
+  font-size: 12px;
+}
+.running-orbit {
+  position: absolute;
+  inset: auto 20px 18px auto;
+  width: 84px;
+  height: 84px;
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  border-radius: 999px;
+  box-shadow: inset 0 0 24px rgba(0, 229, 255, 0.12), 0 0 26px rgba(0, 229, 255, 0.1);
+  animation: runtime-orbit-spin 2.8s linear infinite;
+}
+.running-orbit::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00e5ff;
+  box-shadow: 0 0 14px #00e5ff;
+}
+@keyframes runtime-orbit-spin {
+  to { transform: rotate(360deg); }
+}
 .micro-browser-json {
   background: rgba(0, 0, 0, 0.5);
   border-radius: 6px;
@@ -787,6 +856,11 @@ a { color: inherit; text-decoration: none; }
   border-color: rgba(16, 185, 129, 0.5);
   box-shadow: 0 0 24px rgba(16, 185, 129, 0.2);
 }
+.emergency-hud-container.patching {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(15, 23, 42, 0.9));
+  border-color: rgba(245, 158, 11, 0.42);
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.14);
+}
 .hud-banner {
   display: flex;
   align-items: center;
@@ -821,6 +895,13 @@ a { color: inherit; text-decoration: none; }
 .badge-text { font-size: 10px; font-weight: 800; letter-spacing: 0.05em; color: #f8fafc; font-family: monospace; }
 .hud-title-box .hud-label { display: block; font-size: 9px; color: #f59e0b; font-weight: 700; letter-spacing: 0.05em; }
 .hud-title { margin: 0; font-size: 14px; color: #ffffff; }
+.hud-summary {
+  max-width: 54ch;
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 10px;
+  line-height: 1.55;
+}
 .hud-timer-box { text-align: right; }
 .timer-label { display: block; font-size: 9px; color: #64748b; }
 .timer-val { font-size: 11px; font-weight: 700; color: #ef4444; font-family: monospace; }
@@ -841,3 +922,89 @@ a { color: inherit; text-decoration: none; }
 .metric-value.alert { color: #ef4444; }
 .metric-value.normal { color: #10b981; }
 .metric-value.warning { color: #f59e0b; }
+.hud-runbook {
+  margin-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+  color: #94a3b8;
+  font-size: 10px;
+}
+.hud-runbook ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.hud-runbook li {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.22);
+}
+.hud-recovery-message {
+  margin: 0;
+  color: #a7f3d0;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .runtime,
+  .runtime-body,
+  .runtime-body > *,
+  .spatial-runtime-visualizer,
+  .visualizer-fallback,
+  .console-tab-header,
+  .trace-scrubber-container,
+  .micro-browser-container,
+  #runtime-browser-panel,
+  #runtime-console-panel {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .console-tab-header {
+    flex-wrap: wrap;
+  }
+
+  .console-tab-header .tab-btn {
+    flex: 1 1 150px;
+  }
+
+  .trace-scrubber-container {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .micro-browser-bar {
+    flex-wrap: wrap;
+  }
+
+  .micro-browser-bar .url-bar {
+    flex: 1 1 100%;
+    order: 2;
+  }
+
+  .status-badge,
+  .headers-toggle {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .metrics-row,
+  .hud-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hud-banner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hud-timer-box {
+    text-align: left;
+  }
+}

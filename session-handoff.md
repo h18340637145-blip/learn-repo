@@ -7,10 +7,10 @@ Project: NodePath (with-supabase), a visual Node.js / Next.js learning website b
 Current branch:
 
 ```text
-codex/nodepath-project-steps
+main
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量实现四大认知记忆与游戏化闭环：Supabase Auth 登录与云端 `useProgressSync` 进度同步、`CheatSheetModal` 知识扫描台、`DailyReviewModal` 框架复习任务舱、`ParameterPlayground` 因果演练控制台、`SkillTreeModal` 技能星图轨道、P0 重磅交互升级 —— `MicroBrowser` 微型浏览器预览舱、`ProductionIncidentHUD` 生产事故救援模式，以及 `TraceTimelineScrubber` 按帧轨迹控制条。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量实现四大认知记忆与游戏化闭环：Supabase Auth 登录与云端 `useProgressSync` 进度同步、`CheatSheetModal` 知识扫描台、`DailyReviewModal` 框架复习任务舱、`ParameterPlayground` 因果演练控制台、`SkillTreeModal` 技能星图轨道、P0 重磅交互升级 —— `MicroBrowser` 微型浏览器预览舱、`ProductionIncidentHUD` 生产事故救援模式，以及 `TraceTimelineScrubber` 按帧轨迹控制条。本轮已补齐运行面板状态层，Scrubber 播放/暂停/重播和拖拽选帧不再是空转交互。
 
 ## What Exists
 
@@ -62,6 +62,9 @@ Core interaction:
 - 已新增 Three.js 运行舱、知识环绕轨道、粒子增强层和 WebGL / 减少动态效果 fallback。
 - 已新增游戏化 Mission HUD、鼠标火花、HUD 扫描线、3D hover 和成就解锁弹层。
 - Terminal panel shows simulated logs.
+- 运行面板通过 `lib/runtime/runtime-panel-state.ts` 统一管理 Console / Browser Tab、Trace 播放状态和当前帧；暂停、拖拽、上一帧、下一帧、节点点击会暂停自动播放，避免旧 authored trace 覆盖手动帧。
+- `MicroBrowser` 使用可访问 Tab panel 承载，保持 `lesson.preview` / `currentStep.preview` 数据驱动，并明确展示 idle、running、success、wrong 四类状态与 Headers 抽屉。
+- `ProductionIncidentHUD` 仅阶段项目渲染，支持 `lesson.incident` / `step.incident` 显式配置；无配置时生成确定性默认事故视图，覆盖 incident、patching、critical、restored 状态。
 - Summary appears after completion.
 - 实现型代码题通过 `QuestionOptions` 展示代码方案卡片，支持语言标签、差异行提示和折叠/展开代码预览。
 - `diagnosis`、`repair`、`completion`、`execution-order` 已具备专属题型 UI；诊断题可展示题干材料，修复/补全题复用代码方案卡片，执行顺序题展示运行链路选择。

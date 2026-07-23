@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { MicroBrowserSpec } from "@/lib/curriculum/types";
+import type { MicroBrowserSpec } from "@/lib/curriculum/types";
 
 export interface MicroBrowserProps {
   spec?: MicroBrowserSpec;
@@ -57,6 +57,30 @@ export function MicroBrowser({
       );
     }
 
+    if (status === "running") {
+      return (
+        <div className="micro-browser-running">
+          <div className="running-orbit" aria-hidden="true" />
+          <span className="badge-json">STREAMING RESPONSE</span>
+          <h4>响应流式传输中...</h4>
+          <p>微型浏览器正在接收 authored trace 的预设输出，保持预览与当前运行帧同步。</p>
+          <div className="logs-preview">
+            <div className="preview-label">Live Output Stream</div>
+            {logs.length > 0 ? (
+              logs.map((log, index) => (
+                <div key={`${log}-${index}`} className="log-line">
+                  <span className="line-num">{index + 1}</span>
+                  <code>{log}</code>
+                </div>
+              ))
+            ) : (
+              <div className="log-line text-muted">等待第一段响应数据...</div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     if (spec?.renderedHtml) {
       return (
         <div className="micro-browser-html">
@@ -106,7 +130,7 @@ export function MicroBrowser({
             </div>
             <div className="metric">
               <span className="metric-label">Execution</span>
-              <span className="metric-val purple">{status === "running" ? "Streaming..." : "Done"}</span>
+              <span className="metric-val purple">Done</span>
             </div>
           </div>
           <div className="logs-preview">
@@ -128,7 +152,10 @@ export function MicroBrowser({
   };
 
   return (
-    <div className={`micro-browser-container ${isRefreshing ? "refreshing" : ""}`}>
+    <div
+      aria-label="微型浏览器响应预览"
+      className={`micro-browser-container ${isRefreshing ? "refreshing" : ""}`}
+    >
       {/* Top Address Bar */}
       <div className="micro-browser-bar">
         <div className="browser-controls">
@@ -152,6 +179,7 @@ export function MicroBrowser({
           {statusCode} {statusCode === 200 ? "OK" : "ERROR"}
         </div>
         <button
+          aria-expanded={showHeaders}
           className={`headers-toggle ${showHeaders ? "active" : ""}`}
           onClick={() => setShowHeaders(!showHeaders)}
           type="button"
@@ -176,7 +204,9 @@ export function MicroBrowser({
       )}
 
       {/* Main Body */}
-      <div className="micro-browser-viewport">{renderContent()}</div>
+      <div className="micro-browser-viewport" role="region" aria-label="浏览器响应内容">
+        {renderContent()}
+      </div>
     </div>
   );
 }
