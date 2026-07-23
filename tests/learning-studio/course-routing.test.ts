@@ -2,13 +2,22 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
+import { allCourses } from "../../content/curriculum-registry";
+
 test("首页作为课程选择入口并链接到独立学习路径", () => {
   const source = readFileSync("app/page.tsx", "utf8");
 
-  assert.match(source, /href="\/nodejs"/);
-  assert.match(source, /href="\/nextjs"/);
-  assert.match(source, /Node\.js/);
-  assert.match(source, /Next\.js/);
+  assert.deepEqual(allCourses.map((course) => course.title), ["Node.js", "Next.js", "前端报错调试"]);
+  assert.match(source, /import \{ allCourses \} from "@\/content\/curriculum-registry"/);
+  assert.match(source, /import \{ getLessonsByCourse \} from "@\/content\/lesson-registry"/);
+  assert.match(source, /allCourses\.map/);
+  assert.match(source, /href=\{`\/\$\{course\.slug\}`\}/);
+  assert.match(source, /id=\{`course-\$\{course\.id\}`\}/);
+  assert.match(source, /course\.icon/);
+  assert.match(source, /course\.title/);
+  assert.match(source, /course\.description/);
+  assert.match(source, /course\.stages\.length/);
+  assert.match(source, /getLessonsByCourse\(course\.id\)\.length/);
 });
 
 test("Node.js 与 Next.js 路由都挂载共享学习工作台", () => {
@@ -19,6 +28,13 @@ test("Node.js 与 Next.js 路由都挂载共享学习工作台", () => {
   assert.match(nodeSource, /courseId: "nodejs"/);
   assert.match(nextSource, /CourseLearningStudio/);
   assert.match(nextSource, /courseId: "nextjs"/);
+});
+
+test("前端报错调试路由挂载共享学习工作台", () => {
+  const frontendDebuggingSource = readFileSync("app/frontend-debugging/learning-studio.tsx", "utf8");
+
+  assert.match(frontendDebuggingSource, /CourseLearningStudio/);
+  assert.match(frontendDebuggingSource, /courseId: "frontend-debugging"/);
 });
 
 test("旧单页 LearningStudio 实现不再作为并行入口存在", () => {

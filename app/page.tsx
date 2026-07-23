@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { KnowledgeNetwork } from "@/components/immersive";
 import { AuthStatus } from "@/components/auth/auth-status";
+import { allCourses } from "@/content/curriculum-registry";
+import { getLessonsByCourse } from "@/content/lesson-registry";
 
 export default function Home() {
   return (
@@ -18,35 +20,27 @@ export default function Home() {
       </header>
 
       <section className="course-grid" aria-label="学习路径选择">
-        <Link href="/nodejs" className="course-card" id="course-nodejs">
-          <span className="course-card__glow" aria-hidden="true" />
-          <span className="course-card__icon">⬢</span>
-          <h2 className="course-card__title">Node.js</h2>
-          <p className="course-card__desc">
-            从运行时原理到生产工程，系统掌握 Node.js 全栈开发。涵盖模块、异步、HTTP、进程、实时通信、测试与诊断。
-          </p>
-          <div className="course-card__stats">
-            <span>11 个阶段</span>
-            <span>·</span>
-            <span>92 个案例</span>
-          </div>
-          <span className="course-card__cta">开始学习 <span>→</span></span>
-        </Link>
-
-        <Link href="/nextjs" className="course-card" id="course-nextjs">
-          <span className="course-card__glow" aria-hidden="true" />
-          <span className="course-card__icon">▲</span>
-          <h2 className="course-card__title">Next.js</h2>
-          <p className="course-card__desc">
-            从 App Router 到全栈部署，掌握 React 服务端框架。涵盖路由、渲染模式、数据获取、认证、数据库与高级模式。
-          </p>
-          <div className="course-card__stats">
-            <span>10 个阶段</span>
-            <span>·</span>
-            <span>90 个案例</span>
-          </div>
-          <span className="course-card__cta">开始学习 <span>→</span></span>
-        </Link>
+        {allCourses.map((course) => (
+          <Link
+            key={course.id}
+            href={`/${course.slug}`}
+            className="course-card"
+            id={`course-${course.id}`}
+          >
+            <span className="course-card__glow" aria-hidden="true" />
+            <span className="course-card__icon">{course.icon}</span>
+            <h2 className="course-card__title">{course.title}</h2>
+            <p className="course-card__desc">{course.description}</p>
+            <div className="course-card__stats">
+              <span>{course.stages.length} 个阶段</span>
+              <span>·</span>
+              <span>{getLessonsByCourse(course.id).length} 个案例</span>
+            </div>
+            <span className="course-card__cta">
+              {course.status === "preview" ? "预览路线" : "开始学习"} <span>→</span>
+            </span>
+          </Link>
+        ))}
       </section>
 
       <KnowledgeNetwork />
