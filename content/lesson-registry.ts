@@ -1,4 +1,4 @@
-import type { LessonSpec } from "../lib/curriculum/types";
+import type { CourseId, LessonSpec } from "../lib/curriculum/types";
 import { stageZeroFoundationsLessons } from "./lessons/stage-00-foundations";
 import { stageOneRuntimeCliLessons } from "./lessons/stage-01-runtime-cli";
 import { stageTwoModulesPackagesLessons } from "./lessons/stage-02-modules-packages";
@@ -21,6 +21,7 @@ import { nextjsStageSixAuthMiddlewareLessons } from "./lessons/nextjs/stage-06-a
 import { nextjsStageSevenDatabaseLessons } from "./lessons/nextjs/stage-07-database";
 import { nextjsStageEightTestingDeploymentLessons } from "./lessons/nextjs/stage-08-testing-deployment";
 import { nextjsStageNineArchitectureAdvancedLessons } from "./lessons/nextjs/stage-09-architecture";
+import { frontendDebuggingStageZeroLessons } from "./lessons/frontend-debugging/stage-00-console-stack";
 import { applyQuestionBank } from "./questions/apply-question-bank";
 import { nextjsP1QuestionBank } from "./questions/nextjs-p1-question-bank";
 import { nodejsP1QuestionBank } from "./questions/nodejs-p1-question-bank";
@@ -72,7 +73,13 @@ export function getNextjsLesson(id: string): LessonSpec | undefined {
   return nextjsLessonById.get(id);
 }
 
+// ── Frontend debugging published lessons ───────────────────
+export const frontendDebuggingPublishedLessons = frontendDebuggingStageZeroLessons satisfies LessonSpec[];
+
 // ── Course-based access ────────────────────────────────────
-export function getLessonsByCourse(courseId: "nodejs" | "nextjs"): LessonSpec[] {
-  return courseId === "nextjs" ? nextjsPublishedLessons : publishedLessons;
+export function getLessonsByCourse(courseId: CourseId): LessonSpec[] {
+  if (courseId === "nextjs") return nextjsPublishedLessons;
+  if (courseId === "frontend-debugging") return frontendDebuggingPublishedLessons;
+
+  return publishedLessons;
 }
