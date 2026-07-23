@@ -162,14 +162,18 @@ components/review/*
 components/gamification/*
   -> 技能星图和打卡成就工具舱，展示阶段轨道、节点掌握状态、连续学习和分享文案
 
-components/learning-space/*
-  -> 左侧阶段入口和当前阶段课程星图
+components/preview/*
+  -> 微型浏览器预览舱，提供 URL 地址栏、Status Code、Headers 抽屉与 JSON / HTML / UI 卡片切面渲染
+
+components/emergency/*
+  -> 生产事故救援模式 HUD，阶段项目触发现场警报与 CPU / Memory / Error 模拟指标与系统复苏反馈
 
 components/visualizers/*
-  -> Three.js 运行舱、知识环绕场景、粒子增强层和 WebGL / 减少动态效果 fallback
+  -> Three.js 运行舱、知识环绕场景、粒子增强层、WebGL / 减少动态效果 fallback 与 TraceTimelineScrubber 按帧轨迹控制条
 
 app/_components/learning-studio.tsx
   -> 共享课程工作台 Client Component，通过 CourseConfig 接收课程、目录、代码标签、终端命令和课程切换信息，并管理单课多题流程
+  -> 集成控制台 Console 与微型浏览器 Preview 切换 Tab
   -> 从 curriculum 与 publishedLessons 动态计算路线统计卡：已发布案例、互动题、知识点和阶段项目
   -> 管理顶部学习辅助工具入口：知识扫描台、每日复习任务和技能星图，入口展示当前课程规模、复习队列和学习连击状态
 

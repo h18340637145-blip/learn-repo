@@ -140,6 +140,16 @@ export type AuthoredTraceExecution = {
   frames: RunnerFrame[];
 };
 
+export type MicroBrowserSpec = {
+  url: string;
+  statusCode?: number;
+  contentType?: "text/html" | "application/json" | "ui-card";
+  renderedHtml?: string;
+  jsonOutput?: Record<string, unknown> | Array<unknown>;
+  uiComponentKey?: string;
+  headers?: Record<string, string>;
+};
+
 export type ProjectStep = {
   id: string;
   title: string;
@@ -148,6 +158,7 @@ export type ProjectStep = {
   entryFile: string;
   question: LessonQuestion;
   execution?: AuthoredTraceExecution;
+  preview?: MicroBrowserSpec;
 };
 
 export type LessonSpec = {
@@ -168,6 +179,7 @@ export type LessonSpec = {
   entryFile?: string;
   questions: LessonQuestion[];
   execution?: AuthoredTraceExecution;
+  preview?: MicroBrowserSpec;
   summary: string[];
   sources: LessonSource[];
 

@@ -10,7 +10,7 @@ Current branch:
 codex/nodepath-project-steps
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量实现四大认知记忆与游戏化闭环：Supabase Auth 登录与云端 `useProgressSync` 进度同步、`CheatSheetModal` 知识扫描台、`DailyReviewModal` 今日复习任务舱、`ParameterPlayground` 因果演练控制台，以及 `SkillTreeModal` 技能星图轨道与 `calculateStreak` 连续打卡成就系统（支持技能称号、打卡连击计算与成就文案分享）。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量实现四大认知记忆与游戏化闭环：Supabase Auth 登录与云端 `useProgressSync` 进度同步、`CheatSheetModal` 知识扫描台、`DailyReviewModal` 框架复习任务舱、`ParameterPlayground` 因果演练控制台、`SkillTreeModal` 技能星图轨道、P0 重磅交互升级 —— `MicroBrowser` 微型浏览器预览舱、`ProductionIncidentHUD` 生产事故救援模式，以及 `TraceTimelineScrubber` 按帧轨迹控制条。
 
 ## What Exists
 
@@ -19,10 +19,10 @@ Curriculum foundation:
 - 00 基础训练营和 10 个正式阶段。
 - 88 knowledge points.
 - 11 stage projects.
-- 92 currently published Node.js playable cases.
+- 99 currently published Node.js playable cases.
 - Next.js 路线包含 10 个阶段、80 个计划知识点、10 个阶段项目。
 - Next.js 已发布 90 个 playable cases。
-- 当前总计 182 个已发布 playable cases。
+- 当前总计 189 个已发布 playable cases。
 
 Published cases:
 

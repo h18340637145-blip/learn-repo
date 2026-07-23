@@ -104,6 +104,13 @@ const stageFiveToTenIds = [
 ] as const;
 
 const stageFourPublishedIds = [
+  "files-path-url",
+  "files-promises",
+  "files-directories-stats",
+  "files-watch",
+  "buffer-encoding",
+  "streams-readable",
+  "streams-writable-transform",
   "stream-backpressure",
   "project-cli-log-analyzer"
 ] as const;
@@ -124,7 +131,7 @@ test("注册表发布阶段 00 基础训练营、阶段 01-03、阶段 04 现有
 test("发布案例数量包含阶段 00 基础训练营和阶段 05-10 的完整新增案例", () => {
   assert.equal(stageZeroFoundationIds.length, 9);
   assert.equal(stageFiveToTenIds.length, 54);
-  assert.equal(expectedPublishedLessonIds.length, 92);
+  assert.equal(expectedPublishedLessonIds.length, 99);
   assert.equal(publishedLessons.length, expectedPublishedLessonIds.length);
 });
 

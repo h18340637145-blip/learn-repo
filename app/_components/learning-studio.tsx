@@ -30,6 +30,9 @@ import { ParameterPlayground } from "@/components/playground/parameter-playgroun
 import { transformFramesForSimulation, type SimulationParameters } from "@/lib/execution/parameter-simulator";
 import { SkillTreeModal } from "@/components/gamification/skill-tree-modal";
 import { calculateStreak } from "@/lib/progress/streak";
+import { MicroBrowser } from "@/components/preview/micro-browser";
+import { ProductionIncidentHUD } from "@/components/emergency/production-incident-hud";
+import { TraceTimelineScrubber } from "@/components/visualizers/trace-timeline-scrubber";
 
 const delay = (milliseconds: number) =>
   new Promise((resolve) => window.setTimeout(resolve, milliseconds));
@@ -69,6 +72,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   const [selectedByQuestion, setSelectedByQuestion] = useState<Record<string, string>>({});
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle" | "running" | "wrong" | "success">("idle");
+  const [activeConsoleTab, setActiveConsoleTab] = useState<"console" | "browser">("console");
   const [isCheatSheetOpen, setIsCheatSheetOpen] = useState(false);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isSkillTreeOpen, setIsSkillTreeOpen] = useState(false);
@@ -434,6 +438,12 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
             stage={activeStageSpace}
           />
 
+          <ProductionIncidentHUD
+            isProject={isProject}
+            lessonTitle={lesson.title}
+            status={status}
+          />
+
           <section className="course-orbital-dashboard" aria-label="当前学习轨道">
             <div className="orbital-core">
               <span className="orbital-core__ring" aria-hidden="true" />
@@ -551,19 +561,62 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
                 <div className="no-visualizer-placeholder" style={{ padding: "2rem", color: "#666" }}>无可用渲染视图</div>
               )}
 
+              <TraceTimelineScrubber
+                currentFrameIndex={frameIndex < 0 ? 0 : frameIndex}
+                isPlaying={status === "running"}
+                onSelectFrame={(idx) => {
+                  if (idx >= 0 && idx < frames.length) {
+                    setFrameIndex(idx);
+                    setFrame(frames[idx] ?? null);
+                  }
+                }}
+                onTogglePlay={() => {}}
+                totalFrames={frames.length}
+              />
+
               <ParameterPlayground
                 onSimulate={runSimulation}
                 isSimulating={status === "running"}
               />
-              <div className="terminal">
-                <div className="terminal-bar"><span>CONSOLE</span><span>{status === "success" ? "exit 0" : terminalPrefix(entryFile)}</span></div>
-                <div className="terminal-output">
-                  <span className="command">{terminalPrefix(entryFile)}</span>
-                  {(frame?.log ?? []).map((line, index) => <span key={`${line}-${index}`}><i>{String(index + 1).padStart(2, "0")}</i>{line}</span>)}
-                  {status === "running" && <span className="cursor">▋</span>}
-                  {!frame && <span className="terminal-placeholder">正确回答后，这里会显示真实执行顺序</span>}
-                </div>
+
+              <div className="console-tab-header">
+                <button
+                  className={`tab-btn ${activeConsoleTab === "console" ? "active" : ""}`}
+                  onClick={() => setActiveConsoleTab("console")}
+                  type="button"
+                >
+                  💻 控制台 Console
+                </button>
+
+                <button
+                  className={`tab-btn ${activeConsoleTab === "browser" ? "active" : ""}`}
+                  onClick={() => setActiveConsoleTab("browser")}
+                  type="button"
+                >
+                  🌐 微型浏览器 Preview
+                </button>
               </div>
+
+              {activeConsoleTab === "browser" ? (
+                <MicroBrowser
+                  courseTitle={courseTitle}
+                  entryFile={entryFile}
+                  lessonTitle={lesson.title}
+                  logs={frame?.log ?? []}
+                  spec={currentStep?.preview ?? lesson.preview}
+                  status={status}
+                />
+              ) : (
+                <div className="terminal">
+                  <div className="terminal-bar"><span>CONSOLE</span><span>{status === "success" ? "exit 0" : terminalPrefix(entryFile)}</span></div>
+                  <div className="terminal-output">
+                    <span className="command">{terminalPrefix(entryFile)}</span>
+                    {(frame?.log ?? []).map((line, index) => <span key={`${line}-${index}`}><i>{String(index + 1).padStart(2, "0")}</i>{line}</span>)}
+                    {status === "running" && <span className="cursor">▋</span>}
+                    {!frame && <span className="terminal-placeholder">正确回答后，这里会显示真实执行顺序</span>}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="runtime-caption">
