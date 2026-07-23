@@ -11,13 +11,13 @@ type AdvancedLessonInput = {
   memoryHook: string;
   code: string;
   entryFile: string;
-  prompt: string;
-  correct: string;
-  wrongA: string;
-  wrongB: string;
-  correctFeedback: string;
-  wrongAFeedback: string;
-  wrongBFeedback: string;
+  prompt?: string;
+  correct?: string;
+  wrongA?: string;
+  wrongB?: string;
+  correctFeedback?: string;
+  wrongAFeedback?: string;
+  wrongBFeedback?: string;
   lanes: [string, string, string];
   frameValues: [string, string, string];
   log: string[];
@@ -30,6 +30,7 @@ type AdvancedLessonInput = {
   kind: LessonSpec["kind"];
   difficulty?: LessonSpec["difficulty"];
   durationMinutes?: number;
+  steps?: LessonSpec["steps"];
 };
 
 export function createAdvancedLesson(input: AdvancedLessonInput): LessonSpec {
@@ -73,16 +74,17 @@ export function createAdvancedLesson(input: AdvancedLessonInput): LessonSpec {
     memoryHook: input.memoryHook,
     files: [{ name: input.entryFile, code: input.code }],
     entryFile: input.entryFile,
-    answer: {
+    steps: input.steps,
+    answer: input.prompt ? {
       prompt: input.prompt,
       options: [
-        { id: "a", label: input.wrongA, detail: "常见误判", feedback: input.wrongAFeedback },
-        { id: "b", label: input.correct, detail: "符合 Node.js 运行模型", feedback: input.correctFeedback },
-        { id: "c", label: input.wrongB, detail: "边界条件错误", feedback: input.wrongBFeedback }
+        { id: "a", label: input.wrongA!, detail: "常见误判", feedback: input.wrongAFeedback! },
+        { id: "b", label: input.correct!, detail: "符合 Node.js 运行模型", feedback: input.correctFeedback! },
+        { id: "c", label: input.wrongB!, detail: "边界条件错误", feedback: input.wrongBFeedback! }
       ],
       answerId: "b",
-      correctExplanation: input.correctFeedback
-    },
+      correctExplanation: input.correctFeedback!
+    } : undefined,
     execution: {
       visualizer: input.visualizer,
       lanes: input.lanes,

@@ -33,6 +33,7 @@ export type ProgressSnapshot = {
 
 export type ProgressRepository = {
   load(): ProgressSnapshot;
+  replace(snapshot: ProgressSnapshot): ProgressSnapshot;
   completeLesson(snapshot: ProgressSnapshot, lessonId: string): ProgressSnapshot;
   completeProject(snapshot: ProgressSnapshot, projectId: string): ProgressSnapshot;
   recordQuestionAttempt(snapshot: ProgressSnapshot, input: QuestionAttemptInput): ProgressSnapshot;

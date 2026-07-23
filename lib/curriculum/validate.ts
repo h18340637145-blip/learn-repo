@@ -26,8 +26,18 @@ export function validateLessonSpec(lesson: LessonSpec): string[] {
 
   if (lesson.questions.length === 0) errors.push(`课程 ${lesson.id} 没有题目`);
   if (lesson.sources.length === 0) errors.push(`课程 ${lesson.id} 没有来源`);
-  if (!lesson.files.some((file) => file.name === lesson.entryFile)) {
-    errors.push(`课程 ${lesson.id} 缺少入口文件 ${lesson.entryFile}`);
+  if (lesson.files && lesson.entryFile) {
+    if (!lesson.files.some((file) => file.name === lesson.entryFile)) {
+      errors.push(`课程 ${lesson.id} 缺少入口文件 ${lesson.entryFile}`);
+    }
+  } else if (lesson.steps) {
+    for (const step of lesson.steps) {
+      if (!step.files.some((file) => file.name === step.entryFile)) {
+        errors.push(`课程 ${lesson.id} 步骤 ${step.id} 缺少入口文件 ${step.entryFile}`);
+      }
+    }
+  } else {
+    errors.push(`课程 ${lesson.id} 没有定义 files 或 steps`);
   }
 
   for (const question of lesson.questions) {

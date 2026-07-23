@@ -357,17 +357,51 @@ for (const task of tasks) {
 }`
     }],
     entryFile: "task-scheduler.mjs",
-    answer: {
-      type: "transfer",
-      prompt: "如果循环开始前已经 `controller.abort()`，会发生什么？",
-      options: [
-        { id: "a", label: "不会启动任何任务", detail: "循环第一步检查 aborted 后 break", feedback: "正确：取消信号阻止调度器启动新任务。" },
-        { id: "b", label: "仍执行 lint/test/build", detail: "忽略取消检查", feedback: "循环体开头会检查 signal.aborted。" },
-        { id: "c", label: "只执行 build", detail: "队列不会倒序", feedback: "for...of 从 lint 开始，不会跳到最后一项。" }
-      ],
-      answerId: "a",
-      correctExplanation: "取消信号在循环前触发时，第一轮检查就会 break。"
-    },
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：构建基础任务调度队列",
+        context: "阶段项目将异步知识整合成一个小调度器：任务按顺序处理并在完成后触发事件。",
+        files: [{
+          name: "task-scheduler.mjs",
+          code: `import { EventEmitter } from "node:events";\n\nconst bus = new EventEmitter();\nconst tasks = ["lint", "test", "build"];\n\nbus.on("done", (name) => console.log("done:", name));\n\nfor (const task of tasks) {\n  await Promise.resolve(task);\n  bus.emit("done", task);\n}`
+        }],
+        entryFile: "task-scheduler.mjs",
+        question: {
+          id: "project-task-scheduler-step1",
+          type: "prediction",
+          prompt: "这三个任务在代码中的执行方式是并发还是串行？",
+          options: [
+            { id: "a", label: "串行处理", detail: "使用 for...of 与 await", feedback: "正确：在 for 循环中 await 会阻塞下一次迭代，必须等待当前任务完成。" },
+            { id: "b", label: "并发处理", detail: "Promise 是并行的", feedback: "如果用 Promise.all 才是并发，当前是循环里依次 await。" }
+          ],
+          answerId: "a",
+          correctExplanation: "for...of 中的 await 会按顺序等待每个 Promise 决议。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：加入中止控制逻辑",
+        context: "现在我们加入 AbortController 来实现手刹机制，以便能够在需要时阻止调度器启动新任务。",
+        files: [{
+          name: "task-scheduler.mjs",
+          code: `import { EventEmitter } from "node:events";\n\nconst bus = new EventEmitter();\nconst controller = new AbortController();\nconst tasks = ["lint", "test", "build"];\n\nbus.on("done", (name) => console.log("done:", name));\n\nfor (const task of tasks) {\n  if (controller.signal.aborted) break;\n  await Promise.resolve(task);\n  bus.emit("done", task);\n}`
+        }],
+        entryFile: "task-scheduler.mjs",
+        question: {
+          id: "project-task-scheduler-step2",
+          type: "transfer",
+          prompt: "如果循环开始前已经 controller.abort()，会发生什么？",
+          options: [
+            { id: "a", label: "不会启动任何任务", detail: "循环第一步检查 aborted 后 break", feedback: "正确：取消信号阻止调度器启动新任务。" },
+            { id: "b", label: "仍执行 lint/test/build", detail: "忽略取消检查", feedback: "循环体开头会检查 signal.aborted。" },
+            { id: "c", label: "只执行 build", detail: "队列不会倒序", feedback: "for...of 从 lint 开始，不会跳到最后一项。" }
+          ],
+          answerId: "a",
+          correctExplanation: "取消信号在循环前触发时，第一轮检查就会 break。"
+        }
+      }
+    ],
     execution: {
       lanes: ["任务队列", "Promise 执行", "事件日志"],
       frames: frames(["取出 lint。", "await Promise.resolve。", "emit done。"], ["lint/test/build", "lint done", "done: lint"], ["queue ready", "run lint", "done: lint"])

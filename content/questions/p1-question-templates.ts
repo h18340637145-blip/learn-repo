@@ -255,15 +255,16 @@ function createExecutionOrderQuestion(
 }
 
 function getEntryCode(lesson: QuestionBankSeedLesson): string {
-  const code = lesson.files.find((file) => file.name === lesson.entryFile)?.code ?? lesson.files[0]?.code ?? "";
+  const code = lesson.files?.find((file) => file.name === lesson.entryFile)?.code ?? lesson.files?.[0]?.code ?? "";
   return code.split("\n").slice(0, 18).join("\n");
 }
 
 function getEntryLanguage(lesson: QuestionBankSeedLesson): CodeLanguage {
-  if (lesson.entryFile.endsWith(".tsx")) return "tsx";
-  if (lesson.entryFile.endsWith(".ts")) return "ts";
-  if (lesson.entryFile.endsWith(".json")) return "json";
-  if (lesson.entryFile.endsWith(".sh")) return "bash";
+  const entryFile = lesson.entryFile ?? lesson.files?.[0]?.name ?? "";
+  if (entryFile.endsWith(".tsx")) return "tsx";
+  if (entryFile.endsWith(".ts")) return "ts";
+  if (entryFile.endsWith(".json")) return "json";
+  if (entryFile.endsWith(".sh")) return "bash";
   return "js";
 }
 

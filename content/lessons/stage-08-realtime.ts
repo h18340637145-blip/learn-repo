@@ -396,13 +396,50 @@ createServer((request, response) => {
 
 appendEvent("task.created", { id: "task-1" });`,
     entryFile: "recovery.mjs",
-    prompt: "客户端重连时发送 `Last-Event-ID: 10`，服务端应该重放哪些事件？",
-    correct: "只重放 id 大于 10 的历史事件",
-    wrongA: "从 id 等于 10 的事件开始全部重放",
-    wrongB: "忽略 lastEventId，永远只发最新一条",
-    correctFeedback: "正确：Last-Event-ID 表示客户端已经处理到的边界，恢复应从边界之后开始。",
-    wrongAFeedback: "如果 id=10 已处理，再重放可能导致重复展示或重复处理。",
-    wrongBFeedback: "只发最新一条会丢失断线期间的中间状态变化。",
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：处理连接与重放边界",
+        context: "阶段项目需要先接收客户端的 SSE 连接，并通过 Last-Event-ID 确定哪些丢失的消息需要重放。",
+        files: [{
+          name: "notifications.mjs",
+          code: `import { createServer } from "node:http";\n\nconst clients = new Set();\nconst history = [];\nlet nextEventId = 1;\n\ncreateServer((request, response) => {\n  const url = new URL(request.url ?? "/", "http://localhost");\n\n  if (request.method === "GET" && url.pathname === "/notifications") {\n    const lastEventId = Number(request.headers["last-event-id"] ?? 0);\n    response.writeHead(200, { "Content-Type": "text/event-stream" });\n    clients.add(response);\n    for (const event of history.filter((item) => item.id > lastEventId)) {\n      response.write("id: " + event.id + "\\nevent: " + event.type + "\\ndata: " + JSON.stringify(event.payload) + "\\n\\n");\n    }\n    response.on("close", () => clients.delete(response));\n    return;\n  }\n  // ...\n}).listen(3000);`
+        }],
+        entryFile: "notifications.mjs",
+        question: {
+          id: "project-realtime-notifications-step1",
+          type: "prediction",
+          prompt: "客户端重连时发送 `Last-Event-ID: 10`，服务端应该重放哪些事件？",
+          options: [
+            { id: "a", label: "从 id 等于 10 的事件开始全部重放", detail: "包含已处理", feedback: "如果 id=10 已处理，再重放可能导致重复展示或重复处理。" },
+            { id: "b", label: "只重放 id 大于 10 的历史事件", detail: "断点后补课", feedback: "正确：Last-Event-ID 表示客户端已经处理到的边界，恢复应从边界之后开始。" }
+          ],
+          answerId: "b",
+          correctExplanation: "Last-Event-ID 表示客户端已经处理到的边界，恢复应从边界之后开始。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：生成事件与广播",
+        context: "当任务发生状态改变时，我们需要生成一个递增 ID 的事件并广播给所有依然存活的连接。",
+        files: [{
+          name: "notifications.mjs",
+          code: `// ...\nfunction publish(type, payload) {\n  const event = { id: nextEventId, type, payload };\n  nextEventId += 1;\n  history.push(event);\n  if (history.length > 500) history.shift();\n\n  const frame = "id: " + event.id + "\\nevent: " + type + "\\ndata: " + JSON.stringify(payload) + "\\n\\n";\n  for (const client of clients) client.write(frame);\n  return event;\n}\n\ncreateServer((request, response) => {\n  // ...\n  if (request.method === "POST" && url.pathname.startsWith("/tasks/")) {\n    const id = url.pathname.split("/")[2];\n    if (id) publish("task.done", { id });\n    response.statusCode = 202;\n    return response.end();\n  }\n  response.statusCode = 404;\n  response.end();\n}).listen(3000);`
+        }],
+        entryFile: "notifications.mjs",
+        question: {
+          id: "project-realtime-notifications-step2",
+          type: "transfer",
+          prompt: "在 publish() 中，为什么要限制 history.length > 500 并执行 shift()？",
+          options: [
+            { id: "a", label: "避免客户端接收过多事件导致崩溃", detail: "误解目的", feedback: "历史队列在服务端存放，只在重连时下发部分缺失事件，不会一次性全部发送。" },
+            { id: "b", label: "控制服务端的内存占用，丢弃过老的历史事件", detail: "滚动窗口", feedback: "正确：无限增长的数组会导致服务端 OOM，必须限定历史事件的保存窗口。" }
+          ],
+          answerId: "b",
+          correctExplanation: "这是一种滚动窗口策略，确保常驻内存的数据量可控，避免长期运行导致内存泄漏。"
+        }
+      }
+    ],
     lanes: ["记录事件", "读取断点", "重放缺口"],
     frameValues: ["id++", "Last-Event-ID", "id > last"],
     log: ["append event id=11", "client reconnect last=10", "replay event id=11"],

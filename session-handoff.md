@@ -10,7 +10,7 @@ Current branch:
 codex/nodepath-project-steps
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。Node.js 阶段 00–03、05–10 已完整发布学习内容和阶段项目，阶段 04 当前保留两个已发布案例；Next.js 10 个阶段、80 个知识点和 10 个阶段项目已经全部发布。当前分支已完成本轮 NodePath 题目级学习记录实现，并已实现 V1.3 连续式阶段项目（多步骤项目改造）：新增 `ProjectStep` 类型支持连续多步骤决策的项目，学习台现可原生渲染步骤级任务、代码与题目。Node.js 阶段 00 的 CLI 项目已成功改造为 3 步体验。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量实现四大认知记忆与游戏化闭环：Supabase Auth 登录与云端 `useProgressSync` 进度同步、`CheatSheetModal` 知识扫描台、`DailyReviewModal` 今日复习任务舱、`ParameterPlayground` 因果演练控制台，以及 `SkillTreeModal` 技能星图轨道与 `calculateStreak` 连续打卡成就系统（支持技能称号、打卡连击计算与成就文案分享）。
 
 ## What Exists
 
@@ -52,6 +52,10 @@ Core interaction:
 - 单节课程现在可以包含多道题；答对中间题显示解析和“进入下一题”，答完全部必答题后才启动可取消 authored trace。
 - Correct final required answer starts a cancellable authored trace.
 - 已实现 Runtime Cockpit + Knowledge Nebula 沉浸式视觉层。
+- 顶部学习辅助入口已升级为工具舱按钮：知识卡片显示速查库规模，每日复习显示复习队列，技能星图显示连续学习天数；中等宽度自动压缩，移动端隐藏辅助工具避免挤压主导航。
+- `CheatSheetModal` 现在是知识扫描台，包含当前筛选卡片、含代码卡片、记忆钩子和路线频道统计。
+- `DailyReviewModal` 现在是今日复习任务舱，包含复习进度轨、错题强化数和到期复习数。
+- `SkillTreeModal` 现在是技能星图轨道，阶段轨道和节点芯片区分已掌握、可学习和未发布状态。
 - Runtime Cockpit、Knowledge Nebula、EnergyRunway 和 CompletionBurst 会响应答题正确、运行中和完成状态。
 - 已新增阶段星图导航，课程不再全部平铺在全局导航中。
 - 已新增结构化 `execution.visualizer`，重点阶段映射到主题化 3D 场景。

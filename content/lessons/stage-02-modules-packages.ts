@@ -410,17 +410,51 @@ console.log("dev deps:", devDependencies.length);
 console.log("has test:", hasTest);`
     }],
     entryFile: "dependency-inspector.mjs",
-    answer: {
-      type: "transfer",
-      prompt: "为什么代码里使用 `pkg.dependencies ?? {}`？",
-      options: [
-        { id: "a", label: "依赖字段缺失时仍能统计 0", detail: "防止 Object.keys(undefined)", feedback: "正确：空值合并让缺失字段变成空对象。" },
-        { id: "b", label: "强制安装依赖", detail: "读取不会安装", feedback: "脚本只读取 JSON，不会执行 npm install。" },
-        { id: "c", label: "把 devDependencies 合并进去", detail: "两个字段分开统计", feedback: "devDependencies 使用独立表达式统计。" }
-      ],
-      answerId: "a",
-      correctExplanation: "缺失 dependencies 时 Object.keys 需要一个空对象作为安全默认值。"
-    },
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：读取配置文件",
+        context: "阶段项目把模块系统与包元数据合在一起，首先需要读取并解析 package.json 文件。",
+        files: [{
+          name: "dependency-inspector.mjs",
+          code: `import { readFile } from "node:fs/promises";\n\nconst pkg = JSON.parse(await readFile("package.json", "utf8"));`
+        }],
+        entryFile: "dependency-inspector.mjs",
+        question: {
+          id: "project-dependency-inspector-step1",
+          type: "prediction",
+          prompt: "为什么我们需要使用 JSON.parse？",
+          options: [
+            { id: "a", label: "readFile 返回的是字符串或 Buffer", detail: "将文本转为对象", feedback: "正确：直接读取的内容不能直接当作对象属性访问。" },
+            { id: "b", label: "为了让 package.json 生效", detail: "混淆解析与运行", feedback: "仅是读取文件，并不能应用配置。" }
+          ],
+          answerId: "a",
+          correctExplanation: "fs 读文件得到的是纯文本，必须 parse 才能变成可被点号访问的对象。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：安全提取依赖数据",
+        context: "拿到对象后，我们需要统计 dependencies 和 devDependencies 的数量，检查 scripts 是否包含约定命令。",
+        files: [{
+          name: "dependency-inspector.mjs",
+          code: `import { readFile } from "node:fs/promises";\n\nconst pkg = JSON.parse(await readFile("package.json", "utf8"));\nconst dependencies = Object.keys(pkg.dependencies ?? {});\nconst devDependencies = Object.keys(pkg.devDependencies ?? {});\nconst hasTest = Boolean(pkg.scripts?.test);\n\nconsole.log("runtime deps:", dependencies.length);\nconsole.log("dev deps:", devDependencies.length);\nconsole.log("has test:", hasTest);`
+        }],
+        entryFile: "dependency-inspector.mjs",
+        question: {
+          id: "project-dependency-inspector-step2",
+          type: "transfer",
+          prompt: "为什么代码里使用 `pkg.dependencies ?? {}`？",
+          options: [
+            { id: "a", label: "依赖字段缺失时仍能统计 0", detail: "防止 Object.keys(undefined)", feedback: "正确：空值合并让缺失字段变成空对象。" },
+            { id: "b", label: "强制安装依赖", detail: "读取不会安装", feedback: "脚本只读取 JSON，不会执行 npm install。" },
+            { id: "c", label: "把 devDependencies 合并进去", detail: "两个字段分开统计", feedback: "devDependencies 使用独立表达式统计。" }
+          ],
+          answerId: "a",
+          correctExplanation: "缺失 dependencies 时 Object.keys 需要一个空对象作为安全默认值。"
+        }
+      }
+    ],
     execution: {
       lanes: ["读取文件", "解析字段", "输出报告"],
       frames: frames(["fs/promises 读取 package.json。", "统计依赖和脚本。", "打印三行检查结果。"], ["package.json", "deps/dev/scripts", "report"], ["read package", "runtime deps: 3", "has test: true"])

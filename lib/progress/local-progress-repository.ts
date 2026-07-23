@@ -82,6 +82,9 @@ export function createLocalProgressRepository(storage: Storage, courseId?: Cours
         return emptyProgress(normalizedCourseId);
       }
     },
+    replace(snapshot) {
+      return save(normalizeSnapshot(snapshot, normalizedCourseId));
+    },
     completeLesson(snapshot, lessonId) {
       return save({
         ...snapshot,

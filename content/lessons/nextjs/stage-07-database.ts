@@ -400,87 +400,49 @@ await prisma.$disconnect();`,
     concept: "这个绝顶挑战需要你运用所有的火力来建设一个抗造的“留言板”。利用 Prisma 建立起带有外键属于（User - Message）关联关系并生成类型。你在表单中使用利用了防重复连击以及 `useActionState` 向下探路拿错误报告状态的究极增强版 `Server Action` ；在深入后台准备向 `Prisma` 落子前，必须抽出防弹衣 `auth()` 来确保其拥有合法登录证件，方可利用 `prisma.create` 砸入数据库；最后利用全局刷新让所有的看客一齐看到这条震撼的新宣言。",
     points: ["不依赖那些陈旧庞大的独立鉴权外包服务和拼接请求，利用 Server + Edge 无缝拼合原生方案", "彻底实现并且洞悉从你敲击键盘那一刻，数据到底是在网线上经历了怎样的生死磨难最终落在千丝万缕表结构内的", "体会强类型端到端绑定下，代码编写过程中由于高度提示所带来的巨大满足和信心。"],
     memoryHook: "有权写库防连击，一统类型爽翻天",
-    files: [{ name: "schema.prisma", code: `model User {
-  id       String    @id @default(cuid())
-  email    String    @unique
-  messages Message[] // 牵连着留言表
-}
-model Message {
-  id       Int    @id @default(autoincrement())
-  body     String
-  author   User   @relation(fields: [authorId], references: [id])
-  authorId String
-}` }, { name: "app/actions.ts", code: `'use server';
-import { prisma } from '@/lib/db';
-import { auth } from '@/auth';
-import { revalidatePath } from 'next/cache';
-
-export async function addMessage(prevState: any, formData: FormData) {
-  // 1. 无情排查
-  const session = await auth();
-  if (!session) return { error: '滚开！禁止未认证游客乱涂乱画！' };
-  
-  const text = formData.get('message') as string;
-  if (text.length < 5) return { error: '发言不能短于 5 个字符，显得你没文化。' };
-
-  // 2. 利用强类型连通数据库进行深海核弹投放操作！
-  await prisma.message.create({
-    data: {
-      body: text,
-      authorId: session.user.id // 拿我们验出来的合法特权来操作落定
-    }
-  });
-
-  // 3. 通杀清场！
-  revalidatePath('/guestbook');
-  return { success: '您极具哲理的言论已刻入史册。' };
-}` }, { name: "app/guestbook/page.tsx", code: `import { prisma } from '@/lib/db';
-import BoardForm from './BoardForm'; // 这是一个包含了 useFormStatus 防抖处理机制并利用 useActionState 绑定了上面 addMessage 的那个 Client Component。
-
-export default async function Guestbook() {
-  // 联合查询！一次性不仅拿出来话，更把它主人的名号和邮箱也勾了出来！
-  const msgs = await prisma.message.findMany({
-    include: { author: true },
-    orderBy: { id: 'desc' }
-  });
-
-  return (
-    <div className="mx-auto max-w-2xl mt-10">
-      <h1 className="text-3xl font-black mb-8">极客神殿留言墙</h1>
-      <BoardForm />
-      <hr className="my-8" />
-      <div className="space-y-4">
-        {msgs.map(m => (
-          <div key={m.id} className="p-4 rounded-lg bg-slate-800 shadow-xl border border-slate-700">
-            <span className="font-bold text-cyan-400">{m.author.email}：</span>
-            <p className="mt-2 text-slate-300">{m.body}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}` }],
-    entryFile: "app/guestbook/page.tsx",
-    answer: {
-      type: "prediction",
-      prompt: "在这个结构中，如果我们不使用那句带有 `include: { author: true }` 的魔力 Prisma 参数。只单独拿回 `msgs` 对象并在下面尝试极其嚣张地强行去点和取用 `m.author.email` 渲染到屏幕上的话。会发生什么？",
-      options: [
-        { id: "a", label: "代码会在浏览器上跑出空指针崩溃直接抛出不可饶恕的红屏", detail: "延后到死", feedback: "这是最差开发体验才会发生的事情，Next+Prisma 会用防弹衣在第一秒就阻止这种事情。" },
-        { id: "b", label: "由于你忘了取它的根，甚至还在 VS Code 开发期间那条 `m.author.email` 代码下边就会被强行标注极其刺目的红线直接拦截告诉你：“你并没有在查询的时候取回这段子信息，我根本不认识它！”进而强迫你在发布构建之前打补丁修复！", detail: "类型锁喉保平安", feedback: "正确：这种端到端的类型推导（因为你的查询没有带 include，那么生成的返回值类型里根本就不会有那个对象块存在）是极其逆天的高阶开发者生产力神器。" },
-        { id: "c", label: "会向数据库发出一连串的附带小查询去慢慢把它补齐回来", detail: "性能极其低下", feedback: "这不仅拖慢速度更导致灾难般的 N+1 网络震荡，系统严禁此行为自动发生。" }
-      ],
-      answerId: "b",
-      correctExplanation: "利用了 Prisma 这套智能解析查阅机制之后。数据库不再是一个冰冷黑暗一无所知的藏污纳垢箱！它直接跨越千里被映射投影成为了你手头上摸得着看得到的带有类型约束的 JS 变量实体。一旦你改动、忘记或者多填少写了，编译器立马就能结合 TypeScript 给你死死咬住并且发出严厉的纠正。这种开发阶段的神圣安全感，是你这辈子一旦用了就再也回不去那黑暗的原生 SQL 和残缺 JS 开发模式中的不二法宝。"
-    },
-    execution: {
-      visualizer: { type: "stage-project-core", title: "三位一体高阶全栈链路", nodes: ["输入提交且防连击挂起", "后端防线层层验证把守过滤", "通过强类型连通数据库安全落盘", "反拉引爆并查携连体复合结构返回", "前端安全享用并呈现无暇结果"] },
-      lanes: ["操作触媒点", "中军帐查验及部署深井", "重装出击并呈送展台"],
-      frames: [
-        { activeLane: 0, laneValues: ["一位登录并有着绝妙想法的访客输入极其精彩的一段箴言并且按下送出！", "等待", "等待"], log: ["按钮闪过拦截判定变为灰色的 Loading...状态防打断挂起！并且静默开始打包送向高墙之后。"], note: "从这一刻起，你的一切用户体验已被完美保障", delayMs: 400 },
-        { activeLane: 1, laneValues: ["完成", "遭遇层层盘查直至到达数据库机房中控台前！", "等待"], log: ["遭遇 auth 盘问（通过！）-> 遭遇长度质检判定（通过！）-> 最后携带着特质并经过了严苛类型审查校验打包完的规范 Payload 顺利交送进了包含 create() 的大管子里砸向机房底层"], note: "完美、凶狠、极具压迫感且天衣无缝的安防部署策略防住了可能带来的灭顶之灾。", delayMs: 800 },
-        { activeLane: 2, laneValues: ["完成", "完成", "裹挟带有海量复合资料的信息冲回并在前端优雅开花"], log: ["成功存库并且引发重查核反应链带出来附送着作者尊姓大名的完美结构，通过前端利用组件剥离无缝组装并且极快地用其更新掉了方才那一栏灰色的 loading 圈块并在屏幕上展演出了胜利果实。"], note: "不仅防线密如蛛网而且动作快如闪电无拖泥带水，一代工业大牛工程就此完工。", delayMs: 800 }
-      ]
-    },
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：构建强类型数据模型与鉴权写入",
+        context: "利用 Prisma 建立带外键关联的 `User` 和 `Message` 表。在 Server Action 中，先进行 `auth()` 鉴权，再用强类型的 `prisma.message.create` 写入数据库，最后通过 `revalidatePath` 触发全屏自动刷新。",
+        files: [
+          { name: "schema.prisma", code: `model User {\n  id       String    @id @default(cuid())\n  email    String    @unique\n  messages Message[] // 牵连着留言表\n}\nmodel Message {\n  id       Int    @id @default(autoincrement())\n  body     String\n  author   User   @relation(fields: [authorId], references: [id])\n  authorId String\n}` },
+          { name: "app/actions.ts", code: `'use server';\nimport { prisma } from '@/lib/db';\nimport { auth } from '@/auth';\nimport { revalidatePath } from 'next/cache';\n\nexport async function addMessage(prevState: any, formData: FormData) {\n  // 1. 无情排查\n  const session = await auth();\n  if (!session) return { error: '滚开！禁止未认证游客乱涂乱画！' };\n  \n  const text = formData.get('message') as string;\n  if (text.length < 5) return { error: '发言不能短于 5 个字符，显得你没文化。' };\n\n  // 2. 利用强类型连通数据库进行深海核弹投放操作！\n  await prisma.message.create({\n    data: {\n      body: text,\n      authorId: session.user.id // 拿我们验出来的合法特权来操作落定\n    }\n  });\n\n  // 3. 通杀清场！\n  revalidatePath('/guestbook');\n  return { success: '您极具哲理的言论已刻入史册。' };\n}` }
+        ],
+        entryFile: "app/actions.ts",
+        question: {
+          id: "project-nextjs-guestbook-step1",
+          type: "prediction",
+          prompt: "在 `addMessage` 中，为什么我们要用 `session.user.id` 作为 `authorId` 存入数据库，而不是从表单字段里获取用户 ID？",
+          options: [
+            { id: "a", label: "只是为了少写几行表单代码", detail: "懒惰借口", feedback: "安全性不应为懒惰让步。" },
+            { id: "b", label: "表单里的隐藏字段很容易被黑客通过修改 DOM 或抓包篡改来伪造他人发言，而 `session` 里的 ID 是经过服务端签名验证的绝对信任凭证", detail: "零信任边界", feedback: "正确：绝不可相信来自客户端传递的身份和权限标识，必须在 Server Action 这一道最终关卡使用可信来源重新校验并覆写。" }
+          ],
+          answerId: "b",
+          correctExplanation: "UI 只负责引导，不能成为安全边界。真正的安全门必须放在执行 mutation 的服务端函数里，并对身份、来源和确认字段做最终校验。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：强类型联合查询渲染",
+        context: "利用 Prisma 一次性查询出留言及其主人的邮箱。然后在服务端组件中直接渲染，不需要写额外的 API。",
+        files: [
+          { name: "app/guestbook/page.tsx", code: `import { prisma } from '@/lib/db';\nimport BoardForm from './BoardForm'; // 这是一个包含了 useFormStatus 防抖处理机制并利用 useActionState 绑定了上面 addMessage 的那个 Client Component。\n\nexport default async function Guestbook() {\n  // 联合查询！一次性不仅拿出来话，更把它主人的名号和邮箱也勾了出来！\n  const msgs = await prisma.message.findMany({\n    include: { author: true },\n    orderBy: { id: 'desc' }\n  });\n\n  return (\n    <div className="mx-auto max-w-2xl mt-10">\n      <h1 className="text-3xl font-black mb-8">极客神殿留言墙</h1>\n      <BoardForm />\n      <hr className="my-8" />\n      <div className="space-y-4">\n        {msgs.map(m => (\n          <div key={m.id} className="p-4 rounded-lg bg-slate-800 shadow-xl border border-slate-700">\n            <span className="font-bold text-cyan-400">{m.author.email}：</span>\n            <p className="mt-2 text-slate-300">{m.body}</p>\n          </div>\n        ))}\n      </div>\n    </div>\n  )\n}` }
+        ],
+        entryFile: "app/guestbook/page.tsx",
+        question: {
+          id: "project-nextjs-guestbook-step2",
+          type: "transfer",
+          prompt: "在这个结构中，如果我们不使用那句带有 `include: { author: true }` 的魔力 Prisma 参数。只单独拿回 `msgs` 对象并在下面尝试强行读取 `m.author.email` 渲染的话，会发生什么？",
+          options: [
+            { id: "a", label: "代码会在浏览器上跑出空指针崩溃直接抛出不可饶恕的红屏", detail: "延后到死", feedback: "这是最差开发体验才会发生的事情，Next+Prisma 会用防弹衣在第一秒就阻止这种事情。" },
+            { id: "b", label: "由于你没有查回它，在 VS Code 开发期间那行代码下方就会被强行标注红线，提醒你返回的类型上不存在这个属性，进而强迫你在发布之前打补丁修复！", detail: "类型锁喉保平安", feedback: "正确：这种端到端的类型推导是极其逆天的高阶开发者生产力神器。" }
+          ],
+          answerId: "b",
+          correctExplanation: "利用了 Prisma 这套智能解析查阅机制之后，数据库不再是一个冰冷黑暗一无所知的藏污纳垢箱！它直接跨越千里被映射投影成为了你手头上摸得着看得到的带有类型约束的 JS 变量实体。这种开发阶段的神圣安全感，是你这辈子一旦用了就再也回不去的不二法宝。"
+        }
+      }
+    ],
     sources: [{ title: "Prisma with Next.js", url: "https://www.prisma.io/nextjs" }],
     summary: ["一次完美统合前后端大杀器的大阅兵！展示并让你能够拥有亲手打造一款极其健壮且逻辑闭合的高复杂网状系统的实战手腕", "将复杂的联合查表和关联数据的抓取展示用一段极其易读优雅的对象拼装手段替代，消解了大量晦涩的技术包袱", "彻底地拥有了一套能在当下或者未来开发任何带有极多用户行为并包含密室或者金库级别项目安全和功能交互的心法能力。"]
   })

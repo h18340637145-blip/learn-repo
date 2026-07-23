@@ -400,57 +400,50 @@ export const config = {
     concept: "在这个项目中，你将构建一个现代的博客架构。使用路由组 `(blog)` 分离文章内容区的布局；使用并行路由 `@sidebar` 提供并排显示的最热文章列表；并且使用 `(..)` 拦截路由来实现“点击作者头像出现个人信息弹窗”的高级交互效果。",
     points: ["混合应用各种约定式路由文件", "处理插槽和拦截嵌套", "体验基于文件系统管理复杂视图的优雅"],
     memoryHook: "路由百宝箱，全家桶组合",
-    files: [{ name: "app/(blog)/layout.tsx", code: `// 博客文章专用的共享布局
-export default function BlogLayout({
-  children,
-  sidebar,
-}: {
-  children: React.ReactNode
-  sidebar: React.ReactNode // @sidebar 插槽
-}) {
-  return (
-    <div className="flex gap-4">
-      <main className="flex-1">{children}</main>
-      <aside className="w-64">{sidebar}</aside>
-    </div>
-  )
-}` }, { name: "app/(blog)/post/[id]/page.tsx", code: `import Link from 'next/link';
-
-export default async function PostPage({ params }: any) {
-  // 点击作者将触发拦截路由显示弹窗
-  return (
-    <article>
-      <h1>文章标题 {params.id}</h1>
-      <Link href="/author/alex">查看作者 (会弹窗)</Link>
-    </article>
-  )
-}` }, { name: "app/(blog)/@sidebar/page.tsx", code: `export default function Sidebar() {
-  return <div>推荐文章列表...</div>
-}` }, { name: "app/(blog)/(..)author/[id]/page.tsx", code: `// 拦截路由弹窗
-export default function AuthorModal({ params }: any) {
-  return <div className="modal">拦截渲染: 作者 {params.id} 简介</div>
-}` }],
-    entryFile: "app/(blog)/post/[id]/page.tsx",
-    answer: {
-      type: "prediction",
-      prompt: "在这个复杂的路由架构中，当用户在文章详情页 (`/post/1`) 点击「查看作者」链接后，发生了哪些组合的路由机制？",
-      options: [
-        { id: "a", label: "页面完全跳转去渲染了一个全屏的 author 页面", detail: "普通跳转", feedback: "由于定义了拦截路由，软导航行为被接管了。" },
-        { id: "b", label: "保留了 BlogLayout 及其并行加载的 @sidebar，然后用 (..)author 弹窗覆盖在前面", detail: "组合机制", feedback: "正确：布局复用、并行插槽保持不动，拦截路由机制将弹窗无缝插入了当前的上下文中。" },
-        { id: "c", label: "触发了 error.tsx", detail: "结构太复杂导致渲染冲突", feedback: "Next.js 路由架构正是为了处理这种复杂组合而设计的。" }
-      ],
-      answerId: "b",
-      correctExplanation: "这就是 Next.js App Router 的真正威力：你通过组合多个文件约定，完成了传统 SPA 需要大量状态管理和复杂路由配置才能做到的事情。`layout` 和并行 `@slot` 锁定了外围 UI 状态，`[id]` 处理动态数据，`(...)` 完美地补齐了高级的视觉交互层（Modal）。"
-    },
-    execution: {
-      visualizer: { type: "stage-project-core", title: "多层架构解析", nodes: ["构建 Layout", "并行挂载", "动态捕获", "路由拦截", "合并呈现"] },
-      lanes: ["组合布局", "软导航拦截", "局部更新"],
-      frames: [
-        { activeLane: 0, laneValues: ["访问 /post/1", "等待", "等待"], log: ["组装 BlogLayout", "挂载 children(文章)", "挂载 @sidebar(推荐)"], note: "初始页面加载出丰富的并行区", delayMs: 400 },
-        { activeLane: 1, laneValues: ["完成", "点击作者链接", "等待"], log: ["由于客户端路由，拦截层 (..) 启动"], note: "用户尝试访问 /author/alex", delayMs: 800 },
-        { activeLane: 2, laneValues: ["完成", "完成", "弹窗注入"], log: ["主内容与侧边栏保持不动", "弹出 AuthorModal 层", "更新浏览器 URL 至 /author/alex"], note: "利用 Next.js 原生路由完美实现复杂前端交互", delayMs: 800 }
-      ]
-    },
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：构建带侧边栏的共享布局",
+        context: "我们使用路由组 `(blog)` 分离文章内容区的布局，并使用并行路由 `@sidebar` 提供并排显示的最热文章列表。",
+        files: [
+          { name: "app/(blog)/layout.tsx", code: `// 博客文章专用的共享布局\nexport default function BlogLayout({\n  children,\n  sidebar,\n}: {\n  children: React.ReactNode\n  sidebar: React.ReactNode // @sidebar 插槽\n}) {\n  return (\n    <div className="flex gap-4">\n      <main className="flex-1">{children}</main>\n      <aside className="w-64">{sidebar}</aside>\n    </div>\n  )\n}` },
+          { name: "app/(blog)/@sidebar/page.tsx", code: `export default function Sidebar() {\n  return <div>推荐文章列表...</div>\n}` }
+        ],
+        entryFile: "app/(blog)/layout.tsx",
+        question: {
+          id: "project-nextjs-blog-nav-step1",
+          type: "prediction",
+          prompt: "在 `BlogLayout` 中接收到了 `children` 和 `sidebar` 两个 props，在页面访问时它们分别来自哪里？",
+          options: [
+            { id: "a", label: "都必须作为组件直接导入并渲染", detail: "传统 React 思维", feedback: "在 Next.js 的并行路由架构中，插槽是基于文件目录自动装配的，不需要手动 import 组件。" },
+            { id: "b", label: "children 来自普通路由，sidebar 来自 @sidebar 目录", detail: "并行装配", feedback: "正确：Next.js 会自动把同层级的普通页面注入 children，把 @ 目录下的页面注入对应的 prop。" }
+          ],
+          answerId: "b",
+          correctExplanation: "利用并行路由（`@slot`），Next.js 可以自动将同一层级的不同路由状态合并注入到布局文件中，避免了状态下传。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：添加动态内容与拦截弹窗",
+        context: "在文章详情中，通过使用 `(..)` 拦截路由来实现“点击作者头像出现个人信息弹窗”的高级交互效果。",
+        files: [
+          { name: "app/(blog)/post/[id]/page.tsx", code: `import Link from 'next/link';\n\nexport default async function PostPage({ params }: any) {\n  // 点击作者将触发拦截路由显示弹窗\n  return (\n    <article>\n      <h1>文章标题 {params.id}</h1>\n      <Link href="/author/alex">查看作者 (会弹窗)</Link>\n    </article>\n  )\n}` },
+          { name: "app/(blog)/(..)author/[id]/page.tsx", code: `// 拦截路由弹窗\nexport default function AuthorModal({ params }: any) {\n  return <div className="modal">拦截渲染: 作者 {params.id} 简介</div>\n}` }
+        ],
+        entryFile: "app/(blog)/post/[id]/page.tsx",
+        question: {
+          id: "project-nextjs-blog-nav-step2",
+          type: "transfer",
+          prompt: "在这个复杂的路由架构中，当用户在文章详情页 (`/post/1`) 点击「查看作者」链接后，发生了哪些组合的路由机制？",
+          options: [
+            { id: "a", label: "页面完全跳转去渲染了一个全屏的 author 页面", detail: "普通跳转", feedback: "由于定义了拦截路由，软导航行为被接管了。" },
+            { id: "b", label: "保留了 BlogLayout 及其并行加载的 @sidebar，然后用 (..)author 弹窗覆盖在前面", detail: "组合机制", feedback: "正确：布局复用、并行插槽保持不动，拦截路由机制将弹窗无缝插入了当前的上下文中。" }
+          ],
+          answerId: "b",
+          correctExplanation: "这就是 Next.js App Router 的真正威力：你通过组合多个文件约定，完成了传统 SPA 需要大量状态管理和复杂路由配置才能做到的事情。`layout` 和并行 `@slot` 锁定了外围 UI 状态，`[id]` 处理动态数据，`(...)` 完美地补齐了高级的视觉交互层。"
+        }
+      }
+    ],
     sources: [{ title: "Building your application: Routing", url: "https://nextjs.org/docs/app/building-your-application/routing" }],
     summary: ["Next.js 路由是一套正交的积木系统", "并行路由与布局搭配解决多区块管理", "拦截路由解决了传统 SPA 的 URL 与弹窗同步难题"]
   })

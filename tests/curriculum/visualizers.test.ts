@@ -37,12 +37,12 @@ test("默认可视化配置每次返回独立 nodes 副本", () => {
 test("重点阶段课程映射到主题化 3D 场景", () => {
   const byId = new Map(publishedLessons.map((lesson) => [lesson.id, lesson]));
 
-  assert.equal(byId.get("http-transaction")?.execution.visualizer.type, "http-pipeline");
-  assert.equal(byId.get("api-input-validation")?.execution.visualizer.type, "service-boundary");
-  assert.equal(byId.get("concurrency-worker-threads")?.execution.visualizer.type, "worker-pool");
-  assert.equal(byId.get("realtime-websocket-handshake")?.execution.visualizer.type, "realtime-mesh");
-  assert.equal(byId.get("testing-node-test")?.execution.visualizer.type, "quality-shield");
-  assert.equal(byId.get("diagnostics-cpu-profile")?.execution.visualizer.type, "diagnostics-tower");
+  assert.equal(byId.get("http-transaction")?.execution?.visualizer.type, "http-pipeline");
+  assert.equal(byId.get("api-input-validation")?.execution?.visualizer.type, "service-boundary");
+  assert.equal(byId.get("concurrency-worker-threads")?.execution?.visualizer.type, "worker-pool");
+  assert.equal(byId.get("realtime-websocket-handshake")?.execution?.visualizer.type, "realtime-mesh");
+  assert.equal(byId.get("testing-node-test")?.execution?.visualizer.type, "quality-shield");
+  assert.equal(byId.get("diagnostics-cpu-profile")?.execution?.visualizer.type, "diagnostics-tower");
 });
 
 test("高级课程显式传入的可视化配置会克隆节点列表", () => {
@@ -79,12 +79,12 @@ test("高级课程显式传入的可视化配置会克隆节点列表", () => {
     kind: "knowledge"
   });
 
-  assert.equal(firstLesson.execution.visualizer.type, customVisualizer.type);
-  assert.equal(firstLesson.execution.visualizer.title, customVisualizer.title);
-  assert.deepEqual(firstLesson.execution.visualizer.nodes, customVisualizer.nodes);
-  assert.notEqual(firstLesson.execution.visualizer.nodes, customVisualizer.nodes);
+  assert.equal(firstLesson.execution!.visualizer.type, customVisualizer.type);
+  assert.equal(firstLesson.execution!.visualizer.title, customVisualizer.title);
+  assert.deepEqual(firstLesson.execution!.visualizer.nodes, customVisualizer.nodes);
+  assert.notEqual(firstLesson.execution!.visualizer.nodes, customVisualizer.nodes);
 
-  (firstLesson.execution.visualizer.nodes as string[]).push("污染节点");
+  (firstLesson.execution!.visualizer.nodes as string[]).push("污染节点");
 
   assert.deepEqual(customVisualizer.nodes, ["请求", "校验", "响应"]);
 
@@ -115,7 +115,7 @@ test("高级课程显式传入的可视化配置会克隆节点列表", () => {
     kind: "knowledge"
   });
 
-  assert.deepEqual(secondLesson.execution.visualizer.nodes, ["请求", "校验", "响应"]);
-  assert.notEqual(secondLesson.execution.visualizer.nodes, customVisualizer.nodes);
-  assert.notEqual(secondLesson.execution.visualizer.nodes, firstLesson.execution.visualizer.nodes);
+  assert.deepEqual(secondLesson.execution!.visualizer.nodes, ["请求", "校验", "响应"]);
+  assert.notEqual(secondLesson.execution!.visualizer.nodes, customVisualizer.nodes);
+  assert.notEqual(secondLesson.execution!.visualizer.nodes, firstLesson.execution!.visualizer.nodes);
 });

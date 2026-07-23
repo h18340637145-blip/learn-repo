@@ -512,66 +512,49 @@ export default function Page() {
     concept: "我们将构建一个带有共享导航栏的个人主页应用，包含服务端获取数据的博客列表，以及客户端交互的主题切换按钮。",
     points: ["利用 layout.tsx 创建全站共享的头部导航", "利用 Server Component 在页面直接获取数据", "利用 Client Component 实现交互"],
     memoryHook: "路由定结构，组件分职能",
-    files: [
-      { name: "app/layout.tsx", code: `import Link from 'next/link';
-import ThemeToggle from './ThemeToggle';
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="zh-CN">
-      <body>
-        <nav>
-          <Link href="/">首页</Link>
-          <Link href="/blog">博客</Link>
-          <ThemeToggle />
-        </nav>
-        <main>{children}</main>
-      </body>
-    </html>
-  );
-}` },
-      { name: "app/ThemeToggle.tsx", code: `'use client';
-import { useState } from 'react';
-
-export default function ThemeToggle() {
-  const [theme, setTheme] = useState('light');
-  return <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>切换主题</button>;
-}` },
-      { name: "app/blog/page.tsx", code: `// 这是一个 Server Component
-export default async function BlogIndex() {
-  // 模拟在服务端获取数据库日志
-  console.log('在服务端请求博客列表数据...');
-  const posts = [{ id: 1, title: "学习 Next.js" }];
-  
-  return (
-    <div>
-      <h1>我的博客</h1>
-      <ul>{posts.map(p => <li key={p.id}>{p.title}</li>)}</ul>
-    </div>
-  );
-}` }
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：构建共享导航布局",
+        context: "Next.js App Router 允许在 layout.tsx 中定义共享 UI，比如导航栏，它会在所有页面中保持不卸载。",
+        files: [
+          { name: "app/layout.tsx", code: `import Link from 'next/link';\nimport ThemeToggle from './ThemeToggle';\n\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <html lang="zh-CN">\n      <body>\n        <nav>\n          <Link href="/">首页</Link>\n          <Link href="/blog">博客</Link>\n          <ThemeToggle />\n        </nav>\n        <main>{children}</main>\n      </body>\n    </html>\n  );\n}` },
+          { name: "app/ThemeToggle.tsx", code: `'use client';\nimport { useState } from 'react';\n\nexport default function ThemeToggle() {\n  const [theme, setTheme] = useState('light');\n  return <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>切换主题</button>;\n}` }
+        ],
+        entryFile: "app/layout.tsx",
+        question: {
+          id: "project-nextjs-homepage-step1",
+          type: "prediction",
+          prompt: "在 `layout.tsx` 中导入的 `ThemeToggle` 组件，由于其首行写了 `'use client'`，这会导致什么结果？",
+          options: [
+            { id: "a", label: "整个 layout.tsx 也会被迫变成客户端组件", detail: "错误传染链", feedback: "Server Component 能够导入和渲染 Client Component，而不会被其感染。" },
+            { id: "b", label: "只有 ThemeToggle 的交互逻辑会打包并发送给浏览器", detail: "精确隔离", feedback: "正确：'use client' 是一条边界，它之后的组件逻辑会被打包给客户端，而外部的 layout 依然在服务端渲染。" }
+          ],
+          answerId: "b",
+          correctExplanation: "只有 `ThemeToggle` 声明了 `'use client'`，其交互逻辑需要打包给客户端；而 `layout.tsx` 作为 Server Component，只以最终生成的 HTML 结构发送给客户端。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：在页面中获取数据",
+        context: "接下来我们实现 /blog 页面。由于页面默认是 Server Component，它可以直接进行后端数据获取，并且不需要打包给浏览器。",
+        files: [
+          { name: "app/blog/page.tsx", code: `// 这是一个 Server Component\nexport default async function BlogIndex() {\n  // 模拟在服务端获取数据库日志\n  console.log('在服务端请求博客列表数据...');\n  const posts = [{ id: 1, title: "学习 Next.js" }];\n  \n  return (\n    <div>\n      <h1>我的博客</h1>\n      <ul>{posts.map(p => <li key={p.id}>{p.title}</li>)}</ul>\n    </div>\n  );\n}` }
+        ],
+        entryFile: "app/blog/page.tsx",
+        question: {
+          id: "project-nextjs-homepage-step2",
+          type: "transfer",
+          prompt: "当用户在浏览器中访问 `/blog` 时，这个页面的代码会被发送给浏览器吗？",
+          options: [
+            { id: "a", label: "是的，作为完整的 React 组件代码发送", detail: "传统 SPA 思维", feedback: "Next.js App Router 不是传统 SPA，Server Component 代码不会发给客户端。" },
+            { id: "b", label: "不，只有渲染后的 HTML 和静态内容会被发送", detail: "零 JS 载荷", feedback: "正确：Server Component 绝不会将自己的代码打包给客户端，有效减少了 JS 体积。" }
+          ],
+          answerId: "b",
+          correctExplanation: "综合项目演示了 Next.js 的架构范式：大部分外围骨架（Layout）和数据获取（BlogIndex）保持在服务端进行，保持零 JS 体积。"
+        }
+      }
     ],
-    entryFile: "app/layout.tsx",
-    answer: {
-      type: "prediction",
-      prompt: "在这个应用中，哪一部分的代码会被打包并通过网络发送给用户的浏览器？",
-      options: [
-        { id: "a", label: "所有的三个文件代码", detail: "作为一个完整的应用打包", feedback: "Next.js App Router 并不是传统把所有代码都送给浏览器的 SPA 架构。" },
-        { id: "b", label: "只有 ThemeToggle.tsx 及其 React 逻辑", detail: "因为声明了 use client", feedback: "正确：因为只有 `ThemeToggle` 声明了 `'use client'`，其交互逻辑需要打包给客户端；而 `layout.tsx` 和 `blog/page.tsx` 作为 Server Component，只以最终生成的 HTML 结构发送给客户端。" },
-        { id: "c", label: "只有 layout.tsx 和 page.tsx", detail: "因为它们是路由主文件", feedback: "这是相反的，Server Component 代码绝不会发送给浏览器运行，只有 HTML 会。" }
-      ],
-      answerId: "b",
-      correctExplanation: "综合项目演示了 Next.js 的架构范式：大部分外围骨架（Layout）和数据获取（BlogIndex）保持在服务端进行，保持零 JS 体积。只有真正需要交互的部分（ThemeToggle 按钮的点击事件和状态）被隔离成客户端组件。这样你就获得了最快的首屏速度与完整的 React 交互能力。"
-    },
-    execution: {
-      visualizer: { type: "stage-project-core", title: "阶段项目核心", nodes: ["需求", "实现", "运行", "验证", "总结"] },
-      lanes: ["请求页面", "拆分渲染树", "水合交互"],
-      frames: [
-        { activeLane: 0, laneValues: ["用户访问 /blog", "等待", "等待"], log: ["在服务端请求博客列表数据..."], note: "Server Component 在后端发力", delayMs: 400 },
-        { activeLane: 1, laneValues: ["完成", "生成 RSC Payload", "等待"], log: ["构建 Server UI", "提取 Client 依赖"], note: "组合服务端渲染的 HTML 和客户端组件信息", delayMs: 800 },
-        { activeLane: 2, laneValues: ["完成", "完成", "交互可用"], log: ["浏览器渲染", "附加 ThemeToggle 按钮事件"], note: "整体呈现，并且暗色切换按钮变得可点击", delayMs: 800 }
-      ]
-    },
     sources: [{ title: "Next.js Fundamentals", url: "https://nextjs.org/docs" }],
     summary: ["Next.js 融合了不同职责的组件模型", "服务端组件构建数据繁重的骨架", "客户端组件点缀局部交互体验"]
   })

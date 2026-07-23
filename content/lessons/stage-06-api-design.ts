@@ -442,12 +442,51 @@ process.on("SIGTERM", () => {
 
 server.listen(3000);`,
     entryFile: "task-api.mjs",
-    prompt: "当 `POST /tasks` 的 JSON 中缺少合格 title 时，项目代码应该怎么做？",
-    correct: "返回统一 400 错误且不写入 tasks",
-    wrongA: "创建一个 title 为空的任务",
-    wrongB: "返回 404，因为 /tasks 不存在",
-    correctFeedback: "正确：路由存在，但输入不合格，所以返回 400，并且不能写入任务集合。",
-    wrongAFeedback: "创建坏数据会破坏 API 契约，也让后续读取和测试变得不可靠。",
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：处理业务逻辑路由与输入验证",
+        context: "阶段项目将资源建模、输入验证和错误处理组合。我们首先实现创建任务的 API。",
+        files: [{
+          name: "task-api.mjs",
+          code: `import { createServer } from "node:http";\nimport { randomUUID } from "node:crypto";\n\nconst tasks = new Map();\n\nasync function readJson(request) {\n  let raw = "";\n  for await (const chunk of request) raw += chunk;\n  return JSON.parse(raw || "{}");\n}\n\n// server ...\n  if (request.method === "POST" && url.pathname === "/tasks") {\n    try {\n      const input = await readJson(request);\n      if (typeof input.title !== "string" || input.title.trim().length < 3) {\n        return sendError(response, 400, "invalid_title", "title 至少 3 个字符");\n      }\n      const task = { id: randomUUID(), title: input.title.trim(), done: false };\n      tasks.set(task.id, task);\n      return sendJson(response, 201, task);\n    } catch {\n      return sendError(response, 400, "invalid_json", "请求体必须是 JSON");\n    }\n  }`
+        }],
+        entryFile: "task-api.mjs",
+        question: {
+          id: "project-task-rest-api-step1",
+          type: "prediction",
+          prompt: "当 POST /tasks 的 JSON 中缺少合格 title 时，项目代码应该怎么做？",
+          options: [
+            { id: "a", label: "返回统一 400 错误且不写入 tasks", detail: "拒绝不合格数据", feedback: "正确：路由存在，但输入不合格，所以返回 400，并且不能写入任务集合。" },
+            { id: "b", label: "创建一个 title 为空的任务", detail: "破坏契约", feedback: "创建坏数据会破坏 API 契约，也让后续读取和测试变得不可靠。" },
+            { id: "c", label: "返回 404，因为 /tasks 不存在", detail: "混淆错误码", feedback: "路由是匹配的，错误在于客户端提交的请求体。" }
+          ],
+          answerId: "a",
+          correctExplanation: "400 Bad Request 用于输入验证失败，服务器拒绝处理该请求。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：加入健康检查与优雅退出",
+        context: "真实服务必须通过健康检查告诉平台自己的状态，并且在收到中止信号时优雅退出。",
+        files: [{
+          name: "task-api.mjs",
+          code: `// ... 前面的代码 ...\nlet shuttingDown = false;\n\nconst server = createServer(async (request, response) => {\n  // ...\n  if (url.pathname === "/healthz") {\n    return sendJson(response, shuttingDown ? 503 : 200, { status: shuttingDown ? "shutting_down" : "ok" });\n  }\n  // ... 业务路由\n});\n\nprocess.on("SIGTERM", () => {\n  shuttingDown = true;\n  server.close(() => process.exit(0));\n});\n\nserver.listen(3000);`
+        }],
+        entryFile: "task-api.mjs",
+        question: {
+          id: "project-task-rest-api-step2",
+          type: "transfer",
+          prompt: "收到 SIGTERM 后，为什么先把 healthz 变成 503？",
+          options: [
+            { id: "a", label: "让负载均衡或平台停止分配新流量", detail: "优雅退场", feedback: "正确：关闭期服务不应再接收新流量，健康检查能把这个状态暴露给平台。" },
+            { id: "b", label: "表示所有历史请求都失败了", detail: "错误认知", feedback: "503 只表达当前不可接收流量，不代表历史请求全部失败。" }
+          ],
+          answerId: "a",
+          correctExplanation: "修改健康检查状态可以让前置的网关/负载均衡摘除当前节点，然后再通过 server.close() 优雅等待现有请求完成。"
+        }
+      }
+    ],
     wrongBFeedback: "`/tasks` 路由存在，失败原因是请求体字段不合法，不是资源不存在。",
     lanes: ["路由分发", "校验与错误", "健康与关闭"],
     frameValues: ["/tasks", "400 invalid_title", "/healthz"],

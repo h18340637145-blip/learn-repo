@@ -1,4 +1,4 @@
-import type { AnswerOption, LessonKind, LessonQuestion, LessonSpec, LessonSource, QuestionType, VisualizerSpec } from "../../lib/curriculum/types";
+import type { AnswerOption, AuthoredTraceExecution, LessonKind, LessonQuestion, LessonSpec, LessonSource, QuestionType, VisualizerSpec } from "../../lib/curriculum/types";
 import { getDefaultVisualizer } from "../../lib/curriculum/visualizers";
 
 export type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVersion" | "execution" | "kind" | "questions" | "sources"> & {
@@ -10,8 +10,8 @@ export type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "n
     correctExplanation: string;
   };
   additionalQuestions?: LessonQuestion[];
-  execution: Omit<LessonSpec["execution"], "mode" | "visualizer"> & {
-    visualizer?: LessonSpec["execution"]["visualizer"];
+  execution?: Omit<AuthoredTraceExecution, "mode" | "visualizer"> & {
+    visualizer?: AuthoredTraceExecution["visualizer"];
   };
   sources: Omit<LessonSource, "type" | "verifiedAt">[];
   durationMinutes?: number;
@@ -28,7 +28,7 @@ export type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "n
 
 export function createLessonSpec(input: LessonInput): LessonSpec {
   const kind = input.kind ?? "knowledge";
-  const visualizer = input.execution.visualizer ?? getDefaultVisualizer(input.stageId, kind);
+  const visualizer = input.execution?.visualizer ?? getDefaultVisualizer(input.stageId, kind);
 
   return {
     id: input.id,
@@ -59,12 +59,14 @@ export function createLessonSpec(input: LessonInput): LessonSpec {
           }] : []),
           ...(input.additionalQuestions ?? [])
         ],
-    execution: {
-      mode: "authored-trace",
-      visualizer: cloneVisualizer(visualizer),
-      lanes: input.execution.lanes,
-      frames: input.execution.frames
-    },
+    ...(input.execution ? {
+      execution: {
+        mode: "authored-trace" as const,
+        visualizer: cloneVisualizer(visualizer!),
+        lanes: input.execution.lanes,
+        frames: input.execution.frames
+      }
+    } : {}),
     summary: input.summary,
     sources: input.sources.map((source) => ({
       type: "official",

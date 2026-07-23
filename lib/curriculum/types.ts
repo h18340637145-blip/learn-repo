@@ -164,10 +164,10 @@ export type LessonSpec = {
   concept: string;
   points: string[];
   memoryHook: string;
-  files: { name: string; code: string }[];
-  entryFile: string;
+  files?: { name: string; code: string }[];
+  entryFile?: string;
   questions: LessonQuestion[];
-  execution: AuthoredTraceExecution;
+  execution?: AuthoredTraceExecution;
   summary: string[];
   sources: LessonSource[];
 

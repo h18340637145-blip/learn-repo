@@ -13,7 +13,7 @@ const lessons = [
     id: "modules-esm",
     questions: [{ id: "q3" }]
   }
-];
+] satisfies Parameters<typeof buildLearningReport>[1];
 
 test("学习报告统计已作答、首次正确率和待复习数量", () => {
   const progress: ProgressSnapshot = {

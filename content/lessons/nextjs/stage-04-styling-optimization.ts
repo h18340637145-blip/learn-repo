@@ -466,74 +466,48 @@ export default function Analytics() {
     concept: "个人作品展示网站，是前端证明自己水平最好的试金石。它必须：好看、酷炫、极其顺滑、SEO 爆炸、加载飞快。在这个项目中，你将利用 Tailwind 打磨精妙的排版；使用本地 `next/font` 提升格调；给那些高清设计稿截图用上自带优化和懒加载的 `<Image>`；同时别忘了铺上 `metadata` 以及在边缘用 Satori 自动画好一张你在 Twitter 转发时的超大超酷的动态 OG 宣传头图！",
     points: ["不放过任何一个影响 CWV （核心网站指标）细节的极致压榨", "大量利用在构建期间就替你把活干好的无感内置组件工具", "这套组合拳是所有面向 C 端用户的门户应用的必备准则"],
     memoryHook: "全套武装上，跑分一定旺",
-    files: [{ name: "app/layout.tsx", code: `import { Outfit } from 'next/font/google';
-import type { Metadata } from 'next';
-import './globals.css'; // 里面是 Tailwind 的引入
-
-const outfit = Outfit({ subsets: ['latin'], display: 'swap' });
-
-export const metadata: Metadata = {
-  title: 'Alex 的高维空间 | 前端魔法师',
-  description: '带你领略艺术与代码交织的最前沿实践案例展示区',
-};
-
-export default function RootLayout({ children }: any) {
-  return (
-    <html lang="zh-CN" className={outfit.className}>
-      <body className="bg-slate-900 text-slate-100 antialiased selection:bg-cyan-400 selection:text-black">
-        {children}
-      </body>
-    </html>
-  )
-}` }, { name: "app/page.tsx", code: `import Image from 'next/image';
-import Link from 'next/link';
-import coverArt from '../public/showcase-1.png';
-
-export default function Portfolio() {
-  return (
-    <main className="container mx-auto p-12">
-      <h1 className="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-500 mb-8">
-        重塑想象力的边界
-      </h1>
-      
-      <div className="group relative overflow-hidden rounded-2xl shadow-2xl transition-transform hover:-translate-y-2">
-        <Image 
-          src={coverArt} 
-          alt="我的最高杰作：全息操作台"
-          placeholder="blur" 
-          priority // 首图非常重要，加入优先级标签让它直接加载不要懒惰！
-          className="object-cover w-full h-[500px]"
-        />
-        <div className="absolute bottom-0 w-full p-6 bg-black/60 backdrop-blur-md">
-          <Link href="/project/hologram" className="text-xl font-bold hover:text-cyan-300">
-            探究实现原理 &rarr;
-          </Link>
-        </div>
-      </div>
-    </main>
-  )
-}` }],
-    entryFile: "app/page.tsx",
-    answer: {
-      type: "prediction",
-      prompt: "在 `<Image>` 组件中加入 `priority` 这个属性有什么至关重要的作用？",
-      options: [
-        { id: "a", label: "这会迫使浏览器忽略图片的格式并以原图形式高清晰加载出来", detail: "放弃优化保真理", feedback: "Next 一定会保持优化，这不是 priority 的功能。" },
-        { id: "b", label: "它会撤销掉懒加载机制（Lazy Loading），并为主图注入一个预加载的资源提示（Preload Link），以此来争夺最高的最先加载权力", detail: "破例机制与资源争夺", feedback: "正确：因为它是首屏最大的内容点 (LCP)，如果不给特权依然慢慢懒加载的话会导致核心跑分变低。" },
-        { id: "c", label: "它会强制图片在 Node.js 服务端变成二进制流传递出去", detail: "SSR 解析法", feedback: "图片依然是通过外链地址获取的物理资源。" }
-      ],
-      answerId: "b",
-      correctExplanation: "做性能优化讲求有放有收。普通的下面图片确实应该“能多懒加载就多懒”。但是在这个首屏，由于最主要的焦点就是那张 `coverArt` 展示图。如果不加以 `priority` 进行提权，由于 React 和 JS 的解析存在天然的时差，这张图片就会较晚出现从而严重拖累网页性能中极其重要的一环：最大内容绘制时间 (LCP)。"
-    },
-    execution: {
-      visualizer: { type: "stage-project-core", title: "Lighthouse 打分全景", nodes: ["构建聚合", "极简传输", "快速骨架显现", "主图神速就位", "后台预加载连接"] },
-      lanes: ["请求接收并首发", "优先资源火速下放", "平稳后续扩展"],
-      frames: [
-        { activeLane: 0, laneValues: ["访问首页", "等待", "等待"], log: ["返回由 Tailwind 压缩到极致且带着 Google 防抖字体的轻薄 HTML"], note: "无任何臃肿，FCP (首次内容绘制) 表现极佳", delayMs: 400 },
-        { activeLane: 1, laneValues: ["完成", "发现 Preload与Priority", "等待"], log: ["浏览器被特别告知优先下载经过了优化的那张巨大首图"], note: "主次分明，LCP 分数完美保底", delayMs: 800 },
-        { activeLane: 2, laneValues: ["完成", "完成", "后续平稳游玩体验"], log: ["后台开始为那条悬浮在主屏的 Link 进行静默后台下载组件"], note: "整套系统运转顺畅，最终各项分数均呈现一片健康的绿色", delayMs: 800 }
-      ]
-    },
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：全局配置与字体预加载",
+        context: "利用 Next.js 内置功能，在 layout 中全局配置 Tailwind、字体和元数据，确保页面在无刷新下拥有最好的加载性能和 SEO 表现。",
+        files: [
+          { name: "app/layout.tsx", code: `import { Outfit } from 'next/font/google';\nimport type { Metadata } from 'next';\nimport './globals.css'; // 里面是 Tailwind 的引入\n\nconst outfit = Outfit({ subsets: ['latin'], display: 'swap' });\n\nexport const metadata: Metadata = {\n  title: 'Alex 的高维空间 | 前端魔法师',\n  description: '带你领略艺术与代码交织的最前沿实践案例展示区',\n};\n\nexport default function RootLayout({ children }: any) {\n  return (\n    <html lang="zh-CN" className={outfit.className}>\n      <body className="bg-slate-900 text-slate-100 antialiased selection:bg-cyan-400 selection:text-black">\n        {children}\n      </body>\n    </html>\n  )\n}` }
+        ],
+        entryFile: "app/layout.tsx",
+        question: {
+          id: "project-nextjs-portfolio-step1",
+          type: "prediction",
+          prompt: "在 `layout.tsx` 中使用 `next/font/google` 导入并应用字体，相较于在 HTML head 中写 `<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/...\">` 有什么好处？",
+          options: [
+            { id: "a", label: "没区别，只是语法糖", detail: "错误认知", feedback: "Next.js 的字体优化是实质性的性能提升。" },
+            { id: "b", label: "字体文件会在构建时被下载并和静态资源一起托管，消除外部网络请求和布局偏移 (CLS)", detail: "零布局偏移与内置托管", feedback: "正确：这种方式极大地提升了隐私性和加载性能。" }
+          ],
+          answerId: "b",
+          correctExplanation: "内置字体优化可以在构建时自动将字体文件随其他静态资源一起打包分发，避免了由于网络抖动导致的文字闪烁（FOUT/FOIT）。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：优化首屏关键图像",
+        context: "接下来实现首页主体。使用 `next/image` 和 `next/link` 确保核心视图的极致渲染。",
+        files: [
+          { name: "app/page.tsx", code: `import Image from 'next/image';\nimport Link from 'next/link';\nimport coverArt from '../public/showcase-1.png';\n\nexport default function Portfolio() {\n  return (\n    <main className="container mx-auto p-12">\n      <h1 className="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-500 mb-8">\n        重塑想象力的边界\n      </h1>\n      \n      <div className="group relative overflow-hidden rounded-2xl shadow-2xl transition-transform hover:-translate-y-2">\n        <Image \n          src={coverArt} \n          alt="我的最高杰作：全息操作台"\n          placeholder="blur" \n          priority // 首图非常重要，加入优先级标签让它直接加载不要懒惰！\n          className="object-cover w-full h-[500px]"\n        />\n        <div className="absolute bottom-0 w-full p-6 bg-black/60 backdrop-blur-md">\n          <Link href="/project/hologram" className="text-xl font-bold hover:text-cyan-300">\n            探究实现原理 &rarr;\n          </Link>\n        </div>\n      </div>\n    </main>\n  )\n}` }
+        ],
+        entryFile: "app/page.tsx",
+        question: {
+          id: "project-nextjs-portfolio-step2",
+          type: "transfer",
+          prompt: "在 `<Image>` 组件中加入 `priority` 这个属性有什么至关重要的作用？",
+          options: [
+            { id: "a", label: "它会撤销掉懒加载机制，并为主图注入一个预加载的资源提示（Preload Link），以此来争夺最高的最先加载权力", detail: "破例机制与资源争夺", feedback: "正确：因为它是首屏最大的内容点 (LCP)，如果不给特权依然慢慢懒加载的话会导致核心跑分变低。" },
+            { id: "b", label: "这会迫使浏览器忽略图片的格式并以原图形式高清晰加载出来", detail: "放弃优化保真理", feedback: "Next 一定会保持优化，这不是 priority 的功能。" }
+          ],
+          answerId: "a",
+          correctExplanation: "普通的下面图片确实应该“能多懒加载就多懒”。但是在这个首屏，由于最主要的焦点就是展示图。如果不加以 `priority` 进行提权，由于 React 和 JS 的解析存在天然的时差，这张图片就会较晚出现从而严重拖累网页性能中极其重要的一环：最大内容绘制时间 (LCP)。"
+        }
+      }
+    ],
     sources: [{ title: "Optimizing", url: "https://nextjs.org/docs/app/building-your-application/optimizing" }],
     summary: ["极其周全地武装了所有的前端资产（CSS、字体、图片）以追求最高性能和评分", "将本就十分烦琐费脑的前端优化工作利用约定组件黑盒化处理掉了", "能显著改善开发者生活质量和公司项目产出质量的一套强力体系"]
   })

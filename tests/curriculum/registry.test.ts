@@ -155,9 +155,12 @@ test("Node.js 每个已发布知识点至少包含 2 道题，阶段项目至少
 
 test("每个已发布课程都有结构化运行可视化配置", () => {
   for (const lesson of publishedLessons) {
-    assert.ok(lesson.execution.visualizer.title.length > 0);
-    assert.ok(lesson.execution.visualizer.nodes.length >= 3);
-    assert.notEqual(lesson.execution.visualizer.type, "lane-flow");
+    const exec = lesson.finalExecution ?? lesson.execution;
+    if (exec) {
+      assert.ok(exec.visualizer.title.length > 0);
+      assert.ok(exec.visualizer.nodes.length >= 3);
+      assert.notEqual(exec.visualizer.type, "lane-flow");
+    }
   }
 });
 

@@ -407,17 +407,51 @@ if (compact) {
 }`
     }],
     entryFile: "system-inspector.mjs",
-    answer: {
-      type: "transfer",
-      prompt: "执行 `node system-inspector.mjs --compact` 时，程序会走哪条输出分支？",
-      options: [
-        { id: "a", label: "console.log 紧凑分支", detail: "Set 中包含 --compact", feedback: "正确：参数集合包含 --compact，所以输出单行摘要。" },
-        { id: "b", label: "console.table 表格分支", detail: "只有没有 compact 才走表格", feedback: "传入 --compact 后条件为 true，不会走 else。" },
-        { id: "c", label: "两个分支都会执行", detail: "忽略 if/else 互斥", feedback: "if/else 在一次运行中只会选择一个分支。" }
-      ],
-      answerId: "a",
-      correctExplanation: "process.argv.slice(2) 中包含 --compact，Set.has 返回 true。"
-    },
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：解析参数",
+        context: "我们需要读取用户传入的命令行参数并判断是否包含 --compact 模式。",
+        files: [{
+          name: "system-inspector.mjs",
+          code: `const args = new Set(process.argv.slice(2));\n// ...`
+        }],
+        entryFile: "system-inspector.mjs",
+        question: {
+          id: "project-cli-system-inspector-step1",
+          type: "prediction",
+          prompt: "为什么参数切片使用 process.argv.slice(2)？",
+          options: [
+            { id: "a", label: "跳过 Node 路径和脚本路径", detail: "排除环境参数", feedback: "正确：前两项是 node 执行器和当前脚本绝对路径。" },
+            { id: "b", label: "跳过无关环境变量", detail: "混淆 env", feedback: "环境变量在 process.env 中，argv 全是参数。" }
+          ],
+          answerId: "a",
+          correctExplanation: "前两项固定是 Node 和脚本路径。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：生成系统报告",
+        context: "接下来利用 os 模块读取系统信息，并根据 --compact 参数决定输出格式。",
+        files: [{
+          name: "system-inspector.mjs",
+          code: `import { cpus, freemem, platform } from "node:os";\n\nconst args = new Set(process.argv.slice(2));\nconst compact = args.has("--compact");\nconst info = {\n  node: process.version,\n  platform: platform(),\n  cpuCount: cpus().length,\n  freeMemoryMB: Math.round(freemem() / 1024 / 1024)\n};\n\nif (compact) {\n  console.log(info.platform + " · " + info.cpuCount + " CPU");\n} else {\n  console.table(info);\n}`
+        }],
+        entryFile: "system-inspector.mjs",
+        question: {
+          id: "project-cli-system-inspector-step2",
+          type: "transfer",
+          prompt: "执行 node system-inspector.mjs --compact 时，程序会走哪条输出分支？",
+          options: [
+            { id: "a", label: "console.log 紧凑分支", detail: "Set 中包含 --compact", feedback: "正确：参数集合包含 --compact，所以输出单行摘要。" },
+            { id: "b", label: "console.table 表格分支", detail: "只有没有 compact 才走表格", feedback: "传入 --compact 后条件为 true，不会走 else。" },
+            { id: "c", label: "两个分支都会执行", detail: "忽略 if/else 互斥", feedback: "if/else 在一次运行中只会选择一个分支。" }
+          ],
+          answerId: "a",
+          correctExplanation: "process.argv.slice(2) 中包含 --compact，Set.has 返回 true。"
+        }
+      }
+    ],
     execution: {
       lanes: ["解析参数", "读取系统", "生成报告"],
       frames: frames(["Set 接收 --compact。", "os 模块读取平台和 CPU。", "console.log 输出摘要。"], "--compact ✓", "platform/cpus/freemem", "darwin · 10 CPU", ["args: --compact", "os snapshot ready", "darwin · 10 CPU"])

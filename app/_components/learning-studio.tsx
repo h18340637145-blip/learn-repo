@@ -21,6 +21,15 @@ import { streamAuthoredTrace } from "@/lib/execution/authored-trace";
 import { getBrowserProgressRepository } from "@/lib/progress/browser-progress-repository";
 import { buildLearningReport } from "@/lib/progress/learning-report";
 import { emptyProgress, type ProgressSnapshot } from "@/lib/progress/types";
+import { useProgressSync } from "@/lib/progress/use-progress-sync";
+import { AuthStatus } from "@/components/auth/auth-status";
+import { CheatSheetModal } from "@/components/cheatsheet/cheatsheet-modal";
+import { DailyReviewModal } from "@/components/review/daily-review-modal";
+import { getReviewDeck } from "@/lib/progress/spaced-repetition";
+import { ParameterPlayground } from "@/components/playground/parameter-playground";
+import { transformFramesForSimulation, type SimulationParameters } from "@/lib/execution/parameter-simulator";
+import { SkillTreeModal } from "@/components/gamification/skill-tree-modal";
+import { calculateStreak } from "@/lib/progress/streak";
 
 const delay = (milliseconds: number) =>
   new Promise((resolve) => window.setTimeout(resolve, milliseconds));
@@ -60,6 +69,9 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   const [selectedByQuestion, setSelectedByQuestion] = useState<Record<string, string>>({});
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<string[]>([]);
   const [status, setStatus] = useState<"idle" | "running" | "wrong" | "success">("idle");
+  const [isCheatSheetOpen, setIsCheatSheetOpen] = useState(false);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isSkillTreeOpen, setIsSkillTreeOpen] = useState(false);
   const [frameIndex, setFrameIndex] = useState(-1);
   const [frame, setFrame] = useState<RunnerFrame | null>(null);
   const [progress, setProgress] = useState<ProgressSnapshot>(() => emptyProgress(courseId));
@@ -80,11 +92,14 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     (item, index) => index > questionIndex && item.required !== false && !answeredQuestionIds.includes(item.id)
   );
   const hasMoreRequiredQuestions = nextRequiredQuestionIndex !== -1;
-  const frames = currentStep?.execution?.frames ?? lesson.execution.frames;
+  const execution = currentStep?.execution ?? lesson.finalExecution ?? lesson.execution;
+  const frames = execution?.frames ?? [];
+  const currentStepFiles = currentStep?.files ?? [];
+  const lessonFiles = lesson.files ?? [];
   const codeFile = currentStep 
-    ? (currentStep.files.find((file) => file.name === currentStep.entryFile) ?? currentStep.files[0]!)
-    : (lesson.files.find((file) => file.name === lesson.entryFile) ?? lesson.files[0]!);
-  const entryFile = currentStep ? currentStep.entryFile : lesson.entryFile;
+    ? (currentStepFiles.find((file) => file.name === currentStep.entryFile) ?? currentStepFiles[0])
+    : (lessonFiles.find((file) => file.name === lesson.entryFile) ?? lessonFiles[0]);
+  const entryFile = currentStep ? (currentStep.entryFile || codeFile?.name || "") : (lesson.entryFile || codeFile?.name || "");
   const roadmap = useMemo(() => buildRoadmap(curriculum, progress), [curriculum, progress]);
   const stageSpaces = useMemo(
     () => buildStageSpaces(curriculum, publishedLessons, progress),
@@ -108,6 +123,12 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     () => buildLearningReport(progress, publishedLessons),
     [progress, publishedLessons]
   );
+  const dueReviewDeck = useMemo(
+    () => getReviewDeck(progress, publishedLessons, 20),
+    [progress, publishedLessons]
+  );
+  const dueReviewCount = dueReviewDeck.filter(item => item.reason === "needs-review" || item.reason === "ebbinghaus-due").length;
+  const streakInfo = useMemo(() => calculateStreak(progress), [progress]);
   const lastAnsweredLabel = learningReport.lastAnsweredAt
     ? new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
         .format(new Date(learningReport.lastAnsweredAt))
@@ -135,6 +156,8 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   useEffect(() => {
     progressRef.current = progress;
   }, [progress]);
+
+  useProgressSync(courseId, progress, setProgress);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -243,6 +266,27 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     }
   }
 
+  async function runSimulation(params: SimulationParameters) {
+    cancelRun();
+    const controller = new AbortController();
+    activeRun.current = controller;
+    setStatus("running");
+
+    const simulatedFrames = transformFramesForSimulation(frames, params);
+    let index = 0;
+    for await (const nextFrame of streamAuthoredTrace(simulatedFrames, controller.signal)) {
+      if (controller.signal.aborted) return;
+      setFrameIndex(index);
+      setFrame(nextFrame);
+      index += 1;
+    }
+    await delay(300);
+    if (!controller.signal.aborted) {
+      activeRun.current = null;
+      setStatus("success");
+    }
+  }
+
   const nextLesson = () => openLesson((lessonIndex + 1) % publishedLessons.length);
 
   function goToNextQuestion() {
@@ -274,13 +318,40 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
           <Link href={peerCourse.href}>{peerCourse.title}</Link>
           <a href="#roadmap">路线</a>
           <a href="#projects">项目</a>
+          <span className="learning-tool-nav" aria-label="学习辅助工具">
+            <button
+              className="learning-tool-button learning-tool-button--cards"
+              type="button"
+              onClick={() => setIsCheatSheetOpen(true)}
+            >
+              <span className="learning-tool-button__icon">📚</span>
+              <span><strong>知识卡片</strong><small>速查库 · {publishedLessons.length} 张</small></span>
+            </button>
+            <button
+              className={`learning-tool-button learning-tool-button--review ${dueReviewCount > 0 ? "has-alert" : ""}`}
+              type="button"
+              onClick={() => setIsReviewOpen(true)}
+            >
+              <span className="learning-tool-button__icon">🧠</span>
+              <span><strong>每日复习</strong><small>复习队列 · {dueReviewCount} 题</small></span>
+              {dueReviewCount > 0 && <em>{dueReviewCount}</em>}
+            </button>
+            <button
+              className="learning-tool-button learning-tool-button--tree"
+              type="button"
+              onClick={() => setIsSkillTreeOpen(true)}
+            >
+              <span className="learning-tool-button__icon">🌌</span>
+              <span><strong>技能星图</strong><small>连击 {streakInfo.currentStreak} 天</small></span>
+            </button>
+          </span>
         </nav>
         <div className="top-actions">
           <div className="mission-hud">
             <span>MISSION STATUS</span>
             <strong>{status === "success" ? "知识芯片已解锁" : status === "running" ? "运行解码中" : "等待预测输入"}</strong>
           </div>
-          <button className="avatar" type="button" aria-label="打开个人中心">HX</button>
+          <AuthStatus />
         </div>
       </header>
 
@@ -368,12 +439,12 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
               <span className="orbital-core__ring" aria-hidden="true" />
               <span className="kicker">ORBITAL TRACK</span>
               <strong>{lesson.kind === "stage-project" ? "阶段项目核心" : "知识点运行轨道"}</strong>
-              <small>{lesson.execution.visualizer.title}</small>
+              <small>{execution?.visualizer?.title ?? "运行时系统"}</small>
             </div>
             <div className="orbital-card">
               <span>当前节点</span>
               <strong>{lesson.title}</strong>
-              <small>{lesson.execution.visualizer.nodes.join(" → ")}</small>
+              <small>{execution?.visualizer?.nodes?.join(" → ") ?? "代码准备就绪"}</small>
             </div>
             <div className="orbital-card">
               <span>阶段能量</span>
@@ -383,7 +454,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
             <div className="orbital-card">
               <span>下一步</span>
               <strong>{status === "idle" || status === "wrong" ? "选择预测答案" : status === "running" ? "观察粒子运行" : "总结并继续"}</strong>
-              <small>{frames.length} 个运行帧 · {lesson.execution.visualizer.nodes.length} 个空间节点</small>
+              <small>{frames.length} 个运行帧 · {execution?.visualizer?.nodes?.length ?? 0} 个空间节点</small>
             </div>
           </section>
 
@@ -412,7 +483,7 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
                 <span>{entryFile}</span>
                 <span className="node-version">{lesson.nodeVersion}</span>
               </div>
-              <pre aria-label={codeLabel}><code>{codeFile.code}</code></pre>
+              <pre aria-label={codeLabel}><code>{codeFile?.code ?? ""}</code></pre>
             </article>
           </div>
 
@@ -470,10 +541,19 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
             </div>
 
             <div className="runtime-body">
-              <SpatialRuntimeVisualizer
-                frame={frame}
-                status={status}
-                visualizer={lesson.execution.visualizer}
+              {execution?.visualizer ? (
+                <SpatialRuntimeVisualizer
+                  frame={frame}
+                  status={status}
+                  visualizer={execution.visualizer}
+                />
+              ) : (
+                <div className="no-visualizer-placeholder" style={{ padding: "2rem", color: "#666" }}>无可用渲染视图</div>
+              )}
+
+              <ParameterPlayground
+                onSimulate={runSimulation}
+                isSimulating={status === "running"}
               />
               <div className="terminal">
                 <div className="terminal-bar"><span>CONSOLE</span><span>{status === "success" ? "exit 0" : terminalPrefix(entryFile)}</span></div>
@@ -510,6 +590,34 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
           )}
         </main>
       </div>
+      <CheatSheetModal
+        isOpen={isCheatSheetOpen}
+        onClose={() => setIsCheatSheetOpen(false)}
+        lessons={publishedLessons}
+        courseId={courseId}
+        courseTitle={courseTitle}
+        onSelectLesson={openPublishedLessonById}
+      />
+      <DailyReviewModal
+        isOpen={isReviewOpen}
+        onClose={() => setIsReviewOpen(false)}
+        progress={progress}
+        publishedLessons={publishedLessons}
+        onRecordAttempt={(input) => {
+          const next = getBrowserProgressRepository(courseId).recordQuestionAttempt(progressRef.current, input);
+          setProgress(next);
+        }}
+      />
+      <SkillTreeModal
+        isOpen={isSkillTreeOpen}
+        onClose={() => setIsSkillTreeOpen(false)}
+        curriculum={curriculum}
+        publishedLessons={publishedLessons}
+        progress={progress}
+        courseId={courseId}
+        courseTitle={courseTitle}
+        onSelectLesson={openPublishedLessonById}
+      />
     </div>
   );
 }

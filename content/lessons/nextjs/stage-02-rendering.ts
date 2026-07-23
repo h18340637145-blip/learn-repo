@@ -439,71 +439,48 @@ export default function Product({ params }: any) {
     concept: "在这个项目中，你将负责架构一个新闻阅读系统。不同类型的数据对新鲜度和加载速度有着不同的要求：静态的站点主导航页适合用 SSG 以达到秒开；热门新闻榜单适合使用 ISR（例如 10分钟更新一次）；而依赖用户鉴权的“我的订阅”区则必须使用 SSR，并利用 Suspense 配合流式传送进行体验优化。",
     points: ["根据业务诉求配置模块的不同缓存/渲染策略", "在服务器组件中进行数据聚合和权限过滤", "剥离纯交互功能（如收藏按钮）到客户端组件"],
     memoryHook: "动静结合，快慢分层",
-    files: [{ name: "app/page.tsx", code: `import { Suspense } from 'react';
-import { cookies } from 'next/headers';
-import TopNewsList from './components/TopNewsList';
-import PersonalFeed from './components/PersonalFeed';
-
-// 首页：综合利用多种模式
-export default function NewsAggregator() {
-  return (
-    <div className="layout-grid">
-      <header>今日全球头条</header>
-      
-      {/* 热门新闻：使用子组件内部的 fetch(url, { next: { revalidate: 600 } }) ISR */}
-      <section className="col-left">
-        <TopNewsList /> 
-      </section>
-
-      {/* 个性化新闻：依赖动态 cookies，使用 SSR 配合 Suspense 加载 */}
-      <section className="col-right">
-        <Suspense fallback={<div className="pulse-skeleton">分析兴趣流...</div>}>
-          <PersonalFeed />
-        </Suspense>
-      </section>
-    </div>
-  )
-}` }, { name: "app/components/PersonalFeed.tsx", code: `import { cookies } from 'next/headers';
-import FavoriteButton from './FavoriteButton'; // 这个是 Client Component
-
-export default async function PersonalFeed() {
-  const token = (await cookies()).get('auth');
-  if (!token) return <p>请登录以查看专属推荐。</p>;
-
-  // 模拟耗时的大数据推荐接口
-  const feed = await fetchPrivateData(token.value);
-  
-  return (
-    <ul>
-      {feed.map(item => (
-        <li key={item.id}>
-          {item.title} <FavoriteButton itemId={item.id} />
-        </li>
-      ))}
-    </ul>
-  );
-}` }],
-    entryFile: "app/page.tsx",
-    answer: {
-      type: "prediction",
-      prompt: "在未登录访客（无 cookies）和已登录用户（有 cookies）访问该页面时，渲染管线是如何表现的？",
-      options: [
-        { id: "a", label: "由于存在 PersonalFeed 这个使用 SSR 的组件，首页对于所有人都会完全退化成传统单页面 SSR 渲染，整体加载变慢", detail: "单体阻塞", feedback: "Suspense 的使用打破了单体阻塞，实现了流式渲染。" },
-        { id: "b", label: "页面首屏将瞬间利用缓存和快速的头条数据吐出界面和骨架屏；随后对于登录用户，服务器在后台计算推荐内容并流式推给客户端的 `PersonalFeed`", detail: "分层分块传送机制", feedback: "正确：这种设计完美榨取了所有模式的优点，动静分离，各司其职。" },
-        { id: "c", label: "PersonalFeed 会在浏览器发起网络请求获取数据", detail: "CSR 理解误区", feedback: "代码在 `PersonalFeed` 内直接使用了 await，这仍然是发生服务端的 SSR。" }
-      ],
-      answerId: "b",
-      correctExplanation: "这个架构完美展现了 Next.js 的高阶应用哲学。因为外层包装了 `Suspense`，整个应用的初次握手响应不被个性化慢接口阻塞。`TopNewsList` 可以飞快地渲染它那基于 ISR 或高速缓存拿到的热点数据。而复杂的权限和大数据查询被隔离在了 `PersonalFeed` 这个服务端组件的“洞”里，随后它悄然抵达浏览器，并在它里面挂载好了那个包含纯交互逻辑的（Client Component）`FavoriteButton`。"
-    },
-    execution: {
-      visualizer: { type: "stage-project-core", title: "多模混合架构", nodes: ["SSR", "ISR", "Suspense", "Streaming", "Hydration"] },
-      lanes: ["快速骨架与热点", "慢速个人化流", "交互组件水合"],
-      frames: [
-        { activeLane: 0, laneValues: ["访问首页", "等待", "等待"], log: ["生成静态外壳 HTML", "拼装由缓存返回的 TopNewsList"], note: "瞬间展现了网页的核心可用部分", delayMs: 400 },
-        { activeLane: 1, laneValues: ["完成", "等待 Promise 解析", "等待"], log: ["服务端向推荐引擎发起带凭证的查询"], note: "浏览器端此时呈现着兴趣流的骨架屏", delayMs: 800 },
-        { activeLane: 2, laneValues: ["完成", "完成", "并行组装 JS"], log: ["流式推送 PersonalFeed 的 HTML Chunk", "将 FavoriteButton 的 JS 代码传给浏览器挂载事件"], note: "至此，所有碎片拼接成了一份既快速又互动的完美体验", delayMs: 800 }
-      ]
-    },
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：利用 Suspense 分离快慢数据",
+        context: "首页混合了静态数据和个人定制的慢速数据，使用 Suspense 将个人数据剥离成流式传送，确保不阻塞主导航。",
+        files: [
+          { name: "app/page.tsx", code: `import { Suspense } from 'react';\nimport { cookies } from 'next/headers';\nimport TopNewsList from './components/TopNewsList';\nimport PersonalFeed from './components/PersonalFeed';\n\n// 首页：综合利用多种模式\nexport default function NewsAggregator() {\n  return (\n    <div className="layout-grid">\n      <header>今日全球头条</header>\n      \n      {/* 热门新闻：使用子组件内部的 fetch(url, { next: { revalidate: 600 } }) ISR */}\n      <section className="col-left">\n        <TopNewsList /> \n      </section>\n\n      {/* 个性化新闻：依赖动态 cookies，使用 SSR 配合 Suspense 加载 */}\n      <section className="col-right">\n        <Suspense fallback={<div className="pulse-skeleton">分析兴趣流...</div>}>\n          <PersonalFeed />\n        </Suspense>\n      </section>\n    </div>\n  )\n}` }
+        ],
+        entryFile: "app/page.tsx",
+        question: {
+          id: "project-nextjs-news-aggregator-step1",
+          type: "prediction",
+          prompt: "如果在没有 Suspense 的情况下直接渲染 `<PersonalFeed />`，首页加载体验会受到什么影响？",
+          options: [
+            { id: "a", label: "会被慢速的个人数据接口完全阻塞，直到全部计算完毕才会展现整个网页", detail: "单体阻塞", feedback: "正确：SSR 默认是单体阻塞的，引入 Suspense 可以将其转化为分块流式渲染，避免最慢的部分拖累最快的部分。" },
+            { id: "b", label: "Next.js 会自动优化它，体验没有区别", detail: "错误认知", feedback: "Next.js 不会自动给每个组件加 Suspense边界，如果未提供边界，则必须等待全页面加载。" }
+          ],
+          answerId: "a",
+          correctExplanation: "Suspense 的使用打破了单体阻塞，实现了流式渲染。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：服务端挂载客户端交互",
+        context: "在后推来的个性化内容中，依然可以无缝包含 Client Component。",
+        files: [
+          { name: "app/components/PersonalFeed.tsx", code: `import { cookies } from 'next/headers';\nimport FavoriteButton from './FavoriteButton'; // 这个是 Client Component\n\nexport default async function PersonalFeed() {\n  const token = (await cookies()).get('auth');\n  if (!token) return <p>请登录以查看专属推荐。</p>;\n\n  // 模拟耗时的大数据推荐接口\n  const feed = await fetchPrivateData(token.value);\n  \n  return (\n    <ul>\n      {feed.map(item => (\n        <li key={item.id}>\n          {item.title} <FavoriteButton itemId={item.id} />\n        </li>\n      ))}\n    </ul>\n  );\n}` }
+        ],
+        entryFile: "app/components/PersonalFeed.tsx",
+        question: {
+          id: "project-nextjs-news-aggregator-step2",
+          type: "transfer",
+          prompt: "在未登录访客（无 cookies）和已登录用户（有 cookies）访问该页面时，渲染管线是如何表现的？",
+          options: [
+            { id: "a", label: "PersonalFeed 会在浏览器发起网络请求获取数据", detail: "CSR 理解误区", feedback: "代码在 `PersonalFeed` 内直接使用了 await fetchPrivateData，这仍然是发生在服务端的 SSR。" },
+            { id: "b", label: "页面首屏将瞬间利用缓存和快速的头条数据吐出界面和骨架屏；随后对于登录用户，服务器在后台计算推荐内容并流式推给客户端的 `PersonalFeed`", detail: "分层分块传送机制", feedback: "正确：这种设计完美榨取了所有模式的优点，动静分离，各司其职。" }
+          ],
+          answerId: "b",
+          correctExplanation: "这个架构完美展现了 Next.js 的高阶应用哲学。整个应用的初次握手响应不被个性化慢接口阻塞。而复杂的权限和大数据查询被隔离在了 `PersonalFeed` 这个服务端组件的“洞”里，随后悄然抵达浏览器，并在它里面挂载好包含纯交互逻辑的（Client Component）`FavoriteButton`。"
+        }
+      }
+    ],
     sources: [{ title: "Rendering in Next.js", url: "https://nextjs.org/docs/app/building-your-application/rendering" }],
     summary: ["不同页面/不同区块按需选取合适的渲染模式", "利用 React 边界组件化解长耗时查询对体验的拖累", "区分状态承载者（服务端代码）和动作发起者（客户端组件）"]
   })

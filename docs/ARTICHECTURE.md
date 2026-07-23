@@ -153,6 +153,15 @@ lib/immersive/visual-state.ts
 components/immersive/*
   -> Runtime Cockpit、Knowledge Nebula、EnergyRunway、CompletionBurst、CursorSparks 和 AchievementUnlock 视觉组件
 
+components/cheatsheet/*
+  -> 知识扫描台工具舱，按课程、阶段和搜索词展示可复制的知识卡片、记忆钩子与关键代码
+
+components/review/*
+  -> 每日复习任务舱，基于题目级进度和 spaced repetition 规则生成复习队列并回写题目尝试
+
+components/gamification/*
+  -> 技能星图和打卡成就工具舱，展示阶段轨道、节点掌握状态、连续学习和分享文案
+
 components/learning-space/*
   -> 左侧阶段入口和当前阶段课程星图
 
@@ -162,6 +171,7 @@ components/visualizers/*
 app/_components/learning-studio.tsx
   -> 共享课程工作台 Client Component，通过 CourseConfig 接收课程、目录、代码标签、终端命令和课程切换信息，并管理单课多题流程
   -> 从 curriculum 与 publishedLessons 动态计算路线统计卡：已发布案例、互动题、知识点和阶段项目
+  -> 管理顶部学习辅助工具入口：知识扫描台、每日复习任务和技能星图，入口展示当前课程规模、复习队列和学习连击状态
 
 app/_components/question-options.tsx
   -> 统一题目选项 Client Component，支持普通选择题、implementation / repair / completion 代码方案卡片、diagnosis 题干材料和 execution-order 顺序方案卡片

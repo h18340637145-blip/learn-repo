@@ -357,13 +357,50 @@ createServer(async (request, response) => {
   }
 }).listen(3000);`,
     entryFile: "static-server.mjs",
-    prompt: "为什么要检查 `filePath.startsWith(publicRoot + path.sep)`？",
-    correct: "防止 ../ 路径逃逸到 public 目录外",
-    wrongA: "为了让所有文件都变成 JSON",
-    wrongB: "为了强制一次性读完整文件",
-    correctFeedback: "正确：解析真实路径后确认仍在 public 根目录下，能阻止路径穿越。",
-    wrongAFeedback: "Content-Type 才决定媒体类型，路径安全检查不负责 JSON 转换。",
-    wrongBFeedback: "代码使用 createReadStream().pipe(response)，目标正是避免一次性读完整文件。",
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：路径安全边界校验",
+        context: "静态文件服务必须先做路径安全边界，防止目录遍历攻击读取服务期文件。",
+        files: [{
+          name: "static-server.mjs",
+          code: `import { createServer } from "node:http";\nimport { createReadStream } from "node:fs";\nimport { stat } from "node:fs/promises";\nimport path from "node:path";\n\nconst publicRoot = path.resolve("./public");\n\ncreateServer(async (request, response) => {\n  const safePath = path.normalize(request.url).replace(/^\\//, "");\n  const filePath = path.join(publicRoot, safePath);\n\n  if (!filePath.startsWith(publicRoot + path.sep)) {\n    response.statusCode = 403;\n    return response.end("Forbidden");\n  }\n  // ...\n}).listen(3000);`
+        }],
+        entryFile: "static-server.mjs",
+        question: {
+          id: "project-static-file-server-step1",
+          type: "prediction",
+          prompt: "为什么要检查 `filePath.startsWith(publicRoot + path.sep)`？",
+          options: [
+            { id: "a", label: "为了让所有文件都变成 JSON", detail: "Content-Type 控制", feedback: "Content-Type 才决定媒体类型，路径安全检查不负责 JSON 转换。" },
+            { id: "b", label: "防止 ../ 路径逃逸到 public 目录外", detail: "安全拦截", feedback: "正确：解析真实路径后确认仍在 public 根目录下，能阻止路径穿越。" }
+          ],
+          answerId: "b",
+          correctExplanation: "解析真实路径后确认仍在 public 根目录下，能阻止路径穿越。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：探测并流式返回",
+        context: "验证通过后，我们需要确认这是个文件，并且用最佳的方式（流）返回给客户端。",
+        files: [{
+          name: "static-server.mjs",
+          code: `import { createServer } from "node:http";\nimport { createReadStream } from "node:fs";\nimport { stat } from "node:fs/promises";\nimport path from "node:path";\n\nconst publicRoot = path.resolve("./public");\nconst types = new Map([[".html", "text/html"], [".css", "text/css"], [".js", "text/javascript"]]);\n\ncreateServer(async (request, response) => {\n  const safePath = path.normalize(request.url).replace(/^\\//, "");\n  const filePath = path.join(publicRoot, safePath);\n\n  if (!filePath.startsWith(publicRoot + path.sep)) {\n    response.statusCode = 403;\n    return response.end("Forbidden");\n  }\n\n  try {\n    const stats = await stat(filePath);\n    if (!stats.isFile()) throw new Error("not file");\n\n    response.statusCode = 200;\n    response.setHeader("Content-Type", types.get(path.extname(filePath)) ?? "application/octet-stream");\n    createReadStream(filePath).pipe(response);\n  } catch {\n    response.statusCode = 404;\n    response.end("Not Found");\n  }\n}).listen(3000);`
+        }],
+        entryFile: "static-server.mjs",
+        question: {
+          id: "project-static-file-server-step2",
+          type: "transfer",
+          prompt: "为什么这段代码使用 createReadStream().pipe(response) 响应请求？",
+          options: [
+            { id: "a", label: "必须使用 pipe 才能发送响应", detail: "错误认知", feedback: "也可以使用 response.end(buffer)，但可能导致内存爆满。" },
+            { id: "b", label: "避免大文件一次性读入内存", detail: "流式背压", feedback: "正确：流可以直接把磁盘数据对接到网络套接字上，避免内存撑爆。" }
+          ],
+          answerId: "b",
+          correctExplanation: "代码使用 createReadStream().pipe(response)，目标正是避免一次性读完整文件，通过流实现低内存占用。"
+        }
+      }
+    ],
     lanes: ["路径校验", "文件探测", "流式响应"],
     frameValues: ["public 内", "isFile()", "pipe(response)"],
     log: ["safe path accepted", "stat file ok", "stream piped with Content-Type"],

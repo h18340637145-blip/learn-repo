@@ -50,6 +50,18 @@ test("损坏的本地数据回退到空进度", () => {
   });
 });
 
+test("可以通过仓储边界替换远端同步快照", () => {
+  const repository = createLocalProgressRepository(new MemoryStorage(), "nodejs");
+  const saved = repository.replace({
+    ...repository.load(),
+    completedLessonIds: ["runtime-introduction"],
+    updatedAt: "2026-07-22T00:00:00.000Z"
+  });
+
+  assert.deepEqual(repository.load(), saved);
+  assert.deepEqual(saved.completedLessonIds, ["runtime-introduction"]);
+});
+
 test("旧版本地进度会迁移出空题目记录", () => {
   const storage = new MemoryStorage();
   storage.setItem("nodepath.progress.v1", JSON.stringify({

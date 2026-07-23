@@ -1,7 +1,6 @@
-import type { LessonSpec } from "../curriculum/types";
 import type { ProgressSnapshot } from "./types";
 
-type LessonQuestions = Pick<LessonSpec, "questions">;
+type LessonQuestions = { id?: string; questions: readonly { id: string }[] };
 
 export type LearningReport = {
   answeredQuestions: number;

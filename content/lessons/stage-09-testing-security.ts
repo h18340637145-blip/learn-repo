@@ -491,13 +491,50 @@ test("缺少 password 时不会调用凭证校验器", async (t) => {
   }
 });`,
     entryFile: "auth-service.test.mjs",
-    prompt: "缺少 password 的请求为什么必须在 credentials.verify 之前返回 400？",
-    correct: "输入契约未通过，不应调用鉴权依赖，更不能生成教学签名",
-    wrongA: "因为所有 POST 请求都必须返回 400",
-    wrongB: "为了把 tokenSecret 写进错误响应",
-    correctFeedback: "正确：验证失败要在副作用和安全决策之前短路，测试也应证明校验器没有被调用。",
-    wrongAFeedback: "POST /login 在输入和凭证都有效时应返回成功；400 只代表请求数据不合格。",
-    wrongBFeedback: "签名密钥绝不能出现在响应、日志或断言失败信息中。",
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：处理安全的 API 边界",
+        context: "作为安全的 API，登录接口在调用底层认证服务前，必须先验证输入体的有效性，确保不合法的载荷能被立刻拦截。",
+        files: [{
+          name: "auth-service.test.mjs",
+          code: `// ...\n    try {\n      const input = await readJson(request);\n      if (typeof input.email !== "string" || typeof input.password !== "string") {\n        response.statusCode = 400;\n        return response.end(JSON.stringify({ error: "invalid_input" }));\n      }\n      if (!(await credentials.verify(input.email, input.password))) {\n        response.statusCode = 401;\n        return response.end(JSON.stringify({ error: "invalid_credentials" }));\n      }\n// ...`
+        }],
+        entryFile: "auth-service.test.mjs",
+        question: {
+          id: "project-tested-auth-step1",
+          type: "prediction",
+          prompt: "缺少 password 的请求为什么必须在 credentials.verify 之前返回 400？",
+          options: [
+            { id: "a", label: "因为所有 POST 请求都必须返回 400", detail: "错误假设", feedback: "POST /login 在输入和凭证都有效时应返回成功；400 只代表请求数据不合格。" },
+            { id: "b", label: "输入契约未通过，不应调用鉴权依赖，更不能生成教学签名", detail: "前置校验", feedback: "正确：验证失败要在副作用和安全决策之前短路，测试也应证明校验器没有被调用。" }
+          ],
+          answerId: "b",
+          correctExplanation: "验证失败要在副作用和安全决策之前短路，测试也应证明校验器没有被调用。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：用测试隔离外部凭证依赖",
+        context: "在集成测试中，我们不希望真的去连接数据库校验密码，而是采用依赖注入和 Mock 来验证不同分支逻辑。",
+        files: [{
+          name: "auth-service.test.mjs",
+          code: `test("合法凭证返回教学签名且不暴露密钥", async (t) => {\n  const credentials = { verify: async () => false };\n  const verify = t.mock.method(credentials, "verify", async () => true);\n  const server = createAuthServer({ credentials, tokenSecret: "test-secret" });\n  server.listen(0, "127.0.0.1");\n  await once(server, "listening");\n\n  try {\n    const address = server.address();\n    const response = await fetch("http://127.0.0.1:" + address.port + "/login", {\n      method: "POST",\n      headers: { "content-type": "application/json" },\n      body: JSON.stringify({ email: "learner@example.com", password: "correct" })\n    });\n    const body = await response.json();\n    assert.equal(response.status, 200);\n    assert.equal(verify.mock.callCount(), 1);\n    assert.equal(typeof body.signedProof, "string");\n    assert.equal(JSON.stringify(body).includes("test-secret"), false);\n  } finally {\n    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));\n  }\n});`
+        }],
+        entryFile: "auth-service.test.mjs",
+        question: {
+          id: "project-tested-auth-step2",
+          type: "transfer",
+          prompt: "在测试中，如果在 finally 中不执行 server.close()，会造成什么影响？",
+          options: [
+            { id: "a", label: "测试进程无法自然结束（挂起）", detail: "资源泄露", feedback: "正确：服务器监听着端口，会阻止 Node.js 事件循环退出。" },
+            { id: "b", label: "测试会报错说找不到服务器", detail: "并不报错", feedback: "测试依然可以通过，但命令行会一直卡住不退出。" }
+          ],
+          answerId: "a",
+          correctExplanation: "Node.js 的事件循环只要有活动的句柄（如 Server），进程就不会退出，导致后续测试阻塞或挂起。"
+        }
+      }
+    ],
     lanes: ["验证输入", "Mock 鉴权", "签发与断言"],
     frameValues: ["email/password", "verify=1 call", "proof no secret"],
     log: ["POST /login parsed on ephemeral port", "missing password -> 400; verify calls=0", "valid credentials -> 200 teaching proof; secret absent"],

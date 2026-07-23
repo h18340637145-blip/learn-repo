@@ -397,13 +397,51 @@ function assign(worker) {
 startWorker(1);
 startWorker(2);`,
     entryFile: "worker-report-pool.mjs",
-    prompt: "为什么 Worker 返回的消息里必须带 `jobId`？",
-    correct: "主线程需要把乱序完成的结果聚合回对应任务",
-    wrongA: "Worker 没有 jobId 就不能启动线程",
-    wrongB: "jobId 会自动保证所有任务按提交顺序完成",
-    correctFeedback: "正确：多个 Worker 并行执行时完成顺序不可预测，jobId 用来关联结果和原任务。",
-    wrongAFeedback: "Worker 启动只需要脚本地址；jobId 是业务协议，不是创建线程的必填项。",
-    wrongBFeedback: "jobId 只标识任务，不会改变调度和完成顺序。",
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：主线程分发与聚合逻辑",
+        context: "阶段项目把任务队列、Worker、消息返回和聚合结果组合成一个小型 Worker Pool。主线程负责分发报表分片和收集结果。",
+        files: [{
+          name: "worker-report-pool.mjs",
+          code: `import { Worker } from "node:worker_threads";\n\nconst queue = [\n  { id: "north", rows: [12, 18, 30] },\n  { id: "south", rows: [9, 25, 40] },\n  { id: "west", rows: [7, 11, 13] }\n];\nconst results = new Map();\nconst totalJobs = queue.length;\n\nfunction startWorker(workerId) {\n  const worker = new Worker("./report-worker.mjs");\n\n  worker.on("message", (message) => {\n    results.set(message.jobId, message.total);\n    if (results.size === totalJobs) {\n      console.log("aggregate:", Object.fromEntries(results));\n    }\n    assign(worker);\n  });\n\n  worker.on("error", (error) => {\n    console.error("worker failed:", workerId, error.message);\n  });\n\n  assign(worker);\n}\n\n// ... startWorker(1); startWorker(2);`
+        }],
+        entryFile: "worker-report-pool.mjs",
+        question: {
+          id: "project-worker-report-step1",
+          type: "prediction",
+          prompt: "为什么 Worker 返回的消息里必须带 jobId？",
+          options: [
+            { id: "a", label: "Worker 没有 jobId 就不能启动", detail: "错误认知", feedback: "Worker 启动只需要脚本地址；jobId 是业务协议。" },
+            { id: "b", label: "主线程需要把乱序完成的结果聚合回对应任务", detail: "关联任务结果", feedback: "正确：多个 Worker 并行执行时完成顺序不可预测，jobId 用来关联结果和原任务。" }
+          ],
+          answerId: "b",
+          correctExplanation: "并行任务完成顺序不确定，返回结果需要带有唯一标识。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：任务分配与停止控制",
+        context: "主线程需要不断将新任务发送给空闲的 Worker，如果队列空了，就通知 Worker 停止。",
+        files: [{
+          name: "worker-report-pool.mjs",
+          code: `function assign(worker) {\n  const job = queue.shift();\n  if (!job) {\n    worker.postMessage({ type: "stop" });\n    return;\n  }\n\n  worker.postMessage({ type: "report", job });\n}\n\nstartWorker(1);\nstartWorker(2);`
+        }],
+        entryFile: "worker-report-pool.mjs",
+        question: {
+          id: "project-worker-report-step2",
+          type: "transfer",
+          prompt: "当 queue 变空时，发送 { type: 'stop' } 的目的是什么？",
+          options: [
+            { id: "a", label: "通知 Worker 自行终止进程", detail: "优雅清理", feedback: "正确：否则 Worker 进程会一直挂起等待新消息，导致整个 Node 程序无法自然退出。" },
+            { id: "b", label: "强制干掉 Worker 线程", detail: "粗暴杀掉", feedback: "这是发送一条正常消息给 Worker 自己处理，而不是强制 terminate。" },
+            { id: "c", label: "无意义", detail: "不必要的代码", feedback: "如果不退出，事件循环会有存活的事件监听，进程无法结束。" }
+          ],
+          answerId: "a",
+          correctExplanation: "让 Worker 自己退出是优雅收尾，确保 Node 主进程在所有工作完成后自然退出。"
+        }
+      }
+    ],
     lanes: ["任务队列", "Worker 执行", "聚合结果"],
     frameValues: ["queue.shift()", "postMessage", "Map results"],
     log: ["dispatch north to worker 1", "worker returned south=74", "aggregate: { north: 60, south: 74, west: 31 }"],

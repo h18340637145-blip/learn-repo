@@ -7,9 +7,11 @@ import { buildRoadmap } from "../../lib/curriculum/view-model";
 test("阶段展示计划总数和已发布数量", () => {
   const roadmap = buildRoadmap(curriculum, {
     version: 1,
+    courseId: "nodejs",
     completedLessonIds: ["modules-require-cache"],
     completedProjectIds: [],
     reviewLessonIds: [],
+    questionAttempts: {},
     updatedAt: null
   });
 

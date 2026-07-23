@@ -455,74 +455,49 @@ export async function deleteAccount(formData: FormData) {
     concept: "这个挑战将要求你融会贯通 Auth.js。你将编写一份极其干净的核心 `auth.ts`，利用它签发扩展过特定员工角色的特权 JWT；通过架设在中枢地带的泛指通配符 Middleware，为 10 几个秘密的路由群组统一安装过滤筛网；并且在你那个极速利用 Server Action 与后端并行的超级提交表单函数最开头处，加上防直接跨站轰炸的强力截杀指令！这是一套在当今互联网上可卖上极好价格的标准中台骨架体系方案！",
     points: ["不依赖那些陈旧庞大的独立鉴权外包服务，利用 Server + Edge 无缝拼合原生方案", "享受无需手写几十行令人恶心的 Cookie 拆包签发防伪的爽快", "打透了所有 Web 数据流中可能遭遇到截胡窜改窃听的最核心知识网络区"],
     memoryHook: "防微杜渐铸高台，多维阻拦显风采",
-    files: [{ name: "auth.ts", code: `import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import { getUserByEmail } from './db';
-
-// 这是整个心脏起搏器
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [
-    Credentials({
-      async authorize(c) {
-        // ...执行库内查验
-        const user = await getUserByEmail(c.email);
-        if(!user || user.password !== c.password) return null;
-        // 给它加上烙印
-        return { id: user.id, name: user.name, role: user.department }; 
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：核心认证配置与边缘拦截",
+        context: "首先配置 Auth.js 的核心工厂，并在 Middleware 中加入大范围的路由拦截防波堤，确保未登录用户无法轻易进入受保护区域。",
+        files: [
+          { name: "auth.ts", code: `import NextAuth from 'next-auth';\nimport Credentials from 'next-auth/providers/credentials';\nimport { getUserByEmail } from './db';\n\n// 这是整个心脏起搏器\nexport const { handlers, signIn, signOut, auth } = NextAuth({\n  providers: [\n    Credentials({\n      async authorize(c) {\n        // ...执行库内查验\n        const user = await getUserByEmail(c.email);\n        if(!user || user.password !== c.password) return null;\n        // 给它加上烙印\n        return { id: user.id, name: user.name, role: user.department }; \n      }\n    })\n  ],\n  callbacks: {\n    async jwt({ token, user }) { if(user) token.role = user.role; return token; },\n    async session({ session, token }) { session.user.role = token.role; return session; }\n  },\n  pages: { signIn: '/login' } // 指明踢回来的门在哪儿\n});` },
+          { name: "middleware.ts", code: `import { auth } from "@/auth";\nimport { NextResponse } from "next/server";\n\nexport default auth((req) => {\n  // 这是把守重型要塞的外层城墙守卫\n  const isProtected = req.nextUrl.pathname.startsWith("/app");\n  if (isProtected && !req.auth) {\n    return NextResponse.redirect(new URL("/login", req.nextUrl));\n  }\n});\nexport const config = { matcher: ['/((?!api|_next/static|_next/image).*)'] };` }
+        ],
+        entryFile: "middleware.ts",
+        question: {
+          id: "project-nextjs-login-system-step1",
+          type: "prediction",
+          prompt: "在 Middleware 的 config 中使用了 `matcher: ['/((?!api|_next/static|_next/image).*)']` 的目的是什么？",
+          options: [
+            { id: "a", label: "为了让所有这些路径强制跳转到 /login", detail: "相反效果", feedback: "正则表达式里的 `?!` 意味着排除这些路径。" },
+            { id: "b", label: "排除静态资源和 API 路由，防止 Middleware 被这些高频的无谓请求反复触发而浪费算力", detail: "性能优化", feedback: "正确：Middleware 应避免不必要地拦截静态资源和底层 API 接口，这极大减少了运行开销。" }
+          ],
+          answerId: "b",
+          correctExplanation: "泛指的匹配可以保障安全网的覆盖率，而通过黑名单排除掉高频、不涉及用户直接权限的资源是保障 Middleware 高速运转的关键。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：Server Action 最终权限守卫",
+        context: "在执行任何极高权限操作之前，即便页面没有拦截住请求，我们也必须在修改操作的源头进行最终的权限比对，形成纵深防御体系。",
+        files: [
+          { name: "app/app/dashboard/actions.ts", code: `'use server';\nimport { auth } from '@/auth';\nimport { revalidatePath } from 'next/cache';\n\nexport async function processTopSecretData() {\n  // 这是核心保险箱门锁的最后一道防线\n  const session = await auth();\n  if (!session || session.user.role !== 'ceo') {\n    return { error: '越权警报触发：已锁定并在后台记录非法攻击 IP！' };\n  }\n  \n  // ...执行不可挽回的高度机密处理操作...\n  revalidatePath('/app/dashboard');\n  return { success: '总裁您好，操作已安全执行。' };\n}` }
+        ],
+        entryFile: "app/app/dashboard/actions.ts",
+        question: {
+          id: "project-nextjs-login-system-step2",
+          type: "transfer",
+          prompt: "假设由于中间件里一个愚蠢的程序员失误把 `startsWith` 写成了错误的拼写，导致外层防波堤大开。黑客直接发起了带有触发 `processTopSecretData` 指令的请求。请问公司的机密在这个时候被毁了吗？",
+          options: [
+            { id: "a", label: "肯定毁了，因为中间件这个大门破了", detail: "单层防御心态", feedback: "中间件只是最外层的减震器，真正的防弹衣在内层。" },
+            { id: "b", label: "完全不会，因为这套架构中最深的那一层 Server Action 鉴权依然无情且精准地判定了他没有 'ceo' 权限，从物理层断绝了所有非法指令的执行", detail: "冗余设计的降维救世", feedback: "正确：在核心基建设计上，防范内鬼与失误是最重要的议题，多点复用鉴权形成深度防御。" }
+          ],
+          answerId: "b",
+          correctExplanation: "你眼前的这个项目，展示了利用最新的 Next 服务端思维颠覆单点防御的全过程。通过灵活多变的万能 `auth()` 钩子，我们将鉴权布防到了战舰的每一个水密舱里面。一层破，第二层自动补位。"
+        }
       }
-    })
-  ],
-  callbacks: {
-    async jwt({ token, user }) { if(user) token.role = user.role; return token; },
-    async session({ session, token }) { session.user.role = token.role; return session; }
-  },
-  pages: { signIn: '/login' } // 指明踢回来的门在哪儿
-});` }, { name: "middleware.ts", code: `import { auth } from "@/auth";
-import { NextResponse } from "next/server";
-
-export default auth((req) => {
-  // 这是把守重型要塞的外层城墙守卫
-  const isProtected = req.nextUrl.pathname.startsWith("/app");
-  if (isProtected && !req.auth) {
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
-  }
-});
-export const config = { matcher: ['/((?!api|_next/static|_next/image).*)'] };` }, { name: "app/app/dashboard/actions.ts", code: `'use server';
-import { auth } from '@/auth';
-import { revalidatePath } from 'next/cache';
-
-export async function processTopSecretData() {
-  // 这是核心保险箱门锁的最后一道防线
-  const session = await auth();
-  if (!session || session.user.role !== 'ceo') {
-    return { error: '越权警报触发：已锁定并在后台记录非法攻击 IP！' };
-  }
-  
-  // ...执行不可挽回的高度机密处理操作...
-  revalidatePath('/app/dashboard');
-  return { success: '总裁您好，操作已安全执行。' };
-}` }],
-    entryFile: "app/app/dashboard/actions.ts",
-    answer: {
-      type: "prediction",
-      prompt: "对于这个由这三座高峰构筑起来的体系。假设由于中间件里一个愚蠢的程序员失误把 `startsWith` 写成了错误的拼写，导致保护网大开，黑客能够直接顺着路径摸到那个带有触发 `processTopSecretData` 这个函数按钮的页面了。请问公司的机密在这个时候被毁了吗？",
-      options: [
-        { id: "a", label: "肯定毁了，因为中间件这个大门破了", detail: "单层防御心态", feedback: "中间件只是最外层的减震器，真正的防弹衣在内层。" },
-        { id: "b", label: "完全不会，因为这套架构中最可怕、最深的那一层洋葱芯（Server Action 内置鉴权）依然无情且精准地判定了他并没有戴上 'ceo' 的权杖，并从物理层断绝了所有非法指令向下传导的可能", detail: "冗余设计的降维救世", feedback: "正确：在核心基建设计上，防范内鬼与失误是最重要的议题，而多点复用 `auth()` 将安全触手布满整个网络才是正道。" },
-        { id: "c", label: "只要黑客懂点前端在控制台改改变量就能破解", detail: "老旧的客户端伪造论", feedback: "所有这些验证全都是在密闭的服务器环境甚至独立边缘环境中处理执行的，没有任何变量或者算法泄漏给前端。" }
-      ],
-      answerId: "b",
-      correctExplanation: "你眼前的这个项目，展示了利用最新的 Next 服务端思维彻底颠覆前端工程师旧有脆弱思维模式的全过程。通过灵活多变、四处生根而且几乎无算力消耗的那个万能 `auth()` 钩子。我们将鉴权布防到了这艘战舰的每一个水密舱里面。一层破，第二层自动补位。而在如此强悍的安全底盘上面，由于这三者代码的高度解耦，使得你可以轻易地为其换上 Google / 微信等任意皮囊体系却不伤分毫其内层的逻辑闭环。"
-    },
-    execution: {
-      visualizer: { type: "stage-project-core", title: "安全矩阵演习防御系统", nodes: ["构建加密大动脉", "设下泛指防浪截断层", "内层核心机要部署断路器", "遭遇组合攻击穿透测试", "内层系统全线发威拒敌"] },
-      lanes: ["大门巡航与哨兵漏判", "突击者窃喜以为得手", "遭逢内围近卫军围剿"],
-      frames: [
-        { activeLane: 0, laneValues: ["因为手误中间件失效并未拦住恶意请求", "等待", "等待"], log: ["黑客极其猖獗地畅通无阻潜入并看到了那些神秘的按钮"], note: "外壳破防带来的惊险一刹", delayMs: 400 },
-        { activeLane: 1, laneValues: ["完成", "利用技术点击发送毁灭数据信号包", "等待"], log: ["包裹以光速奔向深层的数据库执行机房而去..."], note: "试图在无声中摧毁企业数据资产", delayMs: 800 },
-        { activeLane: 2, laneValues: ["完成", "完成", "无情绞杀令下达"], log: ["Action 底层那根死死钉住 auth().role 的深层探测管瞬间探查到了他的破绽", "立刻引发反制锁死网络链接并且丢出报警警告！"], note: "极度优雅甚至有些令人窒息的安全压制力，系统坚如磐石", delayMs: 800 }
-      ]
-    },
+    ],
     sources: [{ title: "Authentication", url: "https://nextjs.org/docs/app/building-your-application/authentication" }],
     summary: ["一次完美展示利用重叠式架构防御系统故障以及防备无死角暗器攻击的高分实操", "运用 Next.js 极高自由穿插前后端的特性将 Auth 这个最为抽象繁杂的能力化成了手到擒来的小挂件", "帮助开发者突破被框架限制心智只能做切图匠的囚笼进而转型为真正的方案设计师"]
   })

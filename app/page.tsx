@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { KnowledgeNetwork } from "@/components/immersive";
+import { AuthStatus } from "@/components/auth/auth-status";
 
 export default function Home() {
   return (
     <div className="course-home">
       <header className="course-hero">
+        <div style={{ position: 'absolute', top: '16px', right: '24px' }}>
+          <AuthStatus />
+        </div>
         <div className="course-hero__brand">
           <span className="brand-mark">N<span>_</span></span>
           <span>NodePath</span>

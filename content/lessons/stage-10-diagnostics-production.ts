@@ -623,13 +623,50 @@ test("鉴权报表完成后向 SSE 客户端广播 report.ready", async (t) => {
   }
 });`,
     entryFile: "production-lab.test.mjs",
-    prompt: "未携带正确 Bearer token 的报表请求会怎样流动？",
-    correct: "返回 401，并在解析大请求体、启动 Worker 和广播 SSE 之前结束",
-    wrongA: "先启动 Worker 计算，再把结果连同密钥写入日志",
-    wrongB: "自动降级为匿名管理员并返回报表",
-    correctFeedback: "正确：安全边界必须先于昂贵计算和实时广播，失败路径也不会泄漏 token。",
-    wrongAFeedback: "未鉴权请求不应消耗 Worker 资源，更不能把秘密写入日志。",
-    wrongBFeedback: "缺少有效凭证必须明确失败，不能静默提升权限。",
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：严格的请求边界与指标隔离",
+        context: "阶段项目以同一 Bearer 边界保护报表、SSE 与内部指标，只有健康检查对外公开，所有受保护路由共享鉴权拦截逻辑。",
+        files: [{
+          name: "production-lab.test.mjs",
+          code: `const protectedPath = request.url === "/metrics" || request.url === "/events" || request.url === "/reports";\nconst authorization = String(request.headers.authorization ?? "");\nif (protectedPath && !safeEqual(authorization, "Bearer " + apiToken)) {\n  response.statusCode = 401;\n  return response.end(JSON.stringify({ error: "unauthorized" }));\n}`
+        }],
+        entryFile: "production-lab.test.mjs",
+        question: {
+          id: "project-production-diagnostics-step1",
+          type: "prediction",
+          prompt: "未携带正确 Bearer token 的报表请求会怎样流动？",
+          options: [
+            { id: "a", label: "自动降级为匿名管理员并返回报表", detail: "权限提升", feedback: "缺少有效凭证必须明确失败，不能静默提升权限。" },
+            { id: "b", label: "返回 401，并在解析大请求体和生成 SSE 之前结束", detail: "前置拦截", feedback: "正确：安全边界必须先于昂贵计算和实时广播，失败路径也不会泄漏 token。" }
+          ],
+          answerId: "b",
+          correctExplanation: "正确的架构是将统一的鉴权逻辑放在解析 Body 和耗时计算之前，保障系统安全。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：对实时广播采用主动背压防线",
+        context: "向订阅的客户端推送完成报告时，如果慢客户端卡住了写入缓冲区，我们不应该让它拖累服务端的内存。必须有一种防御策略。",
+        files: [{
+          name: "production-lab.test.mjs",
+          code: `// ...\nconst total = await reports.run(input.values);\nconst event = JSON.stringify({ type: "report.ready", requestId, total });\nfor (const client of clients) {\n  if (!client.write("data: " + event + "\\n\\n")) {\n    clients.delete(client);\n    client.destroy();\n    console.warn(JSON.stringify({ event: "sse.slow_subscriber_disconnected" }));\n  }\n}\n// ...`
+        }],
+        entryFile: "production-lab.test.mjs",
+        question: {
+          id: "project-production-diagnostics-step2",
+          type: "transfer",
+          prompt: "当 client.write() 返回 false 时，代码为什么要直接 destroy 它？",
+          options: [
+            { id: "a", label: "表明它是一个错误连接", detail: "误解语义", feedback: "返回 false 表示缓冲满了，并非底层 Socket 已经报错。" },
+            { id: "b", label: "防止服务端被迫缓存积压数据", detail: "慢客户端断开策略", feedback: "正确：对于广播性质的指标或流水账，抛弃跟不上的慢客户端比内存泄露拖垮整个应用更好。" }
+          ],
+          answerId: "b",
+          correctExplanation: "为了保障 Node 进程稳定性，对于非关键数据的流推送，常采用“一旦出现背压就剔除慢消费者”的保护策略。"
+        }
+      }
+    ],
     lanes: ["HTTP 安全边界", "Worker 与 SSE", "测试与诊断"],
     frameValues: ["auth protected routes", "total=10 broadcast", "slow client disconnect"],
     log: ["events/metrics/reports without token -> 401", "authorized metrics in ms; SSE client ready with deadline", "report.ready received; slow subscribers disconnected; test SSE canceled"],

@@ -481,81 +481,49 @@ export default async function Page() {
     concept: "这个阶段项目带你穿插所有知识搭建一个典型的后台列表增删改查。使用 `fetch` 结合标签进行查询；通过抽离出来的 `SubmitButton` 读取提交状态；将添加与删除函数通过 `'use server'` 定义为动作，并在其末尾借助 `revalidateTag` 和 `revalidatePath` 执行大清盘。最终实现一个流畅无比，甚至关闭 JS 都可以正常提交表单的全栈产品！",
     points: ["以流、缓存和操作三大基石取代过往一切繁琐的 Axios/Redux 配置", "深入利用 Next 强化的原生 web 属性设计组件", "无 JS 落盘降级保证极高可用性"],
     memoryHook: "查缓存清，动作状态走",
-    files: [{ name: "app/actions.ts", code: `'use server';
-import { revalidatePath } from 'next/cache';
-import db from './db'; // 假设提供数据库交互
-
-export async function addTask(prevState: any, formData: FormData) {
-  const title = formData.get('title') as string;
-  
-  if (title.length < 3) return { error: '标题过短，任务作废！' };
-  
-  // 保存数据库
-  await db.tasks.create({ title });
-  
-  // 操作成功，爆破清理主界面的静态缓存以重新读库
-  revalidatePath('/tasks');
-  
-  return { success: '已进入军火库列表' };
-}` }, { name: "app/tasks/page.tsx", code: `import db from '../db';
-import TaskForm from './TaskForm';
-
-export default async function TaskList() {
-  // 服务端拉取展示
-  const tasks = await db.tasks.getAll();
-  
-  return (
-    <div className="container">
-      <h1>项目军火库面板</h1>
-      <ul>
-        {tasks.map(t => <li key={t.id}>{t.title}</li>)}
-      </ul>
-      <hr />
-      <TaskForm />
-    </div>
-  )
-}` }, { name: "app/tasks/TaskForm.tsx", code: `'use client';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { addTask } from '../actions';
-
-function AddButton() {
-  const { pending } = useFormStatus();
-  return <button disabled={pending}>{pending ? '投递中...' : '新任务部署'}</button>
-}
-
-export default function TaskForm() {
-  const [state, formAction] = useActionState(addTask, {});
-  
-  return (
-    <form action={formAction}>
-      <input type="text" name="title" />
-      <AddButton />
-      {state?.error && <p className="alert">{state.error}</p>}
-    </form>
-  )
-}` }],
-    entryFile: "app/tasks/page.tsx",
-    answer: {
-      type: "prediction",
-      prompt: "在这个结构中，从提交“过短标题”到看到报警弹出的这段时间内，有发生整个网页浏览器的白屏大刷新动作吗？有通过复杂的自定义中间件路由发接口吗？",
-      options: [
-        { id: "a", label: "发生了整体的 POST 跳转刷新，体验类似于传统 PHP", detail: "退化理解", feedback: "虽然使用了 form 标签，但 Next.js 在客户端使用 JS 接管了它进行原生路由拦截平滑处理。" },
-        { id: "b", label: "在拥有 JS 的环境下，没有任何全屏闪烁和自定义 fetch/axios 接口编写，仅仅是前后端变量状态神奇地隔空打通并且完成了校验展示", detail: "Next App 终极理念", feedback: "正确：这种 RPC 式透明传输和原生 HTML 的融合，是目前全栈领域最先进的心智模型。" },
-        { id: "c", label: "用专门的 /api/add 接口完成了跳转响应", detail: "脱离机制", feedback: "不再有单独设立的 API 终点暴露在外部了。" }
-      ],
-      answerId: "b",
-      correctExplanation: "你在这个项目中看到的是未来 web 的常态：没有冗长的 Redux、不要 axios、没有额外的 API 文件夹和接口路径拼接。`addTask` 作为跑在后端的方法，直接以 props / binding 的形式甩到了客户端。Next.js 的构建器和 React 生态帮你把一切网络传输细节全部吃掉，实现真正的“全栈一体式开发”。"
-    },
-    execution: {
-      visualizer: { type: "stage-project-core", title: "全栈全链路互动图", nodes: ["展现", "无感注入", "Server 运行", "DB 核准", "缓存擦除"] },
-      lanes: ["展示列表并监听", "拦截请求发送状态", "接受回应改变 UI"],
-      frames: [
-        { activeLane: 0, laneValues: ["渲染包含已有军火的页面", "等待", "等待"], log: ["首次请求在服务端执行并渲染好呈现，带有 TaskForm 并建立隐式连接池"], note: "初态已呈现给用户观看和操作", delayMs: 400 },
-        { activeLane: 1, laneValues: ["完成", "非法数据投递被截断", "等待"], log: ["按钮被状态拦截进入 Loading", "服务端收信并迅速打回：error=标题过短"], note: "极速的通信和鉴定流程闭环", delayMs: 800 },
-        { activeLane: 2, laneValues: ["完成", "完成", "无缝恢复状态"], log: ["Hook 将收到信息，重置 Loading 按钮", "并在屏幕上打上红色弹窗警示"], note: "客户端 UI 并未崩坏或跳离，一切平滑自然", delayMs: 800 }
-      ]
-    },
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：利用 Server Actions 替代 API 路由",
+        context: "在 Next.js App Router 中，表单提交和数据写入可以直接通过 `'use server'` 的函数执行，而无需编写 API 路由。成功后调用 `revalidatePath` 即可刷新页面数据。",
+        files: [
+          { name: "app/actions.ts", code: `'use server';\nimport { revalidatePath } from 'next/cache';\nimport db from './db'; // 假设提供数据库交互\n\nexport async function addTask(prevState: any, formData: FormData) {\n  const title = formData.get('title') as string;\n  \n  if (title.length < 3) return { error: '标题过短，任务作废！' };\n  \n  // 保存数据库\n  await db.tasks.create({ title });\n  \n  // 操作成功，爆破清理主界面的静态缓存以重新读库\n  revalidatePath('/tasks');\n  \n  return { success: '已进入军火库列表' };\n}` },
+          { name: "app/tasks/page.tsx", code: `import db from '../db';\nimport TaskForm from './TaskForm';\n\nexport default async function TaskList() {\n  // 服务端拉取展示\n  const tasks = await db.tasks.getAll();\n  \n  return (\n    <div className="container">\n      <h1>项目军火库面板</h1>\n      <ul>\n        {tasks.map(t => <li key={t.id}>{t.title}</li>)}\n      </ul>\n      <hr />\n      <TaskForm />\n    </div>\n  )\n}` }
+        ],
+        entryFile: "app/actions.ts",
+        question: {
+          id: "project-nextjs-task-crud-step1",
+          type: "prediction",
+          prompt: "在 `addTask` 中调用 `revalidatePath('/tasks')` 的核心目的是什么？",
+          options: [
+            { id: "a", label: "让浏览器发生一次完整的页面刷新，重新获取最新 HTML", detail: "传统认知", feedback: "Next.js 的刷新是平滑的，只会在后台重新获取更新的 RSC Payload 并在客户端合并，而不会白屏刷新。" },
+            { id: "b", label: "清除服务端对 `/tasks` 页面的缓存，以便下一次请求或当前客户端刷新时能拿到最新数据库数据", detail: "缓存淘汰机制", feedback: "正确：因为 Server Component 默认会有缓存，写入新数据后必须告知框架淘汰旧缓存。" }
+          ],
+          answerId: "b",
+          correctExplanation: "写操作（Mutations）伴随缓存失效（Revalidation）是现代框架保障前后端一致性的标准流程。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：结合 Hooks 呈现交互状态",
+        context: "表单提交过程可能有延迟，我们可以利用 `useActionState` 和 `useFormStatus` 来呈现加载状态和错误提示，且不需要在客户端手动阻止默认提交行为。",
+        files: [
+          { name: "app/tasks/TaskForm.tsx", code: `'use client';\nimport { useActionState } from 'react';\nimport { useFormStatus } from 'react-dom';\nimport { addTask } from '../actions';\n\nfunction AddButton() {\n  const { pending } = useFormStatus();\n  return <button disabled={pending}>{pending ? '投递中...' : '新任务部署'}</button>\n}\n\nexport default function TaskForm() {\n  const [state, formAction] = useActionState(addTask, {});\n  \n  return (\n    <form action={formAction}>\n      <input type="text" name="title" />\n      <AddButton />\n      {state?.error && <p className="alert">{state.error}</p>}\n    </form>\n  )\n}` }
+        ],
+        entryFile: "app/tasks/TaskForm.tsx",
+        question: {
+          id: "project-nextjs-task-crud-step2",
+          type: "transfer",
+          prompt: "在这个结构中，从提交“过短标题”到看到报警弹出的这段时间内，有发生整个网页浏览器的白屏大刷新动作吗？",
+          options: [
+            { id: "a", label: "发生了整体的 POST 跳转刷新，体验类似于传统 PHP", detail: "退化理解", feedback: "虽然使用了 form 标签，但 Next.js 在客户端使用 JS 接管了它进行原生路由拦截平滑处理。" },
+            { id: "b", label: "在拥有 JS 的环境下，没有任何全屏闪烁和自定义 fetch/axios 接口编写，仅仅是前后端变量状态神奇地隔空打通并且完成了校验展示", detail: "Next App 终极理念", feedback: "正确：这种 RPC 式透明传输和原生 HTML 的融合，是目前全栈领域最先进的心智模型。" }
+          ],
+          answerId: "b",
+          correctExplanation: "你在这个项目中看到的是未来 web 的常态：没有冗长的 Redux、不要 axios、没有额外的 API 文件夹和接口路径拼接。`addTask` 作为跑在后端的方法，直接以 props / binding 的形式甩到了客户端。Next.js 的构建器和 React 生态帮你把一切网络传输细节全部吃掉，实现真正的“全栈一体式开发”。"
+        }
+      }
+    ],
     sources: [{ title: "Forms and Mutations", url: "https://nextjs.org/docs/app/building-your-application/data-fetching/forms-and-mutations" }],
     summary: ["Server Actions 加 React 最新并发 Hook 的组合拳堪称恐怖", "一切状态流动和前后端交互完全依赖平台基础设施，零手工样板代码", "让专注点真正回归到业务规则和逻辑模型构建之上"]
   })

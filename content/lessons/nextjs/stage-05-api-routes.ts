@@ -457,69 +457,48 @@ export function GET(request: Request) {
     concept: "我们将在一个庞大的结构中，彻底展示 Next.js 这个并非只是前端框架的怪物的重火力实力。我们将架设起带有多重动态鉴权防御并被部署到极速边缘网络层（Edge）的入口检查中间件；针对通过检查的人提供了一个将外部远古天气老平台包裹并通过流式喷涌（Streaming）转译成极具未来感接口的转换服务；并在向外暴漏时优雅地戴上了跨域免检金牌的王冠（CORS）。",
     points: ["将一个看似只配画页面的前端系统华丽扭转成为高耸坚不可摧的底层基座分发中台系统", "全面发挥极具压制力与优雅语法特性的加强版扩展 API 集大成", "兼顾安全、高速响应以及同外部陈旧系统和谐桥接的立体三维打击能力"],
     memoryHook: "防波堤接管一切流，中台枢纽舍我其谁",
-    files: [{ name: "middleware.ts", code: `import { NextRequest, NextResponse } from 'next/server'
-
-export const config = { matcher: '/api/v2/:path*' }
-
-export function middleware(req: NextRequest) {
-  // 这是把守外门的第一道凶残安检
-  const isPremium = req.headers.get('x-premium-tier');
-  if (!isPremium) {
-    return NextResponse.json({ error: '穷鬼退散！充值会员解锁高速中转。' }, { status: 403 })
-  }
-  return NextResponse.next();
-}` }, { name: "app/api/v2/transform/[serviceId]/route.ts", code: `import { NextRequest } from 'next/server';
-
-export const runtime = 'edge'; // 采用边缘提速起飞特性
-
-export async function POST(
-  req: NextRequest, 
-  { params }: { params: Promise<{ serviceId: string }> }
-) {
-  const { serviceId } = await params;
-  
-  // CORS 特赦头部信息包块
-  const corsHeaders = { 'Access-Control-Allow-Origin': '*' };
-  
-  if(serviceId !== 'weather-legacy') {
-    return new Response('服务不可查明', { status: 404, headers: corsHeaders });
-  }
-
-  // 开始运用流技术，把隔壁巨慢无穷且老掉牙的其他部门慢速数据的查询
-  // 转化并切碎成源源不断快速向外涌出的水管呈现给终端用户去慢慢吸吮
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    async start(controller) {
-      controller.enqueue(encoder.encode('正在启动深空卫星连线...\\n'));
-      await new Promise(r => setTimeout(r, 1000));
-      controller.enqueue(encoder.encode('连线确立，读取到温度指标为 36°C，极端酷热警报...\\n'));
-      controller.close();
-    }
-  });
-
-  return new Response(stream, { headers: { ...corsHeaders, 'Content-Type': 'text/plain' } });
-}` }],
-    entryFile: "app/api/v2/transform/[serviceId]/route.ts",
-    answer: {
-      type: "prediction",
-      prompt: "对于这整个一条极其顺畅且暴力的防弹工作流体系，如果现在一个非特权的普通外来用户跨域发起了对于这个神奇转发器的 POST 动作。他在最外层和最内层会遭遇到什么系统联合防守待遇？",
-      options: [
-        { id: "a", label: "他直接就被丢到错误页面去了", detail: "因为完全不满足门槛条件", feedback: "API 不会主动下发页面，而是有节操地报告 JSON 。" },
-        { id: "b", label: "他会在光速般的边缘节点立刻被 Middleware 截胡没收，在连底层复杂流代码都摸不到的情况下，领到一封带着 403 警告但却能顺利跨域收下的一段提示 JSON", detail: "全链路防护体系启动", feedback: "正确：高屋建瓴般的层级过滤阻隔完美挡住了非法穿透，而优雅的网关回执依然有礼貌地保障了最外层的读取可能。" },
-        { id: "c", label: "引发了框架自身代码因为层层转译和中转嵌套抛出栈溢出而停止运行", detail: "对架构承压有误判", feedback: "这不仅不会崩塌，这是当今现代企业最高并发最喜爱使用的标配云原生结构。" }
-      ],
-      answerId: "b",
-      correctExplanation: "在这个极具挑战和威力的阶段性架构内，我们将很多原本只敢给专门去学了一整套沉重繁琐 Java Spring Boot 或者 Go 微服务课程才能懂去如何拼接搭建的东西，用短短的几个 Next 文件以及直观的文件树系统给非常体面极简地落地搭建完成了。你不仅做到了分层剥离处理、异构数据转换还一并在 Edge 最前端化解了高并冲击！这就是为什么 Next 被誉为前端向全栈入侵最凶狠的超级旗舰装甲的原因！"
-    },
-    execution: {
-      visualizer: { type: "stage-project-core", title: "立体防御网络网关体系", nodes: ["边缘中控安检", "非法者光速截杀回弹", "特权者下放接引", "深度加工与流转换编排", "附带绿卡完美出境"] },
-      lanes: ["全局防洪堤层级", "纵深调度转写模块", "分发传递端点"],
-      frames: [
-        { activeLane: 0, laneValues: ["大量的混杂请求犹如暴雨般砸下", "等待", "等待"], log: ["边缘防御网雷达迅速将其中没有购买 VIP 票根的数据包剔除击飞"], note: "极其稳固地保护了后方柔弱繁重的重算力模块基座", delayMs: 400 },
-        { activeLane: 1, laneValues: ["完成", "仅余优质高净值需求漏入底层", "等待"], log: ["依据方括号将不同需求分流引导去不同车间", "建立异构数据通信流通道将破旧庞大资料一点点切片转化"], note: "利用流媒体特性防止了系统在提取大对象时因内存耗竭引发灾难", delayMs: 800 },
-        { activeLane: 2, laneValues: ["完成", "完成", "封装特殊凭证回发"], log: ["附加上全境通行大放行的跨域许可证后，将那源源不断的流推给需要它呈现特效的外域站点"], note: "一气呵成，从安全到体验到功能完成了跨维度的全域打击", delayMs: 800 }
-      ]
-    },
+    steps: [
+      {
+        id: "step-1",
+        title: "步骤 1：利用 Middleware 实现边缘拦截",
+        context: "我们利用 Next.js Middleware 在边缘网络层架设一道凶残的安检，快速拦截不符合条件的请求，保护后方 API。",
+        files: [
+          { name: "middleware.ts", code: `import { NextRequest, NextResponse } from 'next/server'\n\nexport const config = { matcher: '/api/v2/:path*' }\n\nexport function middleware(req: NextRequest) {\n  // 这是把守外门的第一道凶残安检\n  const isPremium = req.headers.get('x-premium-tier');\n  if (!isPremium) {\n    return NextResponse.json({ error: '穷鬼退散！充值会员解锁高速中转。' }, { status: 403 })\n  }\n  return NextResponse.next();\n}` }
+        ],
+        entryFile: "middleware.ts",
+        question: {
+          id: "project-nextjs-api-gateway-step1",
+          type: "prediction",
+          prompt: "当一个没有 `x-premium-tier` 请求头的非特权请求访问 `/api/v2/transform/1` 时，它会穿透 Middleware 到达实际的 Route Handler 吗？",
+          options: [
+            { id: "a", label: "会的，Middleware 只能重定向，不能直接返回 JSON", detail: "错误认知", feedback: "Middleware 支持直接返回 Response，包括 JSON。" },
+            { id: "b", label: "不会，它会在边缘节点直接收到 403 响应，极大地节省了后方核心服务器的算力", detail: "边缘拦截优势", feedback: "正确：高屋建瓴般的层级过滤阻隔完美挡住了非法穿透。" }
+          ],
+          answerId: "b",
+          correctExplanation: "边缘防御网雷达迅速将异常数据包剔除击飞，极其稳固地保护了后方繁重的重算力模块基座。"
+        }
+      },
+      {
+        id: "step-2",
+        title: "步骤 2：流式响应与跨域处理",
+        context: "针对通过检查的人提供了一个将外部老平台包裹并通过流式喷涌（Streaming）转译成极具未来感接口的转换服务；并在向外暴露时优雅地戴上了跨域免检金牌的王冠（CORS）。",
+        files: [
+          { name: "app/api/v2/transform/[serviceId]/route.ts", code: `import { NextRequest } from 'next/server';\n\nexport const runtime = 'edge'; // 采用边缘提速起飞特性\n\nexport async function POST(\n  req: NextRequest, \n  { params }: { params: Promise<{ serviceId: string }> }\n) {\n  const { serviceId } = await params;\n  \n  // CORS 特赦头部信息包块\n  const corsHeaders = { 'Access-Control-Allow-Origin': '*' };\n  \n  if(serviceId !== 'weather-legacy') {\n    return new Response('服务不可查明', { status: 404, headers: corsHeaders });\n  }\n\n  // 开始运用流技术，把慢速查询转化并切碎成源源不断快速向外涌出的水管呈现给终端用户\n  const encoder = new TextEncoder();\n  const stream = new ReadableStream({\n    async start(controller) {\n      controller.enqueue(encoder.encode('正在启动深空卫星连线...\\n'));\n      await new Promise(r => setTimeout(r, 1000));\n      controller.enqueue(encoder.encode('连线确立，读取到温度指标为 36°C，极端酷热警报...\\n'));\n      controller.close();\n    }\n  });\n\n  return new Response(stream, { headers: { ...corsHeaders, 'Content-Type': 'text/plain' } });\n}` }
+        ],
+        entryFile: "app/api/v2/transform/[serviceId]/route.ts",
+        question: {
+          id: "project-nextjs-api-gateway-step2",
+          type: "transfer",
+          prompt: "在 `Route Handler` 中我们使用了 `ReadableStream`。如果在没有流的情况下等待慢速外部服务，会有什么缺点？",
+          options: [
+            { id: "a", label: "请求会在外部服务完全返回前一直挂起，可能导致客户端请求超时或体验极差", detail: "阻塞等待", feedback: "正确：流媒体特性防止了系统在提取缓慢大对象时因长时阻塞引发体验灾难。" },
+            { id: "b", label: "Next.js 会自动将它变成流，没什么区别", detail: "错误认知", feedback: "必须手动返回流（如 ReadableStream）才能实现流式响应。" }
+          ],
+          answerId: "a",
+          correctExplanation: "不仅做到了分层剥离处理、异构数据转换还一并在 Edge 最前端化解了高并冲击，这就是现代网关的中台枢纽能力。"
+        }
+      }
+    ],
     sources: [{ title: "Routing: Route Handlers", url: "https://nextjs.org/docs/app/building-your-application/routing/route-handlers" }],
     summary: ["颠覆性地重新用极简哲学定义了如何开发安全强健高可用的后端网关基建", "把以前极其分散甚至分化成好几门独立课程的东西打包成了一个完美融洽的文件箱体系", "这为你进军具备极高架构素养和中台大局视野铺就了康庄坦途"]
   })
