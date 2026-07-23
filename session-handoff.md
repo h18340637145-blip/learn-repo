@@ -7,7 +7,7 @@ Project: NodePath (with-supabase), a visual multi-course programming learning we
 Current branch:
 
 ```text
-feature/multi-course-architecture
+main
 ```
 
 当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs`、`/nextjs` 和 `/frontend-debugging` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量落地 P1 开发与实施规范套件 (`docs/P1-DEVELOPMENT-GUIDE.md` 及 `docs/specs/*`)：已升级 `supabase-migration.sql` 规范建表 Schema 及 RLS 策略，全量实现离线优先智能合并算法 (`lib/progress/sync-strategy.ts`) 与 `useProgressSync` 挂载同步，并在 `spaced-repetition.ts` 及 `local-progress-repository.ts` 中完成了基于 SM-2 的艾宾浩斯复习与记忆衰减调度引擎。
@@ -21,7 +21,7 @@ feature/multi-course-architecture
 - 前端报错调试当前先发布阶段 00“浏览器控制台与错误栈”，包含 8 个知识点和 1 个阶段项目，共 9 个样板案例。
 - 当前已发布案例总数：198 个；Node.js 99 个，Next.js 90 个，前端报错调试 9 个。
 - 当前验证要求：`npm run validate:curriculum`、`npm test`、`npm run lint`、`npm run build`、`git diff --check`。
-- 下一步是全量验证和最终审查。
+- 多课程架构改造计划已完成并合入本地 `main`。后续开发建议基于同一课程注册表扩展前端报错调试阶段 01“Network、CORS、Cookie 与 Auth 联调故障”，优先使用已预留的 `network-debug` 题型和 `browser-network-debug` 运行舱。
 
 ## What Exists
 
@@ -163,6 +163,23 @@ Important product boundary:
 - `docs/ARTICHECTURE.md`: architecture harness.
 
 ## Validation History
+
+Latest validation for the multi-course architecture work:
+
+```bash
+npm run validate:curriculum -> pass. 输出包含：课程校验通过：Node.js 11 个阶段 99 个案例，Next.js 10 个阶段 90 个案例，前端报错调试 1 个阶段 9 个案例，共 198 个已发布案例。题库覆盖：Node.js 224 道题，Next.js 200 道题，共 424 道题。
+npm test -> pass. 162 tests, 162 pass, 0 fail.
+npm run lint -> pass.
+NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=placeholder-anon-key npm run build -> pass. Route table includes /frontend-debugging.
+git diff --check -> pass. 无输出。
+```
+
+Implementation notes:
+
+- 多学院课程注册表已落地，`CourseSpec` 支持 `domainId`、`slug`、`status` 和 `runtimeSurfaces`。
+- `/frontend-debugging` 已接入共享学习工作台，并发布阶段 00“浏览器控制台与错误栈”。
+- `MicroBrowser`、`ProductionIncidentHUD` 和 `TraceTimelineScrubber` 继续消费确定性课程数据，不执行真实浏览器脚本或远程请求。
+- 计划文档 `docs/superpowers/plans/2026-07-23-nodepath-multi-course-architecture.md` 已同步为完成状态。
 
 Latest targeted validation for the question-level progress work:
 
