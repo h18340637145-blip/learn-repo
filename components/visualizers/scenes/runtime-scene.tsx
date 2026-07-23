@@ -30,7 +30,14 @@ const colorByType: Record<VisualizerSpec["type"], string> = {
   "nextjs-component-boundary": "#ffd166",
   "nextjs-data-flow": "#7c5cff",
   "nextjs-middleware-chain": "#ffad66",
-  "nextjs-build-output": "#b8ff85"
+  "nextjs-build-output": "#b8ff85",
+  "frontend-error-stack": "#ff6bcb",
+  "browser-network-debug": "#6ee7ff",
+  "memory-stack": "#9fe870",
+  "android-system-trace": "#b8ff85",
+  "agent-trace": "#7c5cff",
+  "math-graph-lab": "#ffd166",
+  "transformer-attention": "#ffad66"
 };
 
 function nodePosition(index: number, total: number): [number, number, number] {
