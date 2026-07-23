@@ -1,4 +1,28 @@
-export type CourseId = "nodejs" | "nextjs";
+export type CourseDomainId =
+  | "language"
+  | "frontend"
+  | "network"
+  | "server"
+  | "android"
+  | "ai-application"
+  | "ai-agent"
+  | "ai-math";
+
+export type CourseId = "nodejs" | "nextjs" | "frontend-debugging";
+
+export type CourseStatus = "published" | "preview" | "planned";
+
+export type RuntimeSurface =
+  | "console"
+  | "micro-browser"
+  | "network-trace"
+  | "memory-stack"
+  | "runtime-timeline"
+  | "incident-hud"
+  | "android-system-trace"
+  | "agent-trace"
+  | "math-graph-lab"
+  | "transformer-visualizer";
 
 export type StageId =
   // Node.js stages
@@ -23,7 +47,9 @@ export type StageId =
   | "nextjs-auth-middleware"
   | "nextjs-database"
   | "nextjs-testing-deployment"
-  | "nextjs-advanced-patterns";
+  | "nextjs-advanced-patterns"
+  // Frontend debugging stages
+  | "frontend-debugging-console-stack";
 
 export type LessonKind = "knowledge" | "stage-project" | "final-project";
 export type LessonStatus = "published" | "planned";
@@ -38,9 +64,28 @@ export type QuestionType =
   | "concept-match"
   | "equivalent-code"
   | "sequence"
-  | "transfer";
+  | "transfer"
+  | "trace-debug"
+  | "network-debug"
+  | "visual-math"
+  | "agent-debug"
+  | "android-stack-debug";
 export type SourceType = "official" | "engineering-extension";
-export type CodeLanguage = "js" | "ts" | "tsx" | "json" | "bash" | "text";
+export type CodeLanguage =
+  | "js"
+  | "ts"
+  | "tsx"
+  | "json"
+  | "bash"
+  | "text"
+  | "c"
+  | "cpp"
+  | "py"
+  | "kt"
+  | "java"
+  | "html"
+  | "css"
+  | "math";
 export type VisualizerType =
   | "lane-flow"
   | "http-pipeline"
@@ -57,7 +102,14 @@ export type VisualizerType =
   | "nextjs-component-boundary"
   | "nextjs-data-flow"
   | "nextjs-middleware-chain"
-  | "nextjs-build-output";
+  | "nextjs-build-output"
+  | "frontend-error-stack"
+  | "browser-network-debug"
+  | "memory-stack"
+  | "android-system-trace"
+  | "agent-trace"
+  | "math-graph-lab"
+  | "transformer-attention";
 
 export type VisualizerSpec = {
   type: VisualizerType;
@@ -84,9 +136,13 @@ export type CurriculumStage = {
 
 export type CourseSpec = {
   id: CourseId;
+  domainId: CourseDomainId;
+  slug: string;
   title: string;
   description: string;
   icon: string;
+  status: CourseStatus;
+  runtimeSurfaces: readonly RuntimeSurface[];
   stages: readonly CurriculumStage[];
 };
 
