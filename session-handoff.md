@@ -2,15 +2,26 @@
 
 ## Current State
 
-Project: NodePath (with-supabase), a visual Node.js / Next.js learning website built on Next.js 16.
+Project: NodePath (with-supabase), a visual multi-course programming learning website built on Next.js 16.
 
 Current branch:
 
 ```text
-main
+feature/multi-course-architecture
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量落地 P1 开发与实施规范套件 (`docs/P1-DEVELOPMENT-GUIDE.md` 及 `docs/specs/*`)：已升级 `supabase-migration.sql` 规范建表 Schema 及 RLS 策略，全量实现离线优先智能合并算法 (`lib/progress/sync-strategy.ts`) 与 `useProgressSync` 挂载同步，并在 `spaced-repetition.ts` 及 `local-progress-repository.ts` 中完成了基于 SM-2 的艾宾浩斯复习与记忆衰减调度引擎。全量 149 项单元测试与 `npm run validate:curriculum` 校验 100% 通过。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs`、`/nextjs` 和 `/frontend-debugging` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量落地 P1 开发与实施规范套件 (`docs/P1-DEVELOPMENT-GUIDE.md` 及 `docs/specs/*`)：已升级 `supabase-migration.sql` 规范建表 Schema 及 RLS 策略，全量实现离线优先智能合并算法 (`lib/progress/sync-strategy.ts`) 与 `useProgressSync` 挂载同步，并在 `spaced-repetition.ts` 及 `local-progress-repository.ts` 中完成了基于 SM-2 的艾宾浩斯复习与记忆衰减调度引擎。
+
+## 多课程架构改造
+
+- 蓝图规格已批准：NodePath 将从 Node.js / Next.js 双路线升级为多学院编程学习平台，长期学院蓝图包含语言基础、前端工程、计算机网络、服务器开发、Android、AI 应用、AI Agent 和 AI 数学。
+- 本轮已扩展课程类型和课程注册表，`CourseSpec` 现在携带 `domainId`、`slug`、`status` 和 `runtimeSurfaces`。
+- 已保留 `/nodejs` 与 `/nextjs` 两条既有路线，并新增 `/frontend-debugging` 前端报错调试样板路线。
+- 当前新增已发布样板路线只有“前端报错调试”；C/C++/Python/Kotlin/Java、Android、AI、AI 数学等仍是全站蓝图，不是已发布路线。
+- 前端报错调试当前先发布阶段 00“浏览器控制台与错误栈”，包含 8 个知识点和 1 个阶段项目，共 9 个样板案例。
+- 当前已发布案例总数：198 个；Node.js 99 个，Next.js 90 个，前端报错调试 9 个。
+- 当前验证要求：`npm run validate:curriculum`、`npm test`、`npm run lint`、`npm run build`、`git diff --check`。
+- 下一步是全量验证和最终审查。
 
 ## What Exists
 
@@ -22,7 +33,9 @@ Curriculum foundation:
 - 99 currently published Node.js playable cases.
 - Next.js 路线包含 10 个阶段、80 个计划知识点、10 个阶段项目。
 - Next.js 已发布 90 个 playable cases。
-- 当前总计 189 个已发布 playable cases。
+- 前端报错调试路线当前发布 1 个样板阶段：浏览器控制台与错误栈，包含 8 个知识点和 1 个阶段项目。
+- 前端报错调试已发布 9 个 playable cases。
+- 当前总计 198 个已发布 playable cases。
 
 Published cases:
 
@@ -40,10 +53,10 @@ Published cases:
 
 Core interaction:
 
-- `/` 展示 Node.js 与 Next.js 课程卡片。
+- `/` 展示 Node.js、Next.js 与前端报错调试课程卡片。
 - 首页课程卡片下方现在有独立“知识点连接星链”底部展厅，知识核心球进一步放大铺满展厅空间且隐藏中心文字，知识点球保持当前尺寸并以内嵌文字环绕核心呈现。
-- `/nodejs` 与 `/nextjs` 都复用 `app/_components/learning-studio.tsx` 共享工作台。
-- 学习工作台左侧已新增路线统计卡，动态展示已发布案例、互动题、知识点和阶段项目；Node.js 当前显示 92 个已发布案例、198 道互动题、88 个知识点和 11 个阶段项目。
+- `/nodejs`、`/nextjs` 与 `/frontend-debugging` 都复用 `app/_components/learning-studio.tsx` 共享工作台。
+- 学习工作台左侧已新增路线统计卡，动态展示已发布案例、互动题、知识点和阶段项目；Node.js 当前发布 99 个案例，Next.js 当前发布 90 个案例，前端报错调试当前发布 9 个样板案例。
 - Learner reads concept and code.
 - Learner chooses an answer.
 - 每次选择答案都会写入题目级本地记录，记录最近选择、尝试次数、首次是否答对、首次作答时间、最近作答时间和待复习状态。
@@ -67,7 +80,7 @@ Core interaction:
 - `ProductionIncidentHUD` 仅阶段项目渲染，支持 `lesson.incident` / `step.incident` 显式配置；无配置时生成确定性默认事故视图，覆盖 incident、patching、critical、restored 状态。
 - Summary appears after completion.
 - 实现型代码题通过 `QuestionOptions` 展示代码方案卡片，支持语言标签、差异行提示和折叠/展开代码预览。
-- `diagnosis`、`repair`、`completion`、`execution-order` 已具备专属题型 UI；诊断题可展示题干材料，修复/补全题复用代码方案卡片，执行顺序题展示运行链路选择。
+- `diagnosis`、`repair`、`completion`、`execution-order` 和 `trace-debug` 已具备对应题型支撑；诊断题可展示题干材料，修复/补全题复用代码方案卡片，执行顺序题展示运行链路选择，前端调试题可沿控制台、错误栈和源码帧回放。
 - P1 题库通过 `content/questions/*` 作为补丁层挂载到已发布课程，Node.js 与 Next.js 已发布课程都已满足知识点至少 2 题、阶段项目至少 3 题。
 - 移动端代码题已单独适配：选项卡片单列、代码横向滚动、解析区纵向排列。
 - Completion is saved to browser local progress and restored after refresh.
@@ -93,14 +106,15 @@ Important product boundary:
 - 浏览器 resize 或运行舱容器宽度不足时，`SpatialRuntimeVisualizer` 会重新评估并切换到深色 fallback，避免 3D Canvas 白屏或空白占位。
 - 成功完成课程时，`AchievementUnlock` 显示“知识芯片已解锁”；完成阶段项目时显示“阶段徽章已铸造”。这些反馈是纯前端展示，不改变进度模型。
 - 重点场景覆盖 HTTP 管线、服务边界、Worker 并发、实时星网、测试安全边界和诊断生产观测。
-- 当前实现仍使用确定性 authored traces，不执行学习者提交的任意 Node.js 代码。
+- 当前实现仍使用确定性 authored traces，不执行学习者提交的任意 Node.js 代码；前端报错调试路线也不执行真实浏览器脚本或远程请求，只消费课程预设的 Console、MicroBrowser、TraceTimelineScrubber 和 IncidentHUD 数据。
 - 验证命令：`npm test`、`npx tsc --noEmit`、`npm run validate:curriculum`、`npm run lint`、`npm run build`、`git diff --check`。
 
 ## Important Files
 
 - `content/curriculum.ts`: 00 基础训练营 + 10-stage/88-point master curriculum catalog.
 - `content/curriculum-nextjs.ts`: Next.js 10-stage/80-point catalog.
-- `content/curriculum-registry.ts`: Node.js / Next.js CourseSpec registry.
+- `content/curriculum-frontend-debugging.ts`: 前端报错调试样板路线目录，当前阶段为“浏览器控制台与错误栈”。
+- `content/curriculum-registry.ts`: 多学院 CourseSpec 注册表，聚合 Node.js、Next.js 与前端报错调试路线。
 - `content/legacy-lessons.ts`: migrated original 4 prototype cases.
 - `content/lessons/lesson-factory.ts`: helper for standard LessonSpec creation.
 - `content/lessons/stage-00-foundations.ts`: complete stage 00 foundations bootcamp content，`foundations-functions` 已包含首个 Node.js implementation 代码题。
@@ -118,10 +132,11 @@ Important product boundary:
 - `content/lessons/nextjs/nextjs-quick-lesson.ts`: Next.js 后续题库的轻量课程工厂。
 - `content/lessons/nextjs/stage-00-foundations.ts`: complete Next.js stage 00 foundations content，`nextjs-foundations-app-router` 已包含首个 App Router implementation 代码题。
 - `content/lessons/nextjs/stage-01-routing.ts` ... `stage-09-architecture.ts`: complete Next.js stages 01–09 content, including testing/deployment and advanced realtime dashboard project.
+- `content/lessons/frontend-debugging/stage-00-console-stack.ts`: 前端报错调试阶段 00 的 9 个样板 LessonSpec。
 - `content/lesson-registry.ts`: published lesson registry, Node.js aggregation, Next.js aggregation, and stage 04 migration metadata.
 - `content/questions/apply-question-bank.ts`: P1 题库补丁挂载工具。
 - `content/questions/p1-question-templates.ts`: 根据课程真实标题、概念、入口代码和阶段题型分配生成 P1 题的共享模板。
-- `content/questions/nodejs-p1-question-bank.ts`: Node.js 92 个已发布案例的 P1 题库补丁。
+- `content/questions/nodejs-p1-question-bank.ts`: Node.js 已发布案例的 P1 题库补丁。
 - `content/questions/nextjs-p1-question-bank.ts`: Next.js 90 个已发布案例的 P1 题库补丁。
 - `lib/curriculum/types.ts`: shared curriculum and lesson types.
 - `lib/curriculum/validate.ts`: catalog、lesson、P1 题型结构、题库引用和覆盖率 validators。
@@ -142,6 +157,7 @@ Important product boundary:
 - `tests/curriculum/question-bank.test.ts`: P1 题库引用、题量和阶段题型多样性覆盖率测试。
 - `app/nodejs/page.tsx`, `app/nodejs/learning-studio.tsx`: Node.js route wrapper.
 - `app/nextjs/page.tsx`, `app/nextjs/learning-studio.tsx`: Next.js route wrapper.
+- `app/frontend-debugging/page.tsx`, `app/frontend-debugging/learning-studio.tsx`: 前端报错调试 route wrapper，挂载共享学习工作台。
 - `app/globals.css`: visual system and responsive behavior.
 - `docs/PRODUCT.md`: product and curriculum harness.
 - `docs/ARTICHECTURE.md`: architecture harness.
@@ -316,14 +332,15 @@ Manual browser acceptance on `http://localhost:55460/`:
 
 Highest-value next plan:
 
-1. Integrate Supabase for user authentication and login.
-2. Migrate local progress storage to Supabase database for cross-device sync.
-3. Implement strict cross-stage unlocking rules using the backend.
-4. Complete the remaining stage 04 file, Buffer, and Stream lessons from official Node.js learning docs.
-5. Design the first real sandbox separately for later stage projects.
+1. 运行全量验证：`npm run validate:curriculum`、`npm test`、`npm run lint`、`npm run build`、`git diff --check`。
+2. 做最终审查，确认三条已发布/预览路线均可通过注册表、路由、共享学习工作台和校验器访问。
+3. 确认文档没有把 8 个学院蓝图误写成已发布路线。
 
 Later plans:
 
+- Integrate Supabase for user authentication and login.
+- Migrate local progress storage to Supabase database for cross-device sync.
+- Implement strict cross-stage unlocking rules using the backend.
 - Stage 04 content plus Stream/HTTP visualizers.
 - Expand stages 05–10 with concurrency, security, and diagnostics-specific visualizers.
 - Final real-time collaboration project.

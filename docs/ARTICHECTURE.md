@@ -2,7 +2,9 @@
 
 ## Snapshot
 
-NodePath 是一个 Next.js 16 App Router 多课程学习应用。`/` 是课程选择首页，`/nodejs` 和 `/nextjs` 分别渲染独立学习工作台；课程数据、执行逻辑和进度存储已经从 UI 组件中拆出。
+NodePath 是一个 Next.js 16 App Router 多课程学习应用。`/` 是课程选择首页，`/nodejs`、`/nextjs` 和 `/frontend-debugging` 分别渲染独立学习工作台；课程数据、执行逻辑和进度存储已经从 UI 组件中拆出。
+
+当前课程架构已经从 Node.js / Next.js 双路线扩展为多学院课程注册表。`content/curriculum-registry.ts` 以 8 个学院域组织路线，`CourseSpec` 通过 `domainId`、`slug`、`status` 和 `runtimeSurfaces` 描述课程所属学院、路由标识、发布状态和可用运行舱表面。
 
 ```text
 app/layout.tsx
@@ -15,6 +17,11 @@ app/layout.tsx
       -> content/lesson-registry.ts
   -> app/nextjs/page.tsx
     -> app/nextjs/learning-studio.tsx
+      -> app/_components/learning-studio.tsx
+      -> content/curriculum-registry.ts
+      -> content/lesson-registry.ts
+  -> app/frontend-debugging/page.tsx
+    -> app/frontend-debugging/learning-studio.tsx
       -> app/_components/learning-studio.tsx
       -> content/curriculum-registry.ts
       -> content/lesson-registry.ts
@@ -40,7 +47,7 @@ app/globals.css
 - Tailwind CSS v4 via `@import "tailwindcss"`
 - ESLint flat config
 
-This project uses the App Router. `app/layout.tsx`, `app/page.tsx`, `app/nodejs/page.tsx` and `app/nextjs/page.tsx` are Server Components by default. `app/_components/learning-studio.tsx` and per-course `learning-studio.tsx` wrappers are Client Components because they use state, event handlers, animation control, and browser `localStorage`.
+This project uses the App Router. `app/layout.tsx`, `app/page.tsx`, `app/nodejs/page.tsx`, `app/nextjs/page.tsx` and `app/frontend-debugging/page.tsx` are Server Components by default. `app/_components/learning-studio.tsx` and per-course `learning-studio.tsx` wrappers are Client Components because they use state, event handlers, animation control, and browser `localStorage`.
 
 Before changing framework behavior, check the local docs under:
 
@@ -57,8 +64,13 @@ content/curriculum.ts
 content/curriculum-nextjs.ts
   -> Next.js 10 个阶段、80 个知识点、10 个阶段项目的课程主目录；当前 90 个节点均已发布
 
+content/curriculum-frontend-debugging.ts
+  -> 前端报错调试样板路线主目录；当前发布阶段 00“浏览器控制台与错误栈”，包含 8 个知识点和 1 个阶段项目
+
 content/curriculum-registry.ts
-  -> 聚合 Node.js 与 Next.js CourseSpec，提供 allCourses 和 getCourse(courseId)
+  -> 多学院课程注册表，聚合 Node.js、Next.js 与前端报错调试 CourseSpec
+  -> 导出 courseDomains、allCourses、getCourse(courseId) 和 getCoursesByDomain(domainId)
+  -> CourseSpec 包含 domainId、slug、status 和 runtimeSurfaces，用于首页课程卡、路由包装和课程校验
 
 content/legacy-lessons.ts
   -> 从原型迁移来的 4 个旧案例原始内容
@@ -111,12 +123,16 @@ content/lessons/nextjs/stage-00-foundations.ts
 content/lessons/nextjs/stage-01-routing.ts ... stage-09-architecture.ts
   -> Next.js 阶段 01–09：路由、渲染、数据获取、样式优化、API、认证、数据库、测试部署和高级生产架构的完整题库与阶段项目
 
+content/lessons/frontend-debugging/stage-00-console-stack.ts
+  -> 前端报错调试阶段 00：浏览器控制台、错误栈、Source Map、结构化 console、数据与渲染边界、运行恢复和商品列表白屏事故项目
+
 content/lesson-registry.ts
   -> 已发布课程注册表
   -> 聚合阶段 00–03、05–10 正式课程
   -> 保留阶段 04 旧案例到 LessonSpec 的迁移适配
   -> 聚合 Next.js 90 个已发布案例
-  -> 导出 Node.js 兼容别名 publishedLessons、nextjsPublishedLessons 和 getLessonsByCourse(courseId)
+  -> 聚合前端报错调试 9 个样板案例
+  -> 导出 Node.js 兼容别名 publishedLessons、nextjsPublishedLessons、frontendDebuggingPublishedLessons 和 getLessonsByCourse(courseId)
 
 content/questions/*
   -> P1 题库补丁层
@@ -124,7 +140,7 @@ content/questions/*
   -> 通过课程真实标题、概念、入口代码和阶段题型分配生成大规模题库条目
 
 lib/curriculum/types.ts
-  -> CourseId、CourseSpec、课程目录、题目、来源、运行帧和 Next.js 可视化类型
+  -> CourseDomainId、CourseId、CourseSpec、课程目录、题目、来源、运行帧、多运行舱表面和可视化类型
 
 lib/curriculum/validate.ts
   -> 无副作用课程校验函数；Node.js 校验 11 个阶段，Next.js 校验 10 个阶段，每阶段 8 个知识点和 1 个阶段项目，并校验 P1 题型结构、题库引用、课程题量和阶段题型多样性
@@ -182,6 +198,9 @@ app/_components/learning-studio.tsx
 
 app/_components/question-options.tsx
   -> 统一题目选项 Client Component，支持普通选择题、implementation / repair / completion 代码方案卡片、diagnosis 题干材料和 execution-order 顺序方案卡片
+
+app/frontend-debugging/page.tsx 与 app/frontend-debugging/learning-studio.tsx
+  -> 前端报错调试路由包装，挂载共享 app/_components/learning-studio.tsx，并使用 courseId "frontend-debugging"
 ```
 
 ## Runtime Boundaries
@@ -199,10 +218,12 @@ app/_components/question-options.tsx
 - authored trace 只有在 `playbackState === "playing"` 时推进 UI 帧；暂停、拖拽 range、上一帧、下一帧和节点点击都会暂停自动播放，并忽略旧流继续覆盖当前帧。
 - 终端面板和微型浏览器面板显示课程内预设日志与预设响应，不执行学习者代码。
 - 完整运行结束后写入本地进度仓储。
+- 前端报错调试路线仍使用 authored trace，不执行真实浏览器脚本，不发起远程请求，也不读取学习者页面环境。
+- Console、MicroBrowser、TraceTimelineScrubber 和 IncidentHUD 只消费课程预设数据，用于回放控制台线索、错误栈路径、预览恢复和事故指标。
 
 当前即将引入 Supabase 作为后端服务。之前没有后端 API、数据库、认证，现计划通过 Supabase 提供用户认证、跨设备进度同步和数据库支持。已发布课程虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
 
-沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId`、`lesson.kind` 和当前课程标题。它不写入学习进度，不执行学习者代码；课程切换由 App Router 链接 `/nodejs` / `/nextjs` 处理。
+沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId`、`lesson.kind` 和当前课程标题。它不写入学习进度，不执行学习者代码；课程切换由 App Router 链接 `/nodejs`、`/nextjs` 和 `/frontend-debugging` 处理。
 
 `ImmersiveBackdrop` 和 `CursorSparks` 是当前直接使用 Canvas 和 `window` 的沉浸式 Client Component：前者渲染学习空间背景，后者渲染鼠标火花。它们都支持 `prefers-reduced-motion` 降级；其他沉浸式组件保持展示职责，只消费上层传入的视觉状态。
 
@@ -226,7 +247,7 @@ app/_components/question-options.tsx
 - `objectives`, `prerequisites`, `summary`: 学习目标和总结。
 - `files`, `entryFile`: 展示给学习者的代码文件。
 - `questions`: 题目、选项、正确答案和定向反馈。
-- `questions[].type`: 当前支持 prediction、implementation、diagnosis、repair、completion、execution-order、best-practice、concept-match、equivalent-code、sequence 和 transfer。
+- `questions[].type`: 当前支持 prediction、implementation、diagnosis、repair、completion、execution-order、best-practice、concept-match、equivalent-code、sequence、transfer 和 trace-debug。
 - `questions[].materialTitle/materialCode/materialLanguage/expectedOutput/orderItems`: P1 题型材料字段，用于展示诊断现场、补全任务、预期输出和执行顺序。
 - `questions[].options[].code/language/diffLines`: implementation 等代码题使用的代码方案、语言标签和重点行。
 - `execution`: authored trace 可视化配置，包含结构化 `visualizer`。
@@ -257,8 +278,12 @@ app/_components/question-options.tsx
 
 课程集合使用 `CourseSpec`：
 
-- `id`: 当前为 `nodejs` 或 `nextjs`。
+- `id`: 当前为 `nodejs`、`nextjs` 或 `frontend-debugging`。
+- `domainId`: 所属学院域，当前覆盖语言基础、前端工程、计算机网络、服务器开发、Android、AI 应用、AI Agent 和 AI 数学等蓝图域。
+- `slug`: 路由标识，当前与课程路径片段保持一致。
 - `title`, `description`, `icon`: 课程选择与工作台展示元数据。
+- `status`: 课程发布状态，当前支持 `published`、`preview` 和 `planned`。
+- `runtimeSurfaces`: 课程可消费的运行舱表面，例如 Console、MicroBrowser、运行轨迹时间轴和事故 HUD。
 - `stages`: 对应课程的 `CurriculumStage[]`。
 
 进度使用 `ProgressSnapshot`：
