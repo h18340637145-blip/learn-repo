@@ -35,6 +35,7 @@ test("前端报错调试路由挂载共享学习工作台", () => {
 
   assert.match(frontendDebuggingSource, /CourseLearningStudio/);
   assert.match(frontendDebuggingSource, /courseId: "frontend-debugging"/);
+  assert.doesNotMatch(frontendDebuggingSource, /as never/);
 });
 
 test("旧单页 LearningStudio 实现不再作为并行入口存在", () => {

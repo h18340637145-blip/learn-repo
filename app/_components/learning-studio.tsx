@@ -15,7 +15,7 @@ import { StageSidebar, StageSpaceMap } from "@/components/learning-space";
 import { SpatialRuntimeVisualizer } from "@/components/visualizers";
 import { QuestionOptions } from "@/app/_components/question-options";
 import { buildStageSpaces } from "@/lib/curriculum/stage-space";
-import type { CurriculumStage, LessonSpec, QuestionType, RunnerFrame, StageId } from "@/lib/curriculum/types";
+import type { CourseId, CurriculumStage, LessonSpec, QuestionType, RunnerFrame, StageId } from "@/lib/curriculum/types";
 import { buildRoadmap } from "@/lib/curriculum/view-model";
 import { streamAuthoredTrace } from "@/lib/execution/authored-trace";
 import { getBrowserProgressRepository } from "@/lib/progress/browser-progress-repository";
@@ -60,11 +60,16 @@ const questionTypeLabels: Record<QuestionType, string> = {
   prediction: "先做预测",
   repair: "修复题",
   sequence: "流程排序",
-  transfer: "迁移应用"
+  transfer: "迁移应用",
+  "trace-debug": "轨迹调试",
+  "network-debug": "网络诊断",
+  "visual-math": "图形数学",
+  "agent-debug": "Agent 调试",
+  "android-stack-debug": "Android 栈诊断"
 };
 
 type CourseConfig = {
-  courseId: "nodejs" | "nextjs";
+  courseId: CourseId;
   courseTitle: string;
   sidebarTitle: string;
   codeLabel: string;
