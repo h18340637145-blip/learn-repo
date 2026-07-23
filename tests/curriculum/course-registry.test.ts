@@ -20,6 +20,8 @@ test("每条学习路径可以独立校验目录和已发布课程", () => {
   assert.equal(publishedLessons.length, 99);
   assert.equal(nextjsPublishedLessons.length, 90);
   assert.deepEqual(nextjsPublishedLessons.flatMap(validateLessonSpec), []);
+  assert.equal(getLessonsByCourse("frontend-debugging").length, 9);
+  assert.deepEqual(getLessonsByCourse("frontend-debugging").flatMap(validateLessonSpec), []);
 });
 
 test("按课程读取课程内容时隔离 Node.js 与 Next.js 案例", () => {

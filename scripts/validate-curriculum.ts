@@ -2,10 +2,12 @@ import { allCourses } from "../content/curriculum-registry";
 import { getLessonsByCourse } from "../content/lesson-registry";
 import { validateCourseCatalog, validateLessonSpec, validateQuestionCoverage } from "../lib/curriculum/validate";
 
-const errors = allCourses.flatMap((course) => [
-  ...validateCourseCatalog(course),
-  ...getLessonsByCourse(course.id).flatMap(validateLessonSpec)
-]);
+const errors: string[] = [];
+
+for (const course of allCourses) {
+  errors.push(...validateCourseCatalog(course));
+  errors.push(...getLessonsByCourse(course.id).flatMap(validateLessonSpec));
+}
 
 errors.push(
   ...validateQuestionCoverage(getLessonsByCourse("nodejs"), {

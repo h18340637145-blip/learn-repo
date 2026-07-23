@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getLesson, getNextjsLesson, publishedLessons } from "../../content/lesson-registry";
+import { getLesson, getLessonsByCourse, getNextjsLesson, publishedLessons } from "../../content/lesson-registry";
 import { validateLessonSpec } from "../../lib/curriculum/validate";
 
 const stageZeroFoundationIds = [
@@ -133,6 +133,13 @@ test("发布案例数量包含阶段 00 基础训练营和阶段 05-10 的完整
   assert.equal(stageFiveToTenIds.length, 54);
   assert.equal(expectedPublishedLessonIds.length, 99);
   assert.equal(publishedLessons.length, expectedPublishedLessonIds.length);
+});
+
+test("前端报错调试路线聚合 9 个已发布案例并通过规格校验", () => {
+  const frontendDebuggingLessons = getLessonsByCourse("frontend-debugging");
+
+  assert.equal(frontendDebuggingLessons.length, 9);
+  assert.deepEqual(frontendDebuggingLessons.flatMap(validateLessonSpec), []);
 });
 
 test("每个已上线阶段课程都可以按 ID 查询", () => {
