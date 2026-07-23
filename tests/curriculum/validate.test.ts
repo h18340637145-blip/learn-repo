@@ -267,3 +267,43 @@ test("同一课程内题目 ID 不能重复", () => {
     "课程 event-loop-order 的题目 ID 重复：event-loop-order-prediction"
   ]);
 });
+
+test("前端调试题型、代码语言和运行舱类型通过课程规格校验", () => {
+  const lesson = cloneLesson();
+  lesson.id = "frontend-debugging-stack-first-frame";
+  lesson.stageId = "frontend-debugging-console-stack";
+  lesson.nodeVersion = "Browser + React 19";
+  lesson.questions = [{
+    id: "stack-first-frame-trace-debug",
+    type: "trace-debug",
+    prompt: "错误栈里最先应该查看哪一帧？",
+    materialCode: "TypeError: Cannot read properties of undefined",
+    materialLanguage: "text",
+    difficulty: "beginner",
+    estimatedSeconds: 60,
+    options: [
+      { id: "a", label: "业务组件帧", detail: "第一条项目源码帧", feedback: "正确，先找业务源码里的第一现场。" },
+      { id: "b", label: "React 内部帧", detail: "框架调度栈", feedback: "React 内部帧通常不是第一修复点。" }
+    ],
+    answerId: "a",
+    correctExplanation: "调试错误栈时先定位第一条业务源码帧。"
+  }];
+  lesson.files = [{ name: "ProductList.tsx", code: "export function ProductList() { return null }" }];
+  lesson.entryFile = "ProductList.tsx";
+  lesson.execution = {
+    mode: "authored-trace",
+    visualizer: {
+      type: "frontend-error-stack",
+      title: "错误栈定位",
+      nodes: ["Console", "Stack", "Component"]
+    },
+    lanes: ["Console", "Stack", "Component"],
+    frames: [
+      { activeLane: 0, laneValues: ["TypeError"], log: ["TypeError"], note: "控制台抛出错误。", delayMs: 0 },
+      { activeLane: 1, laneValues: ["ProductList.tsx:12"], log: ["at ProductList"], note: "定位第一条业务源码帧。", delayMs: 0 },
+      { activeLane: 2, laneValues: ["props.items"], log: ["items is undefined"], note: "确认数据入口。", delayMs: 0 }
+    ]
+  };
+
+  assert.deepEqual(validateLessonSpec(lesson), []);
+});
