@@ -104,7 +104,14 @@ const supportedVisualizerTypes = new Set<VisualizerType>([
   "server-security-shield",
   "server-cicd-pipeline",
   "server-observability-tower",
-  "server-platform-canvas"
+  "server-platform-canvas",
+  "network-http-frame-map",
+  "network-tls-handshake-map",
+  "network-cdn-edge-map",
+  "network-perf-waterfall",
+  "network-observability-map",
+  "network-webrtc-topology",
+  "network-zero-trust-mesh"
 ]);
 
 export function validateLessonSpec(lesson: LessonSpec): string[] {

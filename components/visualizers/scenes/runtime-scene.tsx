@@ -73,7 +73,15 @@ const colorByType: Record<VisualizerSpec["type"], string> = {
   "server-security-shield": "#ff8c8c",
   "server-cicd-pipeline": "#b8ff85",
   "server-observability-tower": "#ffd166",
-  "server-platform-canvas": "#8ab4ff"
+  "server-platform-canvas": "#8ab4ff",
+  // Network visualizers
+  "network-http-frame-map": "#7de2d1",
+  "network-tls-handshake-map": "#c8b8ff",
+  "network-cdn-edge-map": "#ffad66",
+  "network-perf-waterfall": "#ffd166",
+  "network-observability-map": "#6ee7ff",
+  "network-webrtc-topology": "#b8ff85",
+  "network-zero-trust-mesh": "#ff8c8c"
 };
 
 function nodePosition(index: number, total: number): [number, number, number] {

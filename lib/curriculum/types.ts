@@ -79,6 +79,13 @@ export type StageId =
   | "network-http-cache"
   | "network-security-realtime"
   | "network-gateway-debugging"
+  | "network-http2-http3"
+  | "network-tls-security"
+  | "network-cdn-edge"
+  | "network-performance-tuning"
+  | "network-observability"
+  | "network-p2p-webrtc"
+  | "network-zero-trust"
   | "server-api-design"
   | "server-database-cache"
   | "server-queue-observability"
@@ -215,7 +222,15 @@ export type VisualizerType =
   | "server-security-shield"
   | "server-cicd-pipeline"
   | "server-observability-tower"
-  | "server-platform-canvas";
+  | "server-platform-canvas"
+  // Network visualizers
+  | "network-http-frame-map"
+  | "network-tls-handshake-map"
+  | "network-cdn-edge-map"
+  | "network-perf-waterfall"
+  | "network-observability-map"
+  | "network-webrtc-topology"
+  | "network-zero-trust-mesh";
 
 export type VisualizerSpec = {
   type: VisualizerType;

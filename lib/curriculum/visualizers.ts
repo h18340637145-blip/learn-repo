@@ -53,7 +53,15 @@ const configuredStageVisualizers = {
   "server-security-auth": { type: "server-security-shield", title: "安全与认证护盾", nodes: ["Identity", "AuthN", "AuthZ", "Audit", "Secret"] },
   "server-ci-cd": { type: "server-cicd-pipeline", title: "CI/CD 与发布流水线", nodes: ["Build", "Test", "Stage", "Canary", "Rollout"] },
   "server-observability": { type: "server-observability-tower", title: "可观测三支柱塔", nodes: ["Log", "Metric", "Trace", "Alert", "Dashboard"] },
-  "server-platform-engineering": { type: "server-platform-canvas", title: "平台工程全景", nodes: ["Cluster", "GitOps", "Runtime", "Policy", "Product"] }
+  "server-platform-engineering": { type: "server-platform-canvas", title: "平台工程全景", nodes: ["Cluster", "GitOps", "Runtime", "Policy", "Product"] },
+  // Network stage visualizers (04-10)
+  "network-http2-http3": { type: "network-http-frame-map", title: "HTTP/2 与 HTTP/3 帧与流", nodes: ["Frame", "Stream", "Multiplex", "QUIC", "0-RTT"] },
+  "network-tls-security": { type: "network-tls-handshake-map", title: "TLS 握手与密钥交换", nodes: ["ClientHello", "KEX", "Cert", "Finished", "AppData"] },
+  "network-cdn-edge": { type: "network-cdn-edge-map", title: "CDN 与边缘缓存", nodes: ["Origin", "Shield", "POP", "Edge", "Client"] },
+  "network-performance-tuning": { type: "network-perf-waterfall", title: "网络性能瓶颈", nodes: ["DNS", "TCP", "TLS", "TTFB", "Download"] },
+  "network-observability": { type: "network-observability-map", title: "网络可观测", nodes: ["Trace", "Metric", "Log", "Alert", "Dashboard"] },
+  "network-p2p-webrtc": { type: "network-webrtc-topology", title: "WebRTC 与 P2P 拓扑", nodes: ["Signaling", "STUN", "TURN", "ICE", "Peer"] },
+  "network-zero-trust": { type: "network-zero-trust-mesh", title: "零信任网络拓扑", nodes: ["Identity", "Device", "Policy", "Gateway", "Audit"] }
 } satisfies Partial<Record<StageId, VisualizerSpec>>;
 
 const stageVisualizers: Partial<Record<StageId, VisualizerSpec>> = configuredStageVisualizers;
