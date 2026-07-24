@@ -65,7 +65,15 @@ const colorByType: Record<VisualizerSpec["type"], string> = {
   "ai-app-eval-metrics": "#7de2d1",
   "ai-app-cost-heatmap": "#ff8c8c",
   "ai-app-trace-timeline": "#ffd166",
-  "ai-app-platform-canvas": "#b8ff85"
+  "ai-app-platform-canvas": "#b8ff85",
+  // Server Engineering visualizers
+  "server-service-mesh": "#7c5cff",
+  "server-distributed-data-map": "#6ee7ff",
+  "server-message-queue-topology": "#ffad66",
+  "server-security-shield": "#ff8c8c",
+  "server-cicd-pipeline": "#b8ff85",
+  "server-observability-tower": "#ffd166",
+  "server-platform-canvas": "#8ab4ff"
 };
 
 function nodePosition(index: number, total: number): [number, number, number] {

@@ -29,6 +29,13 @@ import { aiApplicationStageSevenEvaluationMetricsLessons } from "./lessons/ai-ap
 import { aiApplicationStageEightCostCachingLessons } from "./lessons/ai-application/stage-08-cost-caching";
 import { aiApplicationStageNineObservabilityTracingLessons } from "./lessons/ai-application/stage-09-observability-tracing";
 import { aiApplicationStageTenProductionPlatformLessons } from "./lessons/ai-application/stage-10-production-platform";
+import { serverEngineeringStageFourMicroservicesLessons } from "./lessons/server-engineering/stage-04-microservices";
+import { serverEngineeringStageFiveDistributedDataLessons } from "./lessons/server-engineering/stage-05-distributed-data";
+import { serverEngineeringStageSixMessageQueueLessons } from "./lessons/server-engineering/stage-06-message-queue";
+import { serverEngineeringStageSevenSecurityAuthLessons } from "./lessons/server-engineering/stage-07-security-auth";
+import { serverEngineeringStageEightCiCdLessons } from "./lessons/server-engineering/stage-08-ci-cd";
+import { serverEngineeringStageNineObservabilityLessons } from "./lessons/server-engineering/stage-09-observability";
+import { serverEngineeringStageTenPlatformEngineeringLessons } from "./lessons/server-engineering/stage-10-platform-engineering";
 
 const defaultRuntimeSurfaces = ["console", "micro-browser", "runtime-timeline", "incident-hud"] as const;
 
@@ -355,17 +362,8 @@ export const networkCourse = createPlannedCourse({
   ]
 });
 
-export const serverEngineeringCourse = createPlannedCourse({
-  id: "server-engineering",
-  domainId: "server",
-  slug: "server-engineering",
-  title: "服务端工程",
-  description: "覆盖 API、数据库、缓存、队列、可观测性和生产事故处理。",
-  icon: "SRV",
-  status: "preview",
-  publishedStageCount: 4,
-  runtimeSurfaces: ["console", "micro-browser", "runtime-timeline", "incident-hud"],
-  stages: [
+export const serverEngineeringCourse = (() => {
+  const seeds = [
     {
       id: "server-api-design",
       number: 0,
@@ -397,9 +395,96 @@ export const serverEngineeringCourse = createPlannedCourse({
       summary: "限流、超时、降级、告警和事故复盘。",
       lessons: ["限流保护", "超时预算", "服务降级", "事故复盘"],
       projectTitle: "生产延迟事故恢复"
+    },
+    {
+      id: "server-microservices",
+      number: 4,
+      title: "微服务与服务网格",
+      summary: "服务拆分、gRPC、发现、网关、Sidecar 与分布式追踪。",
+      lessons: ["服务拆分", "服务通信", "服务发现", "API Gateway"],
+      projectTitle: "可观测的微服务通信链路"
+    },
+    {
+      id: "server-distributed-data",
+      number: 5,
+      title: "分布式数据与一致性",
+      summary: "CAP、分片、复制、Raft、Saga 与幂等。",
+      lessons: ["CAP 权衡", "分片键", "主从复制", "Raft 共识"],
+      projectTitle: "分片 + 幂等的订单系统"
+    },
+    {
+      id: "server-message-queue",
+      number: 6,
+      title: "消息队列深入",
+      summary: "Kafka 分区、offset、EOS、RabbitMQ、DLQ 与事件模式。",
+      lessons: ["Kafka 分区", "offset 管理", "Exactly-once", "RabbitMQ 拓扑"],
+      projectTitle: "高可靠订单事件流水线"
+    },
+    {
+      id: "server-security-auth",
+      number: 7,
+      title: "安全与认证",
+      summary: "OAuth2 + PKCE、OIDC、JWT、RBAC/ABAC、mTLS 与审计。",
+      lessons: ["OAuth 2.0", "OIDC", "JWT", "RBAC vs ABAC"],
+      projectTitle: "OAuth + RBAC + audit 的 API"
+    },
+    {
+      id: "server-ci-cd",
+      number: 8,
+      title: "CI/CD 与发布策略",
+      summary: "GitHub Actions、多阶段镜像、蓝绿、canary、feature flag 与回滚。",
+      lessons: ["GitHub Actions", "Docker 多阶段", "蓝绿部署", "灰度发布"],
+      projectTitle: "canary + auto-rollback 流水线"
+    },
+    {
+      id: "server-observability",
+      number: 9,
+      title: "可观测性三支柱",
+      summary: "结构化日志、Prometheus、OTel Trace、USE/RED、SLO 与告警。",
+      lessons: ["结构化日志", "Prometheus 指标", "OTel Trace", "USE 方法"],
+      projectTitle: "端到端可观测性接入"
+    },
+    {
+      id: "server-platform-engineering",
+      number: 10,
+      title: "平台工程与 IDP",
+      summary: "Kubernetes、Helm、GitOps、Backstage、Terraform 与 FinOps。",
+      lessons: ["K8s 对象", "Helm Chart", "GitOps", "Backstage"],
+      projectTitle: "GitOps 驱动的内部开发者平台"
     }
-  ]
-});
+  ] as const satisfies readonly PlannedStageSeed[];
+
+  const publishedByStageId = new Map<StageId, readonly LessonSpec[]>([
+    ["server-microservices", serverEngineeringStageFourMicroservicesLessons],
+    ["server-distributed-data", serverEngineeringStageFiveDistributedDataLessons],
+    ["server-message-queue", serverEngineeringStageSixMessageQueueLessons],
+    ["server-security-auth", serverEngineeringStageSevenSecurityAuthLessons],
+    ["server-ci-cd", serverEngineeringStageEightCiCdLessons],
+    ["server-observability", serverEngineeringStageNineObservabilityLessons],
+    ["server-platform-engineering", serverEngineeringStageTenPlatformEngineeringLessons]
+  ]);
+
+  const planned = createPlannedStages("server-engineering", seeds, 4);
+  const stages = seeds.map((seed) => {
+    const authored = publishedByStageId.get(seed.id);
+    if (authored) {
+      return buildPublishedStageFromLessons(seed, authored);
+    }
+    return planned[seed.number];
+  }) satisfies CurriculumStage[];
+
+  return {
+    id: "server-engineering",
+    domainId: "server",
+    slug: "server-engineering",
+    title: "服务端工程",
+    description: "覆盖 API、数据库、缓存、队列、可观测性、微服务、安全、CI/CD 与平台工程。",
+    icon: "SRV",
+    status: "preview",
+    runtimeSurfaces: ["console", "micro-browser", "runtime-timeline", "incident-hud"],
+    stages
+  } as const satisfies CourseSpec;
+})();
 
 export const androidCourse = createPlannedCourse({
   id: "android",

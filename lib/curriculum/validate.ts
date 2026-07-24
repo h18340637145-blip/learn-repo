@@ -97,7 +97,14 @@ const supportedVisualizerTypes = new Set<VisualizerType>([
   "ai-app-eval-metrics",
   "ai-app-cost-heatmap",
   "ai-app-trace-timeline",
-  "ai-app-platform-canvas"
+  "ai-app-platform-canvas",
+  "server-service-mesh",
+  "server-distributed-data-map",
+  "server-message-queue-topology",
+  "server-security-shield",
+  "server-cicd-pipeline",
+  "server-observability-tower",
+  "server-platform-canvas"
 ]);
 
 export function validateLessonSpec(lesson: LessonSpec): string[] {

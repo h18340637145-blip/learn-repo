@@ -83,6 +83,13 @@ export type StageId =
   | "server-database-cache"
   | "server-queue-observability"
   | "server-production-incidents"
+  | "server-microservices"
+  | "server-distributed-data"
+  | "server-message-queue"
+  | "server-security-auth"
+  | "server-ci-cd"
+  | "server-observability"
+  | "server-platform-engineering"
   | "android-app-foundations"
   | "android-jetpack-compose"
   | "android-framework-binder"
@@ -200,7 +207,15 @@ export type VisualizerType =
   | "ai-app-eval-metrics"
   | "ai-app-cost-heatmap"
   | "ai-app-trace-timeline"
-  | "ai-app-platform-canvas";
+  | "ai-app-platform-canvas"
+  // Server Engineering visualizers
+  | "server-service-mesh"
+  | "server-distributed-data-map"
+  | "server-message-queue-topology"
+  | "server-security-shield"
+  | "server-cicd-pipeline"
+  | "server-observability-tower"
+  | "server-platform-canvas";
 
 export type VisualizerSpec = {
   type: VisualizerType;

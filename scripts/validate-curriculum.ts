@@ -52,6 +52,8 @@ const aiAgentQuestionCount = getLessonsByCourse("ai-agent")
   .reduce((total, lesson) => total + lesson.questions.length, 0);
 const aiApplicationQuestionCount = getLessonsByCourse("ai-application")
   .reduce((total, lesson) => total + lesson.questions.length, 0);
+const serverEngineeringQuestionCount = getLessonsByCourse("server-engineering")
+  .reduce((total, lesson) => total + lesson.questions.length, 0);
 
 if (errors.length > 0) {
   for (const error of errors) console.error(`课程校验失败：${error}`);
@@ -59,6 +61,6 @@ if (errors.length > 0) {
 } else {
   console.log(`课程校验通过：${courseSummaries.join("，")}，共 ${totalPublished} 个已发布案例。`);
   console.log(
-    `题库覆盖：Node.js ${nodeQuestionCount} 道题，Next.js ${nextQuestionCount} 道题，Python ${pythonQuestionCount} 道题，AI Agent ${aiAgentQuestionCount} 道题，AI 应用 ${aiApplicationQuestionCount} 道题，共 ${nodeQuestionCount + nextQuestionCount + pythonQuestionCount + aiAgentQuestionCount + aiApplicationQuestionCount} 道题。`
+    `题库覆盖：Node.js ${nodeQuestionCount} 道题，Next.js ${nextQuestionCount} 道题，Python ${pythonQuestionCount} 道题，AI Agent ${aiAgentQuestionCount} 道题，AI 应用 ${aiApplicationQuestionCount} 道题，服务端工程 ${serverEngineeringQuestionCount} 道题，共 ${nodeQuestionCount + nextQuestionCount + pythonQuestionCount + aiAgentQuestionCount + aiApplicationQuestionCount + serverEngineeringQuestionCount} 道题。`
   );
 }

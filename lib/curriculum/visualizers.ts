@@ -45,7 +45,15 @@ const configuredStageVisualizers = {
   "ai-app-evaluation-metrics": { type: "ai-app-eval-metrics", title: "评测指标面板", nodes: ["Dataset", "Judge", "Metric", "Regress", "Diff"] },
   "ai-app-cost-caching": { type: "ai-app-cost-heatmap", title: "成本与缓存热力图", nodes: ["Token", "Cache", "Batch", "TTL", "Budget"] },
   "ai-app-observability-tracing": { type: "ai-app-trace-timeline", title: "AI 应用 Trace 时间线", nodes: ["Span", "LLM", "Tool", "DB", "Log"] },
-  "ai-app-production-platform": { type: "ai-app-platform-canvas", title: "端到端 AI 应用平台", nodes: ["Ingest", "RAG", "Chain", "Eval", "Release"] }
+  "ai-app-production-platform": { type: "ai-app-platform-canvas", title: "端到端 AI 应用平台", nodes: ["Ingest", "RAG", "Chain", "Eval", "Release"] },
+  // Server Engineering stage visualizers (04-10)
+  "server-microservices": { type: "server-service-mesh", title: "微服务与服务网格", nodes: ["Gateway", "Service", "Sidecar", "Discovery", "Trace"] },
+  "server-distributed-data": { type: "server-distributed-data-map", title: "分布式数据拓扑", nodes: ["Shard", "Replica", "Consensus", "Consistency", "Recovery"] },
+  "server-message-queue": { type: "server-message-queue-topology", title: "消息队列拓扑", nodes: ["Producer", "Broker", "Partition", "Consumer", "DLQ"] },
+  "server-security-auth": { type: "server-security-shield", title: "安全与认证护盾", nodes: ["Identity", "AuthN", "AuthZ", "Audit", "Secret"] },
+  "server-ci-cd": { type: "server-cicd-pipeline", title: "CI/CD 与发布流水线", nodes: ["Build", "Test", "Stage", "Canary", "Rollout"] },
+  "server-observability": { type: "server-observability-tower", title: "可观测三支柱塔", nodes: ["Log", "Metric", "Trace", "Alert", "Dashboard"] },
+  "server-platform-engineering": { type: "server-platform-canvas", title: "平台工程全景", nodes: ["Cluster", "GitOps", "Runtime", "Policy", "Product"] }
 } satisfies Partial<Record<StageId, VisualizerSpec>>;
 
 const stageVisualizers: Partial<Record<StageId, VisualizerSpec>> = configuredStageVisualizers;
