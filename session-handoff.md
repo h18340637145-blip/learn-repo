@@ -10,18 +10,18 @@ Current branch:
 main
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs`、`/nextjs`、`/frontend-debugging`、`/python`、`/network`、`/server-engineering`、`/android`、`/ai-application`、`/ai-agent` 和 `/ai-math` 都可以进入学习路线；其中 7 条蓝图路线当前进入首阶段样板学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量落地 P1 开发与实施规范套件 (`docs/P1-DEVELOPMENT-GUIDE.md` 及 `docs/specs/*`)：已升级 `supabase-migration.sql` 规范建表 Schema 及 RLS 策略，全量实现离线优先智能合并算法 (`lib/progress/sync-strategy.ts`) 与 `useProgressSync` 挂载同步，并在 `spaced-repetition.ts` 及 `local-progress-repository.ts` 中完成了基于 SM-2 的艾宾浩斯复习与记忆衰减调度引擎。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs`、`/nextjs`、`/frontend-debugging`、`/python`、`/network`、`/server-engineering`、`/android`、`/ai-application`、`/ai-agent` 和 `/ai-math` 都可以进入学习路线；其中 7 条蓝图路线当前进入三阶段样板学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量落地 P1 开发与实施规范套件 (`docs/P1-DEVELOPMENT-GUIDE.md` 及 `docs/specs/*`)：已升级 `supabase-migration.sql` 规范建表 Schema 及 RLS 策略，全量实现离线优先智能合并算法 (`lib/progress/sync-strategy.ts`) 与 `useProgressSync` 挂载同步，并在 `spaced-repetition.ts` 及 `local-progress-repository.ts` 中完成了基于 SM-2 的艾宾浩斯复习与记忆衰减调度引擎。
 
 ## 多课程架构改造
 
 - 蓝图规格已批准：NodePath 将从 Node.js / Next.js 双路线升级为多学院编程学习平台，长期学院蓝图包含语言基础、前端工程、计算机网络、服务器开发、Android、AI 应用、AI Agent 和 AI 数学。
 - 本轮已扩展课程类型和课程注册表，`CourseSpec` 现在携带 `domainId`、`slug`、`status` 和 `runtimeSurfaces`。
 - 已保留 `/nodejs` 与 `/nextjs` 两条既有路线，并新增 `/frontend-debugging` 前端报错调试样板路线。
-- 已补齐蓝图首阶段可玩性：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent 和 AI 数学都有首页入口、动态路线页和首阶段学习工作台。
+- 已补齐蓝图三阶段可玩性：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent 和 AI 数学都有首页入口、动态路线页和阶段 00–02 学习工作台。
 - 当前新增样板路线包括“前端报错调试”和 7 条蓝图首阶段路线；这些路线状态为 `preview`，不是全量发布。
-- `getLessonsByCourse` 对 7 条蓝图路线返回各自独立的 9 个首阶段案例，避免误复用 Node.js 已发布课程。
+- `getLessonsByCourse` 对 7 条蓝图路线返回各自独立的 27 个前三阶段案例，避免误复用 Node.js 已发布课程。
 - 前端报错调试当前先发布阶段 00“浏览器控制台与错误栈”，包含 8 个知识点和 1 个阶段项目，共 9 个样板案例。
-- 当前已发布案例总数：261 个；Node.js 99 个，Next.js 90 个，前端报错调试 9 个，7 条蓝图路线各 9 个。
+- 当前已发布案例总数：387 个；Node.js 99 个，Next.js 90 个，前端报错调试 9 个，7 条蓝图路线各 27 个。
 - 当前验证要求：`npm run validate:curriculum`、`npm test`、`npm run lint`、`npm run build`、`git diff --check`。
 - 多课程架构改造计划已在本地 `main` 继续推进：当前完成蓝图路线可见性与规划概览页，后续开发建议优先为规划路线逐条填充真实课程、题库、阶段项目和运行可视化。
 
@@ -37,8 +37,8 @@ Curriculum foundation:
 - Next.js 已发布 90 个 playable cases。
 - 前端报错调试路线当前发布 1 个样板阶段：浏览器控制台与错误栈，包含 8 个知识点和 1 个阶段项目。
 - 前端报错调试已发布 9 个 playable cases。
-- 当前总计 261 个已发布 playable cases。
-- 蓝图预览路线当前各发布首阶段 9 个样板案例：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent、AI 数学。
+- 当前总计 387 个已发布 playable cases。
+- 蓝图预览路线当前各发布前三个阶段 27 个样板案例：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent、AI 数学。
 
 Published cases:
 
@@ -347,6 +347,17 @@ Manual browser acceptance on `http://localhost:55460/`:
 - Switching lessons during a Stream trace cancelled stale frames.
 - Mobile viewport had no horizontal page overflow.
 - A hydration mismatch caused by reading `localStorage` during initial client render was fixed. Progress now starts from empty server-safe state and loads from local storage after mount; browser console errors were empty after reload.
+
+Latest validation for the P3 blueprint course expansion:
+
+```text
+tsx --test tests/curriculum/blueprint-third-stage-playable.test.ts tests/curriculum/blueprint-second-stage-playable.test.ts tests/curriculum/blueprint-course-visibility.test.ts tests/learning-studio/course-routing.test.ts -> pass. 12 tests, 12 pass, 0 fail.
+tsx scripts/validate-curriculum.ts -> pass. 共 387 个已发布案例。
+tsx --test tests/**/*.test.ts tests/**/*.test.tsx -> pass. 173 tests, 173 pass, 0 fail.
+eslint -> pass.
+next build -> pass.
+git diff --check -> pass.
+```
 
 ## Next Recommended Work
 

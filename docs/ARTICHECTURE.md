@@ -4,7 +4,7 @@
 
 NodePath 是一个 Next.js 16 App Router 多课程学习应用。`/` 是课程选择首页，`/nodejs`、`/nextjs` 和 `/frontend-debugging` 分别渲染独立学习工作台；`/{courseSlug}` 为蓝图路线提供数据驱动入口，有可玩课程时挂载共享学习工作台，无可玩课程时退回规划概览页。课程数据、执行逻辑和进度存储已经从 UI 组件中拆出。
 
-当前课程架构已经从 Node.js / Next.js 双路线扩展为多学院课程注册表。`content/curriculum-registry.ts` 以 8 个学院域组织路线，`CourseSpec` 通过 `domainId`、`slug`、`status` 和 `runtimeSurfaces` 描述课程所属学院、路由标识、发布状态和可用运行舱表面。注册表现在包含 2 条已发布主线、1 条前端调试样板路线和 7 条蓝图首阶段预览路线；`lesson-registry` 按 `CourseId` 返回独立课程集合，避免误用 Node.js 题库。
+当前课程架构已经从 Node.js / Next.js 双路线扩展为多学院课程注册表。`content/curriculum-registry.ts` 以 8 个学院域组织路线，`CourseSpec` 通过 `domainId`、`slug`、`status` 和 `runtimeSurfaces` 描述课程所属学院、路由标识、发布状态和可用运行舱表面。注册表现在包含 2 条已发布主线、1 条前端调试样板路线和 7 条蓝图三阶段预览路线；`lesson-registry` 按 `CourseId` 返回独立课程集合，避免误用 Node.js 题库。
 
 ```text
 app/layout.tsx
@@ -78,9 +78,13 @@ content/curriculum-registry.ts
   -> CourseSpec 包含 domainId、slug、status 和 runtimeSurfaces，用于首页课程卡、路由包装、规划概览页和课程校验
 
 content/lessons/blueprint-first-stage.ts
-  -> 7 条蓝图路线的首阶段样板课程工厂
-  -> 当前为 Python、计算机网络、服务端工程、Android、AI 应用、AI Agent 和 AI 数学各生成 8 个知识点和 1 个阶段项目
+  -> 7 条蓝图路线的三阶段样板课程工厂
+  -> 当前为 Python、计算机网络、服务端工程、Android、AI 应用、AI Agent 和 AI 数学各生成 24 个知识点和 3 个阶段项目
   -> 所有课程仍使用确定性 authored trace，不执行真实 Python、Android、AI 或网络请求
+
+lib/curriculum/course-availability.ts
+  -> 课程可用性纯函数层
+  -> 从 CourseSpec 和 LessonSpec[] 计算开放阶段数、总阶段数、可玩案例数和课程卡下一步文案
 
 content/legacy-lessons.ts
   -> 从原型迁移来的 4 个旧案例原始内容
@@ -204,6 +208,7 @@ app/_components/learning-studio.tsx
   -> 共享课程工作台 Client Component，通过 CourseConfig 接收课程、目录、代码标签、终端命令和课程切换信息，并管理单课多题流程
   -> 集成控制台 Console 与微型浏览器 Preview 切换 Tab
   -> 从 curriculum 与 publishedLessons 动态计算路线统计卡：已发布案例、互动题、知识点和阶段项目
+  -> 课程轨道卡展示“下一阶段预告”，从 stageSpaces 派生后续阶段开放 / 规划状态与可学节点数
   -> 管理顶部学习辅助工具入口：知识扫描台、每日复习任务和技能星图，入口展示当前课程规模、复习队列和学习连击状态
 
 app/_components/question-options.tsx

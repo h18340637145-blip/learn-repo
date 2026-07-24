@@ -3,6 +3,7 @@ import { KnowledgeNetwork } from "@/components/immersive";
 import { AuthStatus } from "@/components/auth/auth-status";
 import { courseDomains, getCoursesByDomain } from "@/content/curriculum-registry";
 import { getLessonsByCourse } from "@/content/lesson-registry";
+import { buildCourseAvailability } from "@/lib/curriculum/course-availability";
 
 export default function Home() {
   return (
@@ -33,7 +34,7 @@ export default function Home() {
               </div>
               <div className="course-grid">
                 {courses.map((course) => {
-                  const publishedCount = getLessonsByCourse(course.id).length;
+                  const availability = buildCourseAvailability(course, getLessonsByCourse(course.id));
                   const statusLabel = course.status === "planned"
                     ? "路线规划"
                     : course.status === "preview"
@@ -53,12 +54,12 @@ export default function Home() {
                       <h3 className="course-card__title">{course.title}</h3>
                       <p className="course-card__desc">{course.description}</p>
                       <div className="course-card__stats">
-                        <span>{course.stages.length} 个阶段</span>
+                        <span aria-label="已开放阶段">{availability.stageSummary}</span>
                         <span>·</span>
-                        <span>{publishedCount > 0 ? `${publishedCount} 个案例` : "内容规划可见"}</span>
+                        <span aria-label="可玩案例">{availability.caseSummary}</span>
                       </div>
-                      <span className="course-card__cta">
-                        {course.status === "planned" ? "查看规划" : course.status === "preview" ? "预览路线" : "开始学习"} <span>→</span>
+                      <span className="course-card__cta" aria-label="继续学习">
+                        {availability.nextActionLabel} <span>→</span>
                       </span>
                     </Link>
                   );

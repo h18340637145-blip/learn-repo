@@ -132,7 +132,7 @@ export const pythonCourse = createPlannedCourse({
   description: "从语法、数据结构到异步服务，用可视化方式掌握 Python 的运行模型。",
   icon: "Py",
   status: "preview",
-  publishedStageCount: 1,
+  publishedStageCount: 3,
   runtimeSurfaces: ["console", "memory-stack", "runtime-timeline"],
   stages: [
     {
@@ -178,7 +178,7 @@ export const networkCourse = createPlannedCourse({
   description: "从 URL 到服务响应，拆解 DNS、TCP、TLS、HTTP、缓存、跨域和实时连接。",
   icon: "NET",
   status: "preview",
-  publishedStageCount: 1,
+  publishedStageCount: 3,
   runtimeSurfaces: ["console", "micro-browser", "network-trace", "runtime-timeline"],
   stages: [
     {
@@ -224,7 +224,7 @@ export const serverEngineeringCourse = createPlannedCourse({
   description: "覆盖 API、数据库、缓存、队列、可观测性和生产事故处理。",
   icon: "SRV",
   status: "preview",
-  publishedStageCount: 1,
+  publishedStageCount: 3,
   runtimeSurfaces: ["console", "micro-browser", "runtime-timeline", "incident-hud"],
   stages: [
     {
@@ -270,7 +270,7 @@ export const androidCourse = createPlannedCourse({
   description: "从 App 生命周期到 Framework、Binder、Native 与 HAL 调用链。",
   icon: "AND",
   status: "preview",
-  publishedStageCount: 1,
+  publishedStageCount: 3,
   runtimeSurfaces: ["console", "memory-stack", "android-system-trace", "runtime-timeline"],
   stages: [
     {
@@ -316,7 +316,7 @@ export const aiApplicationCourse = createPlannedCourse({
   description: "学习 Prompt、RAG、工具调用、多模态、评测和安全边界。",
   icon: "AI",
   status: "preview",
-  publishedStageCount: 1,
+  publishedStageCount: 3,
   runtimeSurfaces: ["console", "agent-trace", "runtime-timeline"],
   stages: [
     {
@@ -362,7 +362,7 @@ export const aiAgentCourse = createPlannedCourse({
   description: "掌握 Observe、Plan、Act、Reflect、Memory、Tool Use 和多 Agent 协作。",
   icon: "AGT",
   status: "preview",
-  publishedStageCount: 1,
+  publishedStageCount: 3,
   runtimeSurfaces: ["console", "agent-trace", "runtime-timeline"],
   stages: [
     {
@@ -408,7 +408,7 @@ export const aiMathCourse = createPlannedCourse({
   description: "用图形和实验理解线性代数、概率、微积分、优化与 Transformer 数学。",
   icon: "Σ",
   status: "preview",
-  publishedStageCount: 1,
+  publishedStageCount: 3,
   runtimeSurfaces: ["console", "math-graph-lab", "transformer-visualizer", "runtime-timeline"],
   stages: [
     {

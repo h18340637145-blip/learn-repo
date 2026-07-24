@@ -675,4 +675,297 @@ const courseSeeds: BlueprintCourseSeed[] = [
   }
 ];
 
-export const blueprintFirstStageLessons = courseSeeds.flatMap(createCourseLessons) satisfies LessonSpec[];
+type SecondStageInput = {
+  courseId: CourseId;
+  stageId: StageId;
+  stageLabel: string;
+  runtimeLabel: string;
+  fileExtension: string;
+  language: CodeLanguage;
+  visualizerType: VisualizerType;
+  sourceTitle: string;
+  sourceUrl: string;
+  lessonTitles: readonly string[];
+  projectTitle: string;
+  projectConcept: string;
+};
+
+function createSecondStageCourse(input: SecondStageInput): BlueprintCourseSeed {
+  return {
+    courseId: input.courseId,
+    stageId: input.stageId,
+    stageLabel: input.stageLabel,
+    runtimeLabel: input.runtimeLabel,
+    fileExtension: input.fileExtension,
+    language: input.language,
+    visualizerType: input.visualizerType,
+    sourceTitle: input.sourceTitle,
+    sourceUrl: input.sourceUrl,
+    lessons: input.lessonTitles.map((title, index) => ({
+      title,
+      concept: `${title}是 ${input.stageLabel} 的关键学习点，重点训练学习者把概念、案例和运行反馈连成稳定判断。`,
+      points: [`识别${title}的输入边界`, `观察${title}的运行状态`, `用输出验证${title}的结论`],
+      memoryHook: `${input.stageLabel}像第二圈轨道，${title}负责补强工程判断`,
+      code: createSecondStageCode(input, title, index),
+      prompt: `${title}最应该帮助学习者建立什么能力？`,
+      correct: "把局部知识点放回完整运行链路中验证",
+      wrongA: "只记住术语名称，不观察输入输出",
+      wrongB: "跳过案例，直接背最终结论",
+      correctExplanation: `${title}需要通过案例运行和可视化反馈建立可迁移的判断。`
+    })),
+    project: {
+      title: input.projectTitle,
+      concept: input.projectConcept,
+      code: createSecondStageProjectCode(input),
+      prompt: `${input.projectTitle}最应该采用哪个实现方向？`,
+      correct: "组合本阶段知识点，并输出可验证的运行摘要",
+      wrongA: "只复用第一节课的局部代码",
+      wrongB: "只写总结，不提供运行反馈",
+      secondPrompt: `${input.projectTitle}完成后应该如何复盘？`,
+      secondCorrect: "检查输入、关键状态、输出和错误路径是否闭环",
+      secondWrongA: "只看是否出现绿色成功提示",
+      secondWrongB: "只统计代码行数",
+      summary: [`${input.projectTitle}把 ${input.stageLabel} 的知识点合成为一个阶段项目。`, "P2 阶段项目强调持续学习：能继续做、能验证、能复盘。"]
+    }
+  };
+}
+
+function createSecondStageCode(input: SecondStageInput, title: string, index: number): string {
+  if (input.language === "py") {
+    return `topic = "${title}"\nsteps = ["input", "model", "verify"]\nprint(topic, steps[${index % 3}])`;
+  }
+
+  if (input.language === "kt") {
+    return `val topic = "${title}"\nval steps = listOf("input", "model", "verify")\nprintln("$topic -> \${steps[${index % 3}]}")`;
+  }
+
+  if (input.language === "math") {
+    return `topic = "${title}"\nvector = [${index + 1}, ${index + 2}]\nshow(topic, vector)`;
+  }
+
+  return `const topic = "${title}";\nconst steps = ["input", "model", "verify"];\nconsole.log(topic, steps[${index % 3}]);`;
+}
+
+function createSecondStageProjectCode(input: SecondStageInput): string {
+  if (input.language === "py") {
+    return `project = "${input.projectTitle}"\nresult = {"stage": "${input.stageLabel}", "status": "verified"}\nprint(project, result["status"])`;
+  }
+
+  if (input.language === "kt") {
+    return `val project = "${input.projectTitle}"\nval result = mapOf("stage" to "${input.stageLabel}", "status" to "verified")\nprintln("$project -> \${result["status"]}")`;
+  }
+
+  if (input.language === "math") {
+    return `project = "${input.projectTitle}"\nresult = transform(input_space, output_space)\nshow(project, result)`;
+  }
+
+  return `const project = "${input.projectTitle}";\nconst result = { stage: "${input.stageLabel}", status: "verified" };\nconsole.log(project, result.status);`;
+}
+
+const secondStageCourseSeeds: BlueprintCourseSeed[] = [
+  createSecondStageCourse({
+    courseId: "python",
+    stageId: "python-data-structures",
+    stageLabel: "Python 数据结构与标准库",
+    runtimeLabel: "Python 3.13",
+    fileExtension: "py",
+    language: "py",
+    visualizerType: "memory-stack",
+    sourceTitle: "Python Standard Library",
+    sourceUrl: "https://docs.python.org/3/library/",
+    lessonTitles: ["list 与切片", "dict 查询与更新", "set 去重", "tuple 与不可变数据", "迭代器协议", "列表推导式", "pathlib 文件路径", "json 序列化"],
+    projectTitle: "日志聚合统计器",
+    projectConcept: "读取日志行、解析字段、按状态聚合数量，并输出可检查的统计摘要。"
+  }),
+  createSecondStageCourse({
+    courseId: "network",
+    stageId: "network-http-cache",
+    stageLabel: "HTTP 与缓存",
+    runtimeLabel: "Browser Network",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "browser-network-debug",
+    sourceTitle: "MDN Web Docs: HTTP caching",
+    sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
+    lessonTitles: ["HTTP 请求响应", "状态码诊断", "Content-Type", "Cookie", "Cache-Control", "ETag", "协商缓存", "缓存失效"],
+    projectTitle: "缓存命中调试面板",
+    projectConcept: "观察请求头、响应头和缓存状态，判断一次资源加载为什么命中或重新请求。"
+  }),
+  createSecondStageCourse({
+    courseId: "server-engineering",
+    stageId: "server-database-cache",
+    stageLabel: "数据库、事务与缓存",
+    runtimeLabel: "Service Runtime",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "service-boundary",
+    sourceTitle: "PostgreSQL Documentation",
+    sourceUrl: "https://www.postgresql.org/docs/",
+    lessonTitles: ["索引选择", "查询过滤", "事务边界", "连接池", "缓存读取", "缓存失效", "迁移脚本", "一致性复盘"],
+    projectTitle: "库存缓存一致性修复",
+    projectConcept: "用事务更新库存，并让缓存失效与重新读取过程可观察。"
+  }),
+  createSecondStageCourse({
+    courseId: "android",
+    stageId: "android-jetpack-compose",
+    stageLabel: "Jetpack 与 Compose",
+    runtimeLabel: "Android Runtime",
+    fileExtension: "kt",
+    language: "kt",
+    visualizerType: "android-system-trace",
+    sourceTitle: "Android Developers: Jetpack Compose",
+    sourceUrl: "https://developer.android.com/compose",
+    lessonTitles: ["Composable 函数", "State 提升", "ViewModel 边界", "重组触发", "remember", "LazyColumn", "Navigation", "副作用处理"],
+    projectTitle: "状态错乱修复任务",
+    projectConcept: "定位 UI 状态错乱原因，把状态提升到稳定边界并验证重组结果。"
+  }),
+  createSecondStageCourse({
+    courseId: "ai-application",
+    stageId: "ai-app-tools-workflows",
+    stageLabel: "工具调用与工作流",
+    runtimeLabel: "AI App Trace",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "agent-trace",
+    sourceTitle: "OpenAI Docs: Tools",
+    sourceUrl: "https://platform.openai.com/docs/guides/tools",
+    lessonTitles: ["工具 Schema", "参数校验", "工具选择", "结果解析", "工作流节点", "错误重试", "权限边界", "审计日志"],
+    projectTitle: "工具调用排障台",
+    projectConcept: "记录模型选择工具、构造参数、接收结果和处理失败的完整链路。"
+  }),
+  createSecondStageCourse({
+    courseId: "ai-agent",
+    stageId: "ai-agent-memory-tools",
+    stageLabel: "记忆与工具使用",
+    runtimeLabel: "Agent Trace",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "agent-trace",
+    sourceTitle: "OpenAI Docs: Agents",
+    sourceUrl: "https://platform.openai.com/docs/guides/agents",
+    lessonTitles: ["短期记忆", "长期记忆", "检索记忆", "记忆更新", "工具选择", "参数构造", "工具失败", "记忆命中复盘"],
+    projectTitle: "记忆命中调试",
+    projectConcept: "观察 Agent 如何从记忆中取证据、选择工具，并在失败后修正。"
+  }),
+  createSecondStageCourse({
+    courseId: "ai-math",
+    stageId: "ai-math-probability-calculus",
+    stageLabel: "概率统计与微积分",
+    runtimeLabel: "Math Graph Lab",
+    fileExtension: "math",
+    language: "math",
+    visualizerType: "math-graph-lab",
+    sourceTitle: "Khan Academy: Probability and statistics",
+    sourceUrl: "https://www.khanacademy.org/math/statistics-probability",
+    lessonTitles: ["概率分布", "期望", "方差", "条件概率", "导数直觉", "链式法则", "梯度方向", "损失曲线"],
+    projectTitle: "损失曲线解释器",
+    projectConcept: "把损失函数、梯度方向和参数更新画成可解释的曲线变化。"
+  })
+];
+
+const thirdStageCourseSeeds: BlueprintCourseSeed[] = [
+  createSecondStageCourse({
+    courseId: "python",
+    stageId: "python-modules-testing",
+    stageLabel: "Python 模块、包与测试",
+    runtimeLabel: "Python 3.13",
+    fileExtension: "py",
+    language: "py",
+    visualizerType: "memory-stack",
+    sourceTitle: "Python Packaging User Guide",
+    sourceUrl: "https://packaging.python.org/",
+    lessonTitles: ["模块解析", "包结构", "虚拟环境", "依赖锁定", "pytest 断言", "fixture", "参数化测试", "可维护项目结构"],
+    projectTitle: "可测试配置解析器",
+    projectConcept: "把配置读取、默认值、异常路径和 pytest 验证组织成一个可维护的小型 Python 包。"
+  }),
+  createSecondStageCourse({
+    courseId: "network",
+    stageId: "network-security-realtime",
+    stageLabel: "安全与实时连接",
+    runtimeLabel: "Browser Network",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "browser-network-debug",
+    sourceTitle: "MDN Web Docs: CORS",
+    sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS",
+    lessonTitles: ["CORS 预检", "Cookie 与 SameSite", "CSRF 防护", "Token 携带", "WebSocket 握手", "SSE 重连", "心跳检测", "实时链路降级"],
+    projectTitle: "实时通知链路诊断",
+    projectConcept: "观察跨域请求、认证凭据、WebSocket 握手和 SSE 降级，判断实时通知为什么成功或失败。"
+  }),
+  createSecondStageCourse({
+    courseId: "server-engineering",
+    stageId: "server-queue-observability",
+    stageLabel: "队列与可观测性",
+    runtimeLabel: "Service Runtime",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "service-boundary",
+    sourceTitle: "OpenTelemetry Documentation",
+    sourceUrl: "https://opentelemetry.io/docs/",
+    lessonTitles: ["消息投递", "消费确认", "死信队列", "重试退避", "结构化日志", "指标采样", "Trace Span", "任务链路复盘"],
+    projectTitle: "订单任务追踪器",
+    projectConcept: "把订单创建、消息投递、消费确认、重试和 Trace Span 串成一条可观测任务链路。"
+  }),
+  createSecondStageCourse({
+    courseId: "android",
+    stageId: "android-framework-binder",
+    stageLabel: "Framework 与 Binder",
+    runtimeLabel: "Android Runtime",
+    fileExtension: "kt",
+    language: "kt",
+    visualizerType: "android-system-trace",
+    sourceTitle: "Android Developers: AIDL",
+    sourceUrl: "https://source.android.com/docs/core/architecture/aidl",
+    lessonTitles: ["System Service", "Binder 调用", "AIDL 接口", "AMS 启动链", "WMS 窗口链路", "PMS 查询", "跨进程异常", "调用链追踪"],
+    projectTitle: "跨进程调用链追踪",
+    projectConcept: "把应用请求、Binder 代理、系统服务和异常返回画成一条可解释的 Android Framework 调用链。"
+  }),
+  createSecondStageCourse({
+    courseId: "ai-application",
+    stageId: "ai-app-multimodal-eval",
+    stageLabel: "多模态与评测",
+    runtimeLabel: "AI App Trace",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "agent-trace",
+    sourceTitle: "OpenAI Docs: Evals",
+    sourceUrl: "https://platform.openai.com/docs/guides/evals",
+    lessonTitles: ["图像输入", "文本图像对齐", "结构化输出", "样本集设计", "人工标注", "自动评分", "回归对比", "评测报告"],
+    projectTitle: "多模态结果评测",
+    projectConcept: "用固定样本集比较多模态输入、结构化输出和评分结果，形成可回归的 AI 应用评测报告。"
+  }),
+  createSecondStageCourse({
+    courseId: "ai-agent",
+    stageId: "ai-agent-multi-agent",
+    stageLabel: "多 Agent 协作",
+    runtimeLabel: "Agent Trace",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "agent-trace",
+    sourceTitle: "OpenAI Docs: Agents",
+    sourceUrl: "https://platform.openai.com/docs/guides/agents",
+    lessonTitles: ["Planner 角色", "Executor 角色", "Reviewer 角色", "任务树拆分", "消息协议", "共享记忆", "冲突解决", "协作复盘"],
+    projectTitle: "多 Agent 协作复盘",
+    projectConcept: "把 Planner、Executor、Reviewer 的消息、共享记忆和冲突解决过程整理成可审查协作 Trace。"
+  }),
+  createSecondStageCourse({
+    courseId: "ai-math",
+    stageId: "ai-math-optimization",
+    stageLabel: "优化方法",
+    runtimeLabel: "Math Graph Lab",
+    fileExtension: "math",
+    language: "math",
+    visualizerType: "math-graph-lab",
+    sourceTitle: "Khan Academy: Multivariable calculus",
+    sourceUrl: "https://www.khanacademy.org/math/multivariable-calculus",
+    lessonTitles: ["损失函数", "梯度下降", "学习率", "动量", "正则化", "过拟合", "验证集", "优化路径可视化"],
+    projectTitle: "梯度下降可视化",
+    projectConcept: "在二维曲面上观察损失、梯度方向、学习率和验证集指标如何共同决定优化路径。"
+  })
+];
+
+export const blueprintFirstStageLessons = [
+  ...courseSeeds.flatMap(createCourseLessons),
+  ...secondStageCourseSeeds.flatMap(createCourseLessons),
+  ...thirdStageCourseSeeds.flatMap(createCourseLessons)
+] satisfies LessonSpec[];

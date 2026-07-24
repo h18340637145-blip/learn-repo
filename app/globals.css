@@ -209,7 +209,7 @@ a { color: inherit; text-decoration: none; }
 .stage-node span, .stage-node strong { display: block; }
 .stage-node span { color: var(--green); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 8px; }
 .stage-node strong { margin-top: 8px; font-size: 11px; line-height: 1.35; }
-.course-orbital-dashboard { max-width: 1120px; display: grid; grid-template-columns: minmax(220px, .9fr) repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 16px; perspective: 900px; }
+.course-orbital-dashboard { max-width: 1120px; display: grid; grid-template-columns: minmax(220px, .9fr) repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; perspective: 900px; }
 .orbital-core, .orbital-card { position: relative; overflow: hidden; min-height: 118px; border: 1px solid rgba(110, 231, 255, 0.18); background: linear-gradient(145deg, rgba(8, 11, 15, .88), rgba(14, 26, 35, .72)); padding: 18px; transform-style: preserve-3d; box-shadow: 0 18px 38px rgba(0, 0, 0, .18); }
 .orbital-core::before, .orbital-card::before { content: ""; position: absolute; inset: -40%; background-image: radial-gradient(circle, rgba(110, 231, 255, .55) 1px, transparent 2px); background-size: 24px 24px; opacity: .12; animation: answer-particles 12s linear infinite; pointer-events: none; }
 .orbital-core { border-color: rgba(159, 232, 112, .24); background: radial-gradient(circle at 28% 26%, rgba(159, 232, 112, .14), transparent 34%), rgba(7, 12, 16, .78); }

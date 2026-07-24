@@ -29,8 +29,9 @@ test("首页作为课程选择入口并链接到独立学习路径", () => {
   assert.match(source, /course\.icon/);
   assert.match(source, /course\.title/);
   assert.match(source, /course\.description/);
-  assert.match(source, /course\.stages\.length/);
-  assert.match(source, /getLessonsByCourse\(course\.id\)\.length/);
+  assert.match(source, /buildCourseAvailability\(course, getLessonsByCourse\(course\.id\)\)/);
+  assert.match(source, /availability\.stageSummary/);
+  assert.match(source, /availability\.caseSummary/);
   assert.match(source, /course\.status === "planned"/);
 });
 

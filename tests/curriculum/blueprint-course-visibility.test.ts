@@ -41,9 +41,9 @@ test("可以按学院读取 preview 与 published 路线", () => {
   assert.ok(getCoursesByDomain("frontend").some((course) => course.slug === "frontend-debugging"));
 });
 
-test("preview 路线拥有独立首阶段题库且不会误用 Node.js 已发布题库", () => {
-  assert.equal(getLessonsByCourse("python").length, 9);
-  assert.equal(getLessonsByCourse("network").length, 9);
+test("preview 路线拥有独立三阶段题库且不会误用 Node.js 已发布题库", () => {
+  assert.equal(getLessonsByCourse("python").length, 27);
+  assert.equal(getLessonsByCourse("network").length, 27);
   assert.ok(getLessonsByCourse("python").every((lesson) => lesson.id.startsWith("python-")));
   assert.ok(getLessonsByCourse("network").every((lesson) => lesson.id.startsWith("network-")));
   assert.ok(getLessonsByCourse("nodejs").length > 0);

@@ -26,7 +26,7 @@ test("蓝图路线首阶段都升级为可玩课程", () => {
     assert.equal(course.status, "preview", `${course.title} 应进入样板预览状态`);
     assert.equal(firstStage.lessons.filter((lesson) => lesson.status === "published").length, 8);
     assert.equal(firstStage.project.status, "published");
-    assert.equal(lessons.length, 9, `${course.title} 首阶段应有 8 个知识点和 1 个阶段项目`);
+    assert.ok(lessons.length >= 9, `${course.title} 至少应有首阶段 8 个知识点和 1 个阶段项目`);
     assert.deepEqual(validateCourseCatalog(course), []);
   }
 });
@@ -37,8 +37,8 @@ test("蓝图首阶段课程具备真实学习闭环", () => {
     const knowledgeLessons = lessons.filter((lesson) => lesson.kind === "knowledge");
     const projectLessons = lessons.filter((lesson) => lesson.kind === "stage-project");
 
-    assert.equal(knowledgeLessons.length, 8);
-    assert.equal(projectLessons.length, 1);
+    assert.ok(knowledgeLessons.length >= 8);
+    assert.ok(projectLessons.length >= 1);
 
     for (const lesson of knowledgeLessons) {
       assert.ok(lesson.files.length >= 1, `${lesson.id} 应有案例文件`);
@@ -48,9 +48,10 @@ test("蓝图首阶段课程具备真实学习闭环", () => {
       assert.deepEqual(validateLessonSpec(lesson), []);
     }
 
-    const [project] = projectLessons;
-    assert.ok(project.questions.length >= 2, `${project.id} 阶段项目至少需要 2 道题`);
-    assert.deepEqual(validateLessonSpec(project), []);
+    for (const project of projectLessons) {
+      assert.ok(project.questions.length >= 2, `${project.id} 阶段项目至少需要 2 道题`);
+      assert.deepEqual(validateLessonSpec(project), []);
+    }
   }
 });
 

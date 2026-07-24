@@ -162,6 +162,13 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   const activeStageSpace = stageSpaces.find((stage) => stage.id === selectedStageId)
     ?? stageSpaces.find((stage) => stage.id === activeStageId)
     ?? stageSpaces[0]!;
+  const activeStageIndex = stageSpaces.findIndex((stage) => stage.id === activeStageSpace.id);
+  const nextStageSpace = activeStageIndex >= 0 ? stageSpaces[activeStageIndex + 1] : undefined;
+  const nextStageStatusLabel = nextStageSpace
+    ? nextStageSpace.publishedCount > 0
+      ? "已开放"
+      : "规划中"
+    : "路线终点";
   const activeStageProject = activeStageSpace.nodes.find((node) => node.kind === "stage-project");
   const activeStageProjectLessonIndex = activeStageProject?.lessonIndex ?? projectLessonIndex;
   const completionVariant = isProject ? "project" : "lesson";
@@ -574,6 +581,15 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
               <span>阶段能量</span>
               <strong>{activeStageSpace.completedCount} / {activeStageSpace.publishedCount}</strong>
               <small>{activeStageSpace.title}</small>
+            </div>
+            <div className="orbital-card">
+              <span>下一阶段预告</span>
+              <strong>{nextStageSpace?.title ?? finalProjectTitle}</strong>
+              <small>
+                {nextStageSpace
+                  ? `${nextStageStatusLabel} · ${nextStageSpace.publishedCount} 个可学节点`
+                  : "完成全部阶段后进入最终项目"}
+              </small>
             </div>
             <div className="orbital-card">
               <span>下一步</span>
