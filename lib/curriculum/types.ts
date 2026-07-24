@@ -68,6 +68,13 @@ export type StageId =
   | "python-data-structures"
   | "python-modules-testing"
   | "python-async-services"
+  | "python-file-batch"
+  | "python-regex-parsing"
+  | "python-http-scraping"
+  | "python-cli-tools"
+  | "python-scheduling"
+  | "python-ops-process"
+  | "python-automation-pipeline"
   | "network-url-dns"
   | "network-http-cache"
   | "network-security-realtime"
@@ -176,6 +183,10 @@ export type CurriculumStage = {
   project: CatalogLesson;
 };
 
+export type DifficultyTier = "beginner" | "intermediate" | "advanced";
+
+export type DifficultyStars = 1 | 2 | 3;
+
 export type CourseSpec = {
   id: CourseId;
   domainId: CourseDomainId;
@@ -186,6 +197,7 @@ export type CourseSpec = {
   status: CourseStatus;
   runtimeSurfaces: readonly RuntimeSurface[];
   stages: readonly CurriculumStage[];
+  difficultyTiers?: Record<DifficultyTier, StageId[]>;
 };
 
 export type LessonSource = {
@@ -284,6 +296,7 @@ export type LessonSpec = {
   title: string;
   durationMinutes: number;
   difficulty: "基础" | "进阶";
+  difficultyStars?: DifficultyStars;
   nodeVersion: string;
   objectives: string[];
   prerequisites: string[];
