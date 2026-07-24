@@ -14,6 +14,7 @@ const roadmap: RoadmapStage[] = [{
   publishedLessons: 8,
   completedLessons: 2,
   state: "active",
+  locked: false,
   items: [{ id: "http-transaction", title: "HTTP 事务生命周期", status: "published" }]
 }];
 
@@ -25,9 +26,9 @@ const stageSpace: StageSpace = {
   completedCount: 1,
   publishedCount: 9,
   nodes: [
-    { id: "http-transaction", title: "HTTP 事务生命周期", order: 1, kind: "knowledge", status: "published", state: "done", lessonIndex: 29 },
-    { id: "http-planned", title: "计划中的 HTTP 课程", order: 2, kind: "knowledge", status: "planned", state: "planned", lessonIndex: null },
-    { id: "project-static-file-server", title: "流式静态文件服务器", order: 9, kind: "stage-project", status: "published", state: "available", lessonIndex: 37 }
+    { id: "http-transaction", title: "HTTP 事务生命周期", order: 1, kind: "knowledge", status: "published", state: "done", lessonIndex: 29, difficulty: 1 },
+    { id: "http-planned", title: "计划中的 HTTP 课程", order: 2, kind: "knowledge", status: "planned", state: "planned", lessonIndex: null, difficulty: 1 },
+    { id: "project-static-file-server", title: "流式静态文件服务器", order: 9, kind: "stage-project", status: "published", state: "available", lessonIndex: 37, difficulty: 3 }
   ]
 };
 

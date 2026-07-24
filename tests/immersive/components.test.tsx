@@ -20,6 +20,7 @@ const stages: RoadmapStage[] = [
     publishedLessons: 8,
     completedLessons: 8,
     state: "done",
+    locked: false,
     items: []
   },
   {
@@ -30,6 +31,7 @@ const stages: RoadmapStage[] = [
     publishedLessons: 8,
     completedLessons: 4,
     state: "active",
+    locked: false,
     items: []
   }
 ];

@@ -129,7 +129,7 @@ export const pythonCourse = createPlannedCourse({
   domainId: "language",
   slug: "python",
   title: "Python",
-  description: "从语法、数据结构到异步服务，用可视化方式掌握 Python 的运行模型。",
+  description: "从语法、数据结构到自动化脚本与运维，用可视化方式掌握 Python 运行模型。",
   icon: "Py",
   status: "preview",
   publishedStageCount: 4,
@@ -166,6 +166,62 @@ export const pythonCourse = createPlannedCourse({
       summary: "asyncio、HTTP 客户端、任务调度和服务边界。",
       lessons: ["协程与事件循环", "并发请求", "超时与重试", "服务错误模型"],
       projectTitle: "异步 API 聚合器"
+    },
+    {
+      id: "python-file-batch",
+      number: 4,
+      title: "文件批处理与文本自动化",
+      summary: "路径遍历、编码识别、批量重命名与文本清洗流水线。",
+      lessons: ["pathlib 遍历模式", "编码探测与转换", "批量重命名规则", "结构化文本清洗"],
+      projectTitle: "批量文档标准化工具"
+    },
+    {
+      id: "python-regex-parsing",
+      number: 5,
+      title: "正则与结构化解析",
+      summary: "re 模块、命名捕获、CSV / JSON / YAML 解析与校验。",
+      lessons: ["正则思维模型", "命名捕获与回溯", "CSV/JSON 双向转换", "YAML 数据校验"],
+      projectTitle: "多源日志统一解析器"
+    },
+    {
+      id: "python-http-scraping",
+      number: 6,
+      title: "HTTP 抓取与数据管道",
+      summary: "requests/httpx、限流、重试、持久化与反爬边界。",
+      lessons: ["同步与异步客户端", "限流与退避策略", "内容抽取与持久化", "反爬合规边界"],
+      projectTitle: "站点抓取与增量入库脚本"
+    },
+    {
+      id: "python-cli-tools",
+      number: 7,
+      title: "CLI 与配置化脚本",
+      summary: "argparse/typer、配置合并、日志分级与可复用脚手架。",
+      lessons: ["argparse 语义", "typer 类型驱动 CLI", "配置分层合并", "结构化日志"],
+      projectTitle: "可发布的运维 CLI 工具"
+    },
+    {
+      id: "python-scheduling",
+      number: 8,
+      title: "任务调度与后台运行",
+      summary: "APScheduler、cron、systemd/timer 与幂等重试。",
+      lessons: ["调度触发器建模", "任务幂等性", "失败重试与告警", "systemd/timer 部署"],
+      projectTitle: "跨机任务调度器"
+    },
+    {
+      id: "python-ops-process",
+      number: 9,
+      title: "子进程与运维编排",
+      summary: "subprocess、信号处理、并发编排与安全边界。",
+      lessons: ["subprocess 输入输出", "信号与超时", "并发编排策略", "凭据与最小权限"],
+      projectTitle: "远程主机批量运维脚本"
+    },
+    {
+      id: "python-automation-pipeline",
+      number: 10,
+      title: "端到端自动化流水线",
+      summary: "数据采集→清洗→通知的完整脚本项目，覆盖打包与部署。",
+      lessons: ["流水线阶段拆分", "错误恢复与断点续跑", "打包与依赖锁定", "部署与观测"],
+      projectTitle: "自动化运营周报流水线"
     }
   ]
 });

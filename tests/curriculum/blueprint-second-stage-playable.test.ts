@@ -34,9 +34,10 @@ test("蓝图路线阶段 00 和阶段 01 都可持续学习", () => {
 
 test("首页课程卡片展示开放阶段、可玩案例和继续学习入口", () => {
   const pageSource = readFileSync("app/page.tsx", "utf8");
+  const catalogSource = readFileSync("app/_components/course-catalog.tsx", "utf8");
 
   assert.match(pageSource, /buildCourseAvailability/);
-  assert.match(pageSource, /已开放/);
-  assert.match(pageSource, /可玩案例/);
-  assert.match(pageSource, /继续学习/);
+  assert.match(catalogSource, /已开放/);
+  assert.match(catalogSource, /可玩案例/);
+  assert.match(catalogSource, /继续学习/);
 });

@@ -14,6 +14,8 @@ import {
 import { StageSidebar, StageSpaceMap } from "@/components/learning-space";
 import { SpatialRuntimeVisualizer } from "@/components/visualizers";
 import { QuestionOptions } from "@/app/_components/question-options";
+import { getDefaultDifficultyTiers } from "@/lib/curriculum/difficulty-tiers";
+import { buildPathProgress } from "@/lib/curriculum/path-progress";
 import { buildStageSpaces } from "@/lib/curriculum/stage-space";
 import type { CourseId, CurriculumStage, LessonSpec, QuestionType, RunnerFrame, StageId } from "@/lib/curriculum/types";
 import { buildRoadmap } from "@/lib/curriculum/view-model";
@@ -123,6 +125,14 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
     : (lessonFiles.find((file) => file.name === lesson.entryFile) ?? lessonFiles[0]);
   const entryFile = currentStep ? (currentStep.entryFile || codeFile?.name || "") : (lesson.entryFile || codeFile?.name || "");
   const roadmap = useMemo(() => buildRoadmap(curriculum, progress), [curriculum, progress]);
+  const difficultyTiers = useMemo(
+    () => getDefaultDifficultyTiers(curriculum.map((stage) => stage.id)),
+    [curriculum]
+  );
+  const pathProgress = useMemo(
+    () => buildPathProgress(progress, curriculum, difficultyTiers),
+    [progress, curriculum, difficultyTiers]
+  );
   const stageSpaces = useMemo(
     () => buildStageSpaces(curriculum, publishedLessons, progress),
     [curriculum, publishedLessons, progress]
@@ -242,6 +252,13 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
   }
 
   function selectStage(stageId: StageId) {
+    const target = roadmap.find((stage) => stage.id === stageId);
+    if (target?.locked) {
+      const remaining = target.unlockHint?.remaining ?? 0;
+      window.alert(`该阶段尚未解锁，请先完成前置阶段 70% 的知识点（还差 ${remaining} 个）。`);
+      return;
+    }
+
     cancelRun();
     updateRuntimePanelWith(disableTracePlayback);
     setSelectedStageId(stageId);
@@ -526,6 +543,8 @@ export function CourseLearningStudio({ config }: { config: CourseConfig }) {
             onOpenLesson={openPublishedLessonById}
             onSelectStage={selectStage}
             stages={roadmap}
+            tiers={difficultyTiers}
+            pathProgress={pathProgress}
           />
 
           <button className="project-shortcut" id="projects" type="button" onClick={() => openLesson(activeStageProjectLessonIndex)}>

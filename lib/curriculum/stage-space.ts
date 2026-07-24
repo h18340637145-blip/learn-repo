@@ -1,4 +1,4 @@
-import type { CurriculumStage, LessonKind, LessonSpec, StageId } from "./types";
+import type { CurriculumStage, DifficultyStars, LessonKind, LessonSpec, StageId } from "./types";
 import type { ProgressSnapshot } from "../progress/types";
 
 export type StageSpaceNode = {
@@ -9,6 +9,7 @@ export type StageSpaceNode = {
   status: "published" | "planned";
   state: "done" | "available" | "planned";
   lessonIndex: number | null;
+  difficulty: DifficultyStars;
 };
 
 export type StageSpace = {
@@ -36,6 +37,8 @@ export function buildStageSpaces(
       const lesson = lessonById.get(entry.id);
       const isPublished = entry.status === "published" && Boolean(lesson);
       const isDone = isPublished && completedIds.has(entry.id);
+      const difficulty: DifficultyStars =
+        lesson?.difficultyStars ?? (entry.kind === "stage-project" ? 3 : 1);
 
       return {
         id: entry.id,
@@ -44,7 +47,8 @@ export function buildStageSpaces(
         kind: entry.kind,
         status: entry.status,
         state: isDone ? "done" : isPublished ? "available" : "planned",
-        lessonIndex: isPublished ? lessonIndexById.get(entry.id) ?? null : null
+        lessonIndex: isPublished ? lessonIndexById.get(entry.id) ?? null : null,
+        difficulty
       } satisfies StageSpaceNode;
     });
 

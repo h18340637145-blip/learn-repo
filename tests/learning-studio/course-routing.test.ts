@@ -6,6 +6,7 @@ import { allCourses } from "../../content/curriculum-registry";
 
 test("首页作为课程选择入口并链接到独立学习路径", () => {
   const source = readFileSync("app/page.tsx", "utf8");
+  const catalogSource = readFileSync("app/_components/course-catalog.tsx", "utf8");
 
   assert.deepEqual(allCourses.map((course) => course.title), [
     "Node.js",
@@ -21,18 +22,18 @@ test("首页作为课程选择入口并链接到独立学习路径", () => {
   ]);
   assert.match(source, /import \{ courseDomains, getCoursesByDomain \} from "@\/content\/curriculum-registry"/);
   assert.match(source, /import \{ getLessonsByCourse \} from "@\/content\/lesson-registry"/);
-  assert.match(source, /courseDomains\.map/);
-  assert.match(source, /const courses = getCoursesByDomain\(domain\.id\)/);
-  assert.match(source, /courses\.map/);
-  assert.match(source, /href=\{`\/\$\{course\.slug\}`\}/);
-  assert.match(source, /id=\{`course-\$\{course\.id\}`\}/);
-  assert.match(source, /course\.icon/);
-  assert.match(source, /course\.title/);
-  assert.match(source, /course\.description/);
+  assert.match(source, /courseDomains[\s\S]*\.map/);
+  assert.match(source, /getCoursesByDomain\(domain\.id\)/);
+  assert.match(catalogSource, /domain\.items\.map/);
+  assert.match(catalogSource, /href=\{`\/\$\{course\.slug\}`\}/);
+  assert.match(catalogSource, /id=\{`course-\$\{course\.id\}`\}/);
+  assert.match(catalogSource, /course\.icon/);
+  assert.match(catalogSource, /course\.title/);
+  assert.match(catalogSource, /course\.description/);
   assert.match(source, /buildCourseAvailability\(course, getLessonsByCourse\(course\.id\)\)/);
-  assert.match(source, /availability\.stageSummary/);
-  assert.match(source, /availability\.caseSummary/);
-  assert.match(source, /course\.status === "planned"/);
+  assert.match(catalogSource, /availability\.stageSummary/);
+  assert.match(catalogSource, /availability\.caseSummary/);
+  assert.match(catalogSource, /course\.status === "planned"/);
 });
 
 test("Node.js 与 Next.js 路由都挂载共享学习工作台", () => {

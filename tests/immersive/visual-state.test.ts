@@ -17,6 +17,7 @@ const activeStage: RoadmapStage = {
   publishedLessons: 8,
   completedLessons: 4,
   state: "active",
+  locked: false,
   items: []
 };
 
