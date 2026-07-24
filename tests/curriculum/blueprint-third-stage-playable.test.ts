@@ -29,7 +29,7 @@ test("蓝图路线阶段 00 到阶段 02 都可持续学习", () => {
     assert.equal(course.stages[2].project.status, "published");
     assert.equal(course.stages[3].lessons.every((lesson) => lesson.status === "published"), true);
     assert.equal(course.stages[3].project.status, "published");
-    const expectedLessons = courseId === "python" || courseId === "ai-agent" ? 99 : 36;
+    const expectedLessons = courseId === "python" || courseId === "ai-agent" || courseId === "ai-application" ? 99 : 36;
     assert.equal(lessons.length, expectedLessons, `${course.title} 应有 ${expectedLessons} 个可玩案例`);
     assert.deepEqual(lessons.flatMap(validateLessonSpec), []);
   }

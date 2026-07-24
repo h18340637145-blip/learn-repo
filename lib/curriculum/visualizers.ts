@@ -37,7 +37,15 @@ const configuredStageVisualizers = {
   "ai-agent-safety-alignment": { type: "agent-safety-shield", title: "安全对齐护盾", nodes: ["Input", "Policy", "Sandbox", "Audit", "Response"] },
   "ai-agent-multimodal-execution": { type: "agent-multimodal-canvas", title: "多模态与执行画布", nodes: ["Vision", "Code", "File", "Browser", "Result"] },
   "ai-agent-production-deploy": { type: "agent-production-console", title: "生产部署控制台", nodes: ["Route", "Quota", "Tenant", "Rollout", "SLO"] },
-  "ai-agent-platform-pipeline": { type: "agent-platform-pipeline", title: "Agent 平台端到端", nodes: ["Intake", "Plan", "Tools", "Memory", "Release"] }
+  "ai-agent-platform-pipeline": { type: "agent-platform-pipeline", title: "Agent 平台端到端", nodes: ["Intake", "Plan", "Tools", "Memory", "Release"] },
+  // AI Application stage visualizers (04-10)
+  "ai-app-vector-retrieval": { type: "ai-app-vector-lens", title: "向量检索透视镜", nodes: ["Embed", "ANN", "Hybrid", "Rerank", "Context"] },
+  "ai-app-prompt-chain": { type: "ai-app-chain-graph", title: "Prompt 链式调用图", nodes: ["System", "Few-Shot", "Chain", "Parser", "Guard"] },
+  "ai-app-model-selection": { type: "ai-app-model-router", title: "模型选型与路由", nodes: ["Task", "Router", "Fallback", "Latency", "Cost"] },
+  "ai-app-evaluation-metrics": { type: "ai-app-eval-metrics", title: "评测指标面板", nodes: ["Dataset", "Judge", "Metric", "Regress", "Diff"] },
+  "ai-app-cost-caching": { type: "ai-app-cost-heatmap", title: "成本与缓存热力图", nodes: ["Token", "Cache", "Batch", "TTL", "Budget"] },
+  "ai-app-observability-tracing": { type: "ai-app-trace-timeline", title: "AI 应用 Trace 时间线", nodes: ["Span", "LLM", "Tool", "DB", "Log"] },
+  "ai-app-production-platform": { type: "ai-app-platform-canvas", title: "端到端 AI 应用平台", nodes: ["Ingest", "RAG", "Chain", "Eval", "Release"] }
 } satisfies Partial<Record<StageId, VisualizerSpec>>;
 
 const stageVisualizers: Partial<Record<StageId, VisualizerSpec>> = configuredStageVisualizers;

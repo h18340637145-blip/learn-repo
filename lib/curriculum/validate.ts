@@ -90,7 +90,14 @@ const supportedVisualizerTypes = new Set<VisualizerType>([
   "agent-safety-shield",
   "agent-multimodal-canvas",
   "agent-production-console",
-  "agent-platform-pipeline"
+  "agent-platform-pipeline",
+  "ai-app-vector-lens",
+  "ai-app-chain-graph",
+  "ai-app-model-router",
+  "ai-app-eval-metrics",
+  "ai-app-cost-heatmap",
+  "ai-app-trace-timeline",
+  "ai-app-platform-canvas"
 ]);
 
 export function validateLessonSpec(lesson: LessonSpec): string[] {

@@ -21,6 +21,14 @@ import { aiAgentStageSevenSafetyAlignmentLessons } from "./lessons/ai-agent/stag
 import { aiAgentStageEightMultimodalExecutionLessons } from "./lessons/ai-agent/stage-08-multimodal-execution";
 import { aiAgentStageNineProductionDeployLessons } from "./lessons/ai-agent/stage-09-production-deploy";
 import { aiAgentStageTenPlatformPipelineLessons } from "./lessons/ai-agent/stage-10-platform-pipeline";
+// AI Application real-content lessons (stages 04-10)
+import { aiApplicationStageFourVectorRetrievalLessons } from "./lessons/ai-application/stage-04-vector-retrieval";
+import { aiApplicationStageFivePromptChainLessons } from "./lessons/ai-application/stage-05-prompt-chain";
+import { aiApplicationStageSixModelSelectionLessons } from "./lessons/ai-application/stage-06-model-selection";
+import { aiApplicationStageSevenEvaluationMetricsLessons } from "./lessons/ai-application/stage-07-evaluation-metrics";
+import { aiApplicationStageEightCostCachingLessons } from "./lessons/ai-application/stage-08-cost-caching";
+import { aiApplicationStageNineObservabilityTracingLessons } from "./lessons/ai-application/stage-09-observability-tracing";
+import { aiApplicationStageTenProductionPlatformLessons } from "./lessons/ai-application/stage-10-production-platform";
 
 const defaultRuntimeSurfaces = ["console", "micro-browser", "runtime-timeline", "incident-hud"] as const;
 
@@ -439,51 +447,130 @@ export const androidCourse = createPlannedCourse({
   ]
 });
 
-export const aiApplicationCourse = createPlannedCourse({
+const aiApplicationStageSeeds = [
+  {
+    id: "ai-app-prompt-rag",
+    number: 0,
+    title: "Prompt 与 RAG",
+    summary: "提示词结构、检索、召回、重排和上下文组装。",
+    lessons: ["Prompt 结构", "文档切分", "召回与重排", "上下文预算"],
+    projectTitle: "知识库问答诊断"
+  },
+  {
+    id: "ai-app-tools-workflows",
+    number: 1,
+    title: "工具调用与工作流",
+    summary: "Function Calling、参数构造、工具结果和工作流编排。",
+    lessons: ["工具 Schema", "参数校验", "结果解析", "工作流节点"],
+    projectTitle: "工具调用排障台"
+  },
+  {
+    id: "ai-app-multimodal-eval",
+    number: 2,
+    title: "多模态与评测",
+    summary: "图文输入、结构化输出、样本集和回归评测。",
+    lessons: ["图像输入", "结构化输出", "评测样本", "回归对比"],
+    projectTitle: "多模态结果评测"
+  },
+  {
+    id: "ai-app-safety-production",
+    number: 3,
+    title: "安全与生产化",
+    summary: "幻觉控制、权限、审计、成本和生产监控。",
+    lessons: ["幻觉边界", "权限控制", "成本预算", "生产监控"],
+    projectTitle: "AI 应用安全复盘"
+  },
+  {
+    id: "ai-app-vector-retrieval",
+    number: 4,
+    title: "向量检索与混合搜索",
+    summary: "Embedding、向量库、ANN、混合检索、rerank 与检索评测。",
+    lessons: ["Embedding 生成", "向量库写入", "ANN 检索", "混合检索"],
+    projectTitle: "端到端向量检索管线"
+  },
+  {
+    id: "ai-app-prompt-chain",
+    number: 5,
+    title: "高级 Prompt 与链式调用",
+    summary: "Few-shot、CoT、LCEL、Output parser 与 streaming。",
+    lessons: ["Message 角色", "Few-shot 提示", "CoT 推理", "结构化输出"],
+    projectTitle: "多步 Chain 编排"
+  },
+  {
+    id: "ai-app-model-selection",
+    number: 6,
+    title: "模型选型与路由",
+    summary: "能力矩阵、任务复杂度、fallback、延迟质量成本三角。",
+    lessons: ["能力矩阵", "任务分级", "Fallback 策略", "延迟成本三角"],
+    projectTitle: "智能模型路由系统"
+  },
+  {
+    id: "ai-app-evaluation-metrics",
+    number: 7,
+    title: "评测指标与自动化",
+    summary: "Golden set、LLM as Judge、RAGAS、A/B 与 CI 集成。",
+    lessons: ["Golden Set", "LLM as Judge", "RAG 指标", "RAGAS 框架"],
+    projectTitle: "自动化评测流水线"
+  },
+  {
+    id: "ai-app-cost-caching",
+    number: 8,
+    title: "成本与缓存",
+    summary: "Token 精算、prompt cache、语义缓存、批处理与预算护栏。",
+    lessons: ["Token 精算", "Prompt Caching", "语义缓存", "精确缓存"],
+    projectTitle: "三层缓存架构"
+  },
+  {
+    id: "ai-app-observability-tracing",
+    number: 9,
+    title: "可观测与 Tracing",
+    summary: "OpenTelemetry GenAI、LangSmith、Langfuse 与用户反馈。",
+    lessons: ["OTel GenAI 规范", "Span 结构", "LangSmith", "Langfuse"],
+    projectTitle: "RAG 端到端 Tracing"
+  },
+  {
+    id: "ai-app-production-platform",
+    number: 10,
+    title: "端到端 AI 应用平台",
+    summary: "Ingest、RAG、Chain、Eval、Safety、Ops、UI 与 Analytics 全链路。",
+    lessons: ["Ingest 层", "RAG 层", "Chain 层", "Eval 层"],
+    projectTitle: "端到端 AI 应用平台"
+  }
+] as const satisfies readonly PlannedStageSeed[];
+
+const aiApplicationPublishedLessonsByStageId = new Map<StageId, readonly LessonSpec[]>([
+  ["ai-app-vector-retrieval", aiApplicationStageFourVectorRetrievalLessons],
+  ["ai-app-prompt-chain", aiApplicationStageFivePromptChainLessons],
+  ["ai-app-model-selection", aiApplicationStageSixModelSelectionLessons],
+  ["ai-app-evaluation-metrics", aiApplicationStageSevenEvaluationMetricsLessons],
+  ["ai-app-cost-caching", aiApplicationStageEightCostCachingLessons],
+  ["ai-app-observability-tracing", aiApplicationStageNineObservabilityTracingLessons],
+  ["ai-app-production-platform", aiApplicationStageTenProductionPlatformLessons]
+]);
+
+// AI Application 阶段 00-03 仍来自 blueprint-first-stage.ts；createPlannedStages
+// 会为它们保留兼容的 lesson id 与 published 状态。
+const aiApplicationPlannedStages = createPlannedStages("ai-application", aiApplicationStageSeeds, 4);
+
+const aiApplicationStages = aiApplicationStageSeeds.map((seed) => {
+  const authored = aiApplicationPublishedLessonsByStageId.get(seed.id);
+  if (authored) {
+    return buildPublishedStageFromLessons(seed, authored);
+  }
+  return aiApplicationPlannedStages[seed.number];
+}) satisfies CurriculumStage[];
+
+export const aiApplicationCourse = {
   id: "ai-application",
   domainId: "ai-application",
   slug: "ai-application",
   title: "AI 应用开发",
-  description: "学习 Prompt、RAG、工具调用、多模态、评测和安全边界。",
+  description: "从 Prompt/RAG/工具/多模态基础到向量检索、Chain、评测、成本、Tracing 与端到端平台。",
   icon: "AI",
   status: "preview",
-  publishedStageCount: 4,
   runtimeSurfaces: ["console", "agent-trace", "runtime-timeline"],
-  stages: [
-    {
-      id: "ai-app-prompt-rag",
-      number: 0,
-      title: "Prompt 与 RAG",
-      summary: "提示词结构、检索、召回、重排和上下文组装。",
-      lessons: ["Prompt 结构", "文档切分", "召回与重排", "上下文预算"],
-      projectTitle: "知识库问答诊断"
-    },
-    {
-      id: "ai-app-tools-workflows",
-      number: 1,
-      title: "工具调用与工作流",
-      summary: "Function Calling、参数构造、工具结果和工作流编排。",
-      lessons: ["工具 Schema", "参数校验", "结果解析", "工作流节点"],
-      projectTitle: "工具调用排障台"
-    },
-    {
-      id: "ai-app-multimodal-eval",
-      number: 2,
-      title: "多模态与评测",
-      summary: "图文输入、结构化输出、样本集和回归评测。",
-      lessons: ["图像输入", "结构化输出", "评测样本", "回归对比"],
-      projectTitle: "多模态结果评测"
-    },
-    {
-      id: "ai-app-safety-production",
-      number: 3,
-      title: "安全与生产化",
-      summary: "幻觉控制、权限、审计、成本和生产监控。",
-      lessons: ["幻觉边界", "权限控制", "成本预算", "生产监控"],
-      projectTitle: "AI 应用安全复盘"
-    }
-  ]
-});
+  stages: aiApplicationStages
+} as const satisfies CourseSpec;
 
 const aiAgentStageSeeds = [
   {

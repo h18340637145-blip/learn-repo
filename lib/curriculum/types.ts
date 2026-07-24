@@ -91,6 +91,13 @@ export type StageId =
   | "ai-app-tools-workflows"
   | "ai-app-multimodal-eval"
   | "ai-app-safety-production"
+  | "ai-app-vector-retrieval"
+  | "ai-app-prompt-chain"
+  | "ai-app-model-selection"
+  | "ai-app-evaluation-metrics"
+  | "ai-app-cost-caching"
+  | "ai-app-observability-tracing"
+  | "ai-app-production-platform"
   | "ai-agent-loop-planning"
   | "ai-agent-memory-tools"
   | "ai-agent-multi-agent"
@@ -185,7 +192,15 @@ export type VisualizerType =
   | "agent-safety-shield"
   | "agent-multimodal-canvas"
   | "agent-production-console"
-  | "agent-platform-pipeline";
+  | "agent-platform-pipeline"
+  // AI Application visualizers
+  | "ai-app-vector-lens"
+  | "ai-app-chain-graph"
+  | "ai-app-model-router"
+  | "ai-app-eval-metrics"
+  | "ai-app-cost-heatmap"
+  | "ai-app-trace-timeline"
+  | "ai-app-platform-canvas";
 
 export type VisualizerSpec = {
   type: VisualizerType;

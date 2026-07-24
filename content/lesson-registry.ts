@@ -44,11 +44,20 @@ import { aiAgentStageSevenSafetyAlignmentLessons } from "./lessons/ai-agent/stag
 import { aiAgentStageEightMultimodalExecutionLessons } from "./lessons/ai-agent/stage-08-multimodal-execution";
 import { aiAgentStageNineProductionDeployLessons } from "./lessons/ai-agent/stage-09-production-deploy";
 import { aiAgentStageTenPlatformPipelineLessons } from "./lessons/ai-agent/stage-10-platform-pipeline";
+// AI Application real-content lessons (stages 04-10)
+import { aiApplicationStageFourVectorRetrievalLessons } from "./lessons/ai-application/stage-04-vector-retrieval";
+import { aiApplicationStageFivePromptChainLessons } from "./lessons/ai-application/stage-05-prompt-chain";
+import { aiApplicationStageSixModelSelectionLessons } from "./lessons/ai-application/stage-06-model-selection";
+import { aiApplicationStageSevenEvaluationMetricsLessons } from "./lessons/ai-application/stage-07-evaluation-metrics";
+import { aiApplicationStageEightCostCachingLessons } from "./lessons/ai-application/stage-08-cost-caching";
+import { aiApplicationStageNineObservabilityTracingLessons } from "./lessons/ai-application/stage-09-observability-tracing";
+import { aiApplicationStageTenProductionPlatformLessons } from "./lessons/ai-application/stage-10-production-platform";
 import { applyQuestionBank } from "./questions/apply-question-bank";
 import { nextjsP1QuestionBank } from "./questions/nextjs-p1-question-bank";
 import { nodejsP1QuestionBank } from "./questions/nodejs-p1-question-bank";
 import { pythonP1QuestionBank } from "./questions/python-p1-question-bank";
 import { aiAgentP1QuestionBank } from "./questions/ai-agent-p1-question-bank";
+import { aiApplicationP1QuestionBank } from "./questions/ai-application-p1-question-bank";
 
 const basePublishedLessons = [
   stageZeroFoundationsLessons,
@@ -138,6 +147,19 @@ const baseAiAgentRealLessons = [
 
 export const aiAgentRealLessons: LessonSpec[] = baseAiAgentRealLessons;
 
+// ── AI Application real-content lessons (stages 04-10) ──────
+const baseAiApplicationRealLessons = [
+  aiApplicationStageFourVectorRetrievalLessons,
+  aiApplicationStageFivePromptChainLessons,
+  aiApplicationStageSixModelSelectionLessons,
+  aiApplicationStageSevenEvaluationMetricsLessons,
+  aiApplicationStageEightCostCachingLessons,
+  aiApplicationStageNineObservabilityTracingLessons,
+  aiApplicationStageTenProductionPlatformLessons
+].flat() satisfies LessonSpec[];
+
+export const aiApplicationRealLessons: LessonSpec[] = baseAiApplicationRealLessons;
+
 export const blueprintPreviewLessons = blueprintMultiStageLessons satisfies LessonSpec[];
 
 const blueprintPreviewLessonsByCourse = new Map<CourseId, LessonSpec[]>();
@@ -168,6 +190,10 @@ export function getLessonsByCourse(courseId: CourseId): LessonSpec[] {
   if (courseId === "ai-agent") {
     const blueprintLessons = blueprintPreviewLessonsByCourse.get("ai-agent") ?? [];
     return applyQuestionBank([...blueprintLessons, ...aiAgentRealLessons], aiAgentP1QuestionBank);
+  }
+  if (courseId === "ai-application") {
+    const blueprintLessons = blueprintPreviewLessonsByCourse.get("ai-application") ?? [];
+    return applyQuestionBank([...blueprintLessons, ...aiApplicationRealLessons], aiApplicationP1QuestionBank);
   }
 
   return blueprintPreviewLessonsByCourse.get(courseId) ?? [];

@@ -57,7 +57,15 @@ const colorByType: Record<VisualizerSpec["type"], string> = {
   "agent-safety-shield": "#b8ff85",
   "agent-multimodal-canvas": "#ff6bcb",
   "agent-production-console": "#ffd166",
-  "agent-platform-pipeline": "#9fe870"
+  "agent-platform-pipeline": "#9fe870",
+  // AI Application visualizers
+  "ai-app-vector-lens": "#8ab4ff",
+  "ai-app-chain-graph": "#c8b8ff",
+  "ai-app-model-router": "#ffb27a",
+  "ai-app-eval-metrics": "#7de2d1",
+  "ai-app-cost-heatmap": "#ff8c8c",
+  "ai-app-trace-timeline": "#ffd166",
+  "ai-app-platform-canvas": "#b8ff85"
 };
 
 function nodePosition(index: number, total: number): [number, number, number] {
