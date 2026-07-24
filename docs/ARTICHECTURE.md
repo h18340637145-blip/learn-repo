@@ -82,6 +82,15 @@ content/lessons/blueprint-multi-stage.ts
   -> 当前为 Python、计算机网络、服务端工程、Android、AI 应用、AI Agent 和 AI 数学各生成 32 个知识点和 4 个阶段项目
   -> 所有课程仍使用确定性 authored trace，不执行真实 Python、Android、AI 或网络请求
 
+content/lessons/python/python-lesson-factory.ts
+  -> Python 阶段 04–10 专属工厂，通过 PythonLessonSeed / PythonStageProjectSeed 生成知识点和阶段项目
+  -> 阶段项目自动附带通用「阶段验证」第二题，满足阶段项目题量校验
+  -> 默认运行环境标签为 Python 3.12，可视化沿用 memory-stack / runtime-timeline
+
+content/lessons/python/stage-04-file-batch.ts ... stage-10-automation-pipeline.ts
+  -> 7 个真实 Python 阶段：文件批处理、正则解析、HTTP 抓取、CLI、任务调度、子进程运维、自动化流水线
+  -> 每阶段 8 个知识点 + 1 个阶段项目，共 63 个新案例，题目基于官方文档来源
+
 lib/curriculum/course-availability.ts
   -> 课程可用性纯函数层
   -> 从 CourseSpec 和 LessonSpec[] 计算开放阶段数、总阶段数、可玩案例数和课程卡下一步文案

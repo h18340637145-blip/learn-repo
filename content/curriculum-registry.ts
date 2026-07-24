@@ -1,7 +1,14 @@
-import type { CourseDomainId, CourseId, CourseSpec, CurriculumStage, RuntimeSurface, StageId } from "../lib/curriculum/types";
+import type { CourseDomainId, CourseId, CourseSpec, CurriculumStage, LessonSpec, RuntimeSurface, StageId } from "../lib/curriculum/types";
 import { curriculum } from "./curriculum";
 import { frontendDebuggingCurriculum } from "./curriculum-frontend-debugging";
 import { nextjsCurriculum } from "./curriculum-nextjs";
+import { pythonStageFourFileBatchLessons } from "./lessons/python/stage-04-file-batch";
+import { pythonStageFiveRegexParsingLessons } from "./lessons/python/stage-05-regex-parsing";
+import { pythonStageSixHttpScrapingLessons } from "./lessons/python/stage-06-http-scraping";
+import { pythonStageSevenCliToolsLessons } from "./lessons/python/stage-07-cli-tools";
+import { pythonStageEightSchedulingLessons } from "./lessons/python/stage-08-scheduling";
+import { pythonStageNineOpsProcessLessons } from "./lessons/python/stage-09-ops-process";
+import { pythonStageTenAutomationPipelineLessons } from "./lessons/python/stage-10-automation-pipeline";
 
 const defaultRuntimeSurfaces = ["console", "micro-browser", "runtime-timeline", "incident-hud"] as const;
 
@@ -77,6 +84,37 @@ function createPlannedCourse(input: {
   } as const satisfies CourseSpec;
 }
 
+function buildPublishedStageFromLessons(
+  seed: PlannedStageSeed,
+  lessons: readonly LessonSpec[]
+): CurriculumStage {
+  const knowledgeLessons = lessons.filter((lesson) => lesson.kind === "knowledge");
+  const projectLesson = lessons.find((lesson) => lesson.kind === "stage-project");
+  if (!projectLesson) {
+    throw new Error(`Stage ${seed.id} missing stage-project lesson`);
+  }
+  return {
+    id: seed.id,
+    number: seed.number,
+    title: seed.title,
+    summary: seed.summary,
+    lessons: knowledgeLessons.map((lesson, index) => ({
+      id: lesson.id,
+      title: lesson.title,
+      order: index + 1,
+      kind: "knowledge" as const,
+      status: "published" as const
+    })),
+    project: {
+      id: projectLesson.id,
+      title: projectLesson.title,
+      order: knowledgeLessons.length + 1,
+      kind: "stage-project" as const,
+      status: "published" as const
+    }
+  };
+}
+
 export const courseDomains = [
   { id: "language", title: "编程语言" },
   { id: "frontend", title: "前端工程" },
@@ -124,7 +162,118 @@ export const frontendDebuggingCourse = {
   stages: frontendDebuggingCurriculum
 } as const satisfies CourseSpec;
 
-export const pythonCourse = createPlannedCourse({
+const pythonStageSeeds = [
+  {
+    id: "python-foundations",
+    number: 0,
+    title: "语法与运行模型",
+    summary: "变量、类型、函数、控制流和解释执行过程。",
+    lessons: ["变量与动态类型", "函数调用栈", "条件与循环", "异常处理"],
+    projectTitle: "命令行文本清洗器"
+  },
+  {
+    id: "python-data-structures",
+    number: 1,
+    title: "数据结构与标准库",
+    summary: "list、dict、set、迭代器和常用标准库。",
+    lessons: ["list 与切片", "dict 查询与更新", "迭代器协议", "pathlib 与 json"],
+    projectTitle: "日志聚合统计器"
+  },
+  {
+    id: "python-modules-testing",
+    number: 2,
+    title: "模块、包与测试",
+    summary: "import、虚拟环境、pytest 和可维护项目结构。",
+    lessons: ["模块解析", "虚拟环境", "pytest 断言", "依赖隔离"],
+    projectTitle: "可测试配置解析器"
+  },
+  {
+    id: "python-async-services",
+    number: 3,
+    title: "异步与服务开发",
+    summary: "asyncio、HTTP 客户端、任务调度和服务边界。",
+    lessons: ["协程与事件循环", "并发请求", "超时与重试", "服务错误模型"],
+    projectTitle: "异步 API 聚合器"
+  },
+  {
+    id: "python-file-batch",
+    number: 4,
+    title: "文件批处理与文本自动化",
+    summary: "路径遍历、编码识别、批量重命名与文本清洗流水线。",
+    lessons: ["pathlib 遍历模式", "编码探测与转换", "批量重命名规则", "结构化文本清洗"],
+    projectTitle: "批量文档标准化工具"
+  },
+  {
+    id: "python-regex-parsing",
+    number: 5,
+    title: "正则与结构化解析",
+    summary: "re 模块、命名捕获、CSV / JSON / YAML 解析与校验。",
+    lessons: ["正则思维模型", "命名捕获与回溯", "CSV/JSON 双向转换", "YAML 数据校验"],
+    projectTitle: "多源日志统一解析器"
+  },
+  {
+    id: "python-http-scraping",
+    number: 6,
+    title: "HTTP 抓取与数据管道",
+    summary: "requests/httpx、限流、重试、持久化与反爬边界。",
+    lessons: ["同步与异步客户端", "限流与退避策略", "内容抽取与持久化", "反爬合规边界"],
+    projectTitle: "站点抓取与增量入库脚本"
+  },
+  {
+    id: "python-cli-tools",
+    number: 7,
+    title: "CLI 与配置化脚本",
+    summary: "argparse/typer、配置合并、日志分级与可复用脚手架。",
+    lessons: ["argparse 语义", "typer 类型驱动 CLI", "配置分层合并", "结构化日志"],
+    projectTitle: "可发布的运维 CLI 工具"
+  },
+  {
+    id: "python-scheduling",
+    number: 8,
+    title: "任务调度与后台运行",
+    summary: "APScheduler、cron、systemd/timer 与幂等重试。",
+    lessons: ["调度触发器建模", "任务幂等性", "失败重试与告警", "systemd/timer 部署"],
+    projectTitle: "跨机任务调度器"
+  },
+  {
+    id: "python-ops-process",
+    number: 9,
+    title: "子进程与运维编排",
+    summary: "subprocess、信号处理、并发编排与安全边界。",
+    lessons: ["subprocess 输入输出", "信号与超时", "并发编排策略", "凭据与最小权限"],
+    projectTitle: "远程主机批量运维脚本"
+  },
+  {
+    id: "python-automation-pipeline",
+    number: 10,
+    title: "端到端自动化流水线",
+    summary: "数据采集→清洗→通知的完整脚本项目，覆盖打包与部署。",
+    lessons: ["流水线阶段拆分", "错误恢复与断点续跑", "打包与依赖锁定", "部署与观测"],
+    projectTitle: "自动化运营周报流水线"
+  }
+] as const satisfies readonly PlannedStageSeed[];
+
+const pythonPublishedLessonsByStageId = new Map<StageId, readonly LessonSpec[]>([
+  ["python-file-batch", pythonStageFourFileBatchLessons],
+  ["python-regex-parsing", pythonStageFiveRegexParsingLessons],
+  ["python-http-scraping", pythonStageSixHttpScrapingLessons],
+  ["python-cli-tools", pythonStageSevenCliToolsLessons],
+  ["python-scheduling", pythonStageEightSchedulingLessons],
+  ["python-ops-process", pythonStageNineOpsProcessLessons],
+  ["python-automation-pipeline", pythonStageTenAutomationPipelineLessons]
+]);
+
+const pythonPlannedStages = createPlannedStages("python", pythonStageSeeds, 4);
+
+const pythonStages = pythonStageSeeds.map((seed) => {
+  const authored = pythonPublishedLessonsByStageId.get(seed.id);
+  if (authored) {
+    return buildPublishedStageFromLessons(seed, authored);
+  }
+  return pythonPlannedStages[seed.number];
+}) satisfies CurriculumStage[];
+
+export const pythonCourse = {
   id: "python",
   domainId: "language",
   slug: "python",
@@ -132,99 +281,9 @@ export const pythonCourse = createPlannedCourse({
   description: "从语法、数据结构到自动化脚本与运维，用可视化方式掌握 Python 运行模型。",
   icon: "Py",
   status: "preview",
-  publishedStageCount: 4,
   runtimeSurfaces: ["console", "memory-stack", "runtime-timeline"],
-  stages: [
-    {
-      id: "python-foundations",
-      number: 0,
-      title: "语法与运行模型",
-      summary: "变量、类型、函数、控制流和解释执行过程。",
-      lessons: ["变量与动态类型", "函数调用栈", "条件与循环", "异常处理"],
-      projectTitle: "命令行文本清洗器"
-    },
-    {
-      id: "python-data-structures",
-      number: 1,
-      title: "数据结构与标准库",
-      summary: "list、dict、set、迭代器和常用标准库。",
-      lessons: ["list 与切片", "dict 查询与更新", "迭代器协议", "pathlib 与 json"],
-      projectTitle: "日志聚合统计器"
-    },
-    {
-      id: "python-modules-testing",
-      number: 2,
-      title: "模块、包与测试",
-      summary: "import、虚拟环境、pytest 和可维护项目结构。",
-      lessons: ["模块解析", "虚拟环境", "pytest 断言", "依赖隔离"],
-      projectTitle: "可测试配置解析器"
-    },
-    {
-      id: "python-async-services",
-      number: 3,
-      title: "异步与服务开发",
-      summary: "asyncio、HTTP 客户端、任务调度和服务边界。",
-      lessons: ["协程与事件循环", "并发请求", "超时与重试", "服务错误模型"],
-      projectTitle: "异步 API 聚合器"
-    },
-    {
-      id: "python-file-batch",
-      number: 4,
-      title: "文件批处理与文本自动化",
-      summary: "路径遍历、编码识别、批量重命名与文本清洗流水线。",
-      lessons: ["pathlib 遍历模式", "编码探测与转换", "批量重命名规则", "结构化文本清洗"],
-      projectTitle: "批量文档标准化工具"
-    },
-    {
-      id: "python-regex-parsing",
-      number: 5,
-      title: "正则与结构化解析",
-      summary: "re 模块、命名捕获、CSV / JSON / YAML 解析与校验。",
-      lessons: ["正则思维模型", "命名捕获与回溯", "CSV/JSON 双向转换", "YAML 数据校验"],
-      projectTitle: "多源日志统一解析器"
-    },
-    {
-      id: "python-http-scraping",
-      number: 6,
-      title: "HTTP 抓取与数据管道",
-      summary: "requests/httpx、限流、重试、持久化与反爬边界。",
-      lessons: ["同步与异步客户端", "限流与退避策略", "内容抽取与持久化", "反爬合规边界"],
-      projectTitle: "站点抓取与增量入库脚本"
-    },
-    {
-      id: "python-cli-tools",
-      number: 7,
-      title: "CLI 与配置化脚本",
-      summary: "argparse/typer、配置合并、日志分级与可复用脚手架。",
-      lessons: ["argparse 语义", "typer 类型驱动 CLI", "配置分层合并", "结构化日志"],
-      projectTitle: "可发布的运维 CLI 工具"
-    },
-    {
-      id: "python-scheduling",
-      number: 8,
-      title: "任务调度与后台运行",
-      summary: "APScheduler、cron、systemd/timer 与幂等重试。",
-      lessons: ["调度触发器建模", "任务幂等性", "失败重试与告警", "systemd/timer 部署"],
-      projectTitle: "跨机任务调度器"
-    },
-    {
-      id: "python-ops-process",
-      number: 9,
-      title: "子进程与运维编排",
-      summary: "subprocess、信号处理、并发编排与安全边界。",
-      lessons: ["subprocess 输入输出", "信号与超时", "并发编排策略", "凭据与最小权限"],
-      projectTitle: "远程主机批量运维脚本"
-    },
-    {
-      id: "python-automation-pipeline",
-      number: 10,
-      title: "端到端自动化流水线",
-      summary: "数据采集→清洗→通知的完整脚本项目，覆盖打包与部署。",
-      lessons: ["流水线阶段拆分", "错误恢复与断点续跑", "打包与依赖锁定", "部署与观测"],
-      projectTitle: "自动化运营周报流水线"
-    }
-  ]
-});
+  stages: pythonStages
+} as const satisfies CourseSpec;
 
 export const networkCourse = createPlannedCourse({
   id: "network",

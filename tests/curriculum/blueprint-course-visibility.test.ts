@@ -42,7 +42,7 @@ test("可以按学院读取 preview 与 published 路线", () => {
 });
 
 test("preview 路线拥有独立四阶段题库且不会误用 Node.js 已发布题库", () => {
-  assert.equal(getLessonsByCourse("python").length, 36);
+  assert.equal(getLessonsByCourse("python").length, 99);
   assert.equal(getLessonsByCourse("network").length, 36);
   assert.ok(getLessonsByCourse("python").every((lesson) => lesson.id.startsWith("python-")));
   assert.ok(getLessonsByCourse("network").every((lesson) => lesson.id.startsWith("network-")));

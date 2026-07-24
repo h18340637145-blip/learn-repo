@@ -21,7 +21,7 @@ main
 - 当前新增路线包括“前端报错调试”和 7 条蓝图路线；蓝图路线状态为 `preview`，不是全量发布。
 - `getLessonsByCourse` 对 7 条蓝图路线返回各自独立的 36 个四阶段案例，避免误复用 Node.js 已发布课程。
 - 前端报错调试当前发布阶段 00–03，覆盖控制台错误栈、Network 请求排障、React 渲染问题、构建与环境问题，共 36 个可玩案例。
-- 当前已发布案例总数：484 个；Node.js 106 个，Next.js 90 个，前端报错调试 36 个，7 条蓝图路线各 36 个。
+- 当前已发布案例总数：547 个；Node.js 106 个，Next.js 90 个，前端报错调试 36 个，Python 99 个（阶段 00–03 蓝图 36 + 阶段 04–10 真实回填 63），其余6 条蓝图路线各 36 个。
 - 当前验证要求：`npm run validate:curriculum`、`npm test`、`npm run lint`、`npm run build`、`git diff --check`。
 - 多课程架构改造计划已在本地 `main` 继续推进：当前完成蓝图路线可见性与规划概览页，后续开发建议优先为规划路线逐条填充真实课程、题库、阶段项目和运行可视化。
 
@@ -37,7 +37,8 @@ Curriculum foundation:
 - Next.js 已发布 90 个 playable cases。
 - 前端报错调试路线当前发布 4 个阶段：浏览器控制台与错误栈、Network 请求排障、React 渲染问题、构建与环境问题。
 - 前端报错调试已发布 36 个 playable cases。
-- 当前总计 484 个已发布 playable cases。
+- 当前总计 547 个已发布 playable cases。
+- Python 路线完成阶段 04–10 真实内容回填：文件批处理、正则与结构化解析、HTTP 抓取与数据管道、CLI 与配置化脚本、任务调度、子进程运维、自动化流水线，共 63 个新案例（每阶段 8 知识 + 1 阶段项目）。
 - 蓝图预览路线当前各发布阶段 00–03 四个阶段、36 个样板案例：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent、AI 数学。
 
 Published cases:
