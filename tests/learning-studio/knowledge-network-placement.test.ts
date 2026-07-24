@@ -9,12 +9,12 @@ const css = readFileSync("app/globals.css", "utf8");
 test("首页知识星链位于课程卡片下方并作为页面底部展厅", () => {
   const heroIndex = pageSource.indexOf("<header className=\"course-hero\">");
   const networkIndex = pageSource.indexOf("<KnowledgeNetwork />");
-  const gridIndex = pageSource.indexOf("<section className=\"course-grid\"");
+  const gridIndex = pageSource.indexOf("<section className=\"course-domain-board\"");
   const footerIndex = pageSource.indexOf("<footer className=\"course-footer\"");
 
   assert.ok(heroIndex !== -1, "首页应包含 Hero");
   assert.ok(networkIndex !== -1, "首页应包含 KnowledgeNetwork");
-  assert.ok(gridIndex !== -1, "首页应包含课程卡片网格");
+  assert.ok(gridIndex !== -1, "首页应包含按学院分组的课程卡片区域");
   assert.ok(footerIndex !== -1, "首页应包含底部说明");
   assert.ok(heroIndex < networkIndex, "知识星链应放在 Hero 文案之后");
   assert.ok(gridIndex < networkIndex, "知识星链应放在课程卡片之后");

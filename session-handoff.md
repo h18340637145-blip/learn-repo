@@ -10,18 +10,20 @@ Current branch:
 main
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs`、`/nextjs` 和 `/frontend-debugging` 分别进入对应学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量落地 P1 开发与实施规范套件 (`docs/P1-DEVELOPMENT-GUIDE.md` 及 `docs/specs/*`)：已升级 `supabase-migration.sql` 规范建表 Schema 及 RLS 策略，全量实现离线优先智能合并算法 (`lib/progress/sync-strategy.ts`) 与 `useProgressSync` 挂载同步，并在 `spaced-repetition.ts` 及 `local-progress-repository.ts` 中完成了基于 SM-2 的艾宾浩斯复习与记忆衰减调度引擎。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs`、`/nextjs`、`/frontend-debugging`、`/python`、`/network`、`/server-engineering`、`/android`、`/ai-application`、`/ai-agent` 和 `/ai-math` 都可以进入学习路线；其中 7 条蓝图路线当前进入首阶段样板学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量落地 P1 开发与实施规范套件 (`docs/P1-DEVELOPMENT-GUIDE.md` 及 `docs/specs/*`)：已升级 `supabase-migration.sql` 规范建表 Schema 及 RLS 策略，全量实现离线优先智能合并算法 (`lib/progress/sync-strategy.ts`) 与 `useProgressSync` 挂载同步，并在 `spaced-repetition.ts` 及 `local-progress-repository.ts` 中完成了基于 SM-2 的艾宾浩斯复习与记忆衰减调度引擎。
 
 ## 多课程架构改造
 
 - 蓝图规格已批准：NodePath 将从 Node.js / Next.js 双路线升级为多学院编程学习平台，长期学院蓝图包含语言基础、前端工程、计算机网络、服务器开发、Android、AI 应用、AI Agent 和 AI 数学。
 - 本轮已扩展课程类型和课程注册表，`CourseSpec` 现在携带 `domainId`、`slug`、`status` 和 `runtimeSurfaces`。
 - 已保留 `/nodejs` 与 `/nextjs` 两条既有路线，并新增 `/frontend-debugging` 前端报错调试样板路线。
-- 当前新增已发布样板路线只有“前端报错调试”；C/C++/Python/Kotlin/Java、Android、AI、AI 数学等仍是全站蓝图，不是已发布路线。
+- 已补齐蓝图首阶段可玩性：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent 和 AI 数学都有首页入口、动态路线页和首阶段学习工作台。
+- 当前新增样板路线包括“前端报错调试”和 7 条蓝图首阶段路线；这些路线状态为 `preview`，不是全量发布。
+- `getLessonsByCourse` 对 7 条蓝图路线返回各自独立的 9 个首阶段案例，避免误复用 Node.js 已发布课程。
 - 前端报错调试当前先发布阶段 00“浏览器控制台与错误栈”，包含 8 个知识点和 1 个阶段项目，共 9 个样板案例。
-- 当前已发布案例总数：198 个；Node.js 99 个，Next.js 90 个，前端报错调试 9 个。
+- 当前已发布案例总数：261 个；Node.js 99 个，Next.js 90 个，前端报错调试 9 个，7 条蓝图路线各 9 个。
 - 当前验证要求：`npm run validate:curriculum`、`npm test`、`npm run lint`、`npm run build`、`git diff --check`。
-- 多课程架构改造计划已完成并合入本地 `main`。后续开发建议基于同一课程注册表扩展前端报错调试阶段 01“Network、CORS、Cookie 与 Auth 联调故障”，优先使用已预留的 `network-debug` 题型和 `browser-network-debug` 运行舱。
+- 多课程架构改造计划已在本地 `main` 继续推进：当前完成蓝图路线可见性与规划概览页，后续开发建议优先为规划路线逐条填充真实课程、题库、阶段项目和运行可视化。
 
 ## What Exists
 
@@ -35,7 +37,8 @@ Curriculum foundation:
 - Next.js 已发布 90 个 playable cases。
 - 前端报错调试路线当前发布 1 个样板阶段：浏览器控制台与错误栈，包含 8 个知识点和 1 个阶段项目。
 - 前端报错调试已发布 9 个 playable cases。
-- 当前总计 198 个已发布 playable cases。
+- 当前总计 261 个已发布 playable cases。
+- 蓝图预览路线当前各发布首阶段 9 个样板案例：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent、AI 数学。
 
 Published cases:
 

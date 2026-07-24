@@ -25,6 +25,15 @@ test("可以按学院读取课程路线", () => {
   assert.ok(getCoursesByDomain("server").some((course) => course.id === "nodejs"));
 });
 
-test("课程注册表保留现有路线顺序并追加样板路线", () => {
-  assert.deepEqual(allCourses.map((course) => course.id), ["nodejs", "nextjs", "frontend-debugging"]);
+test("课程注册表保留现有互动路线顺序并追加蓝图 preview 路线", () => {
+  assert.deepEqual(allCourses.slice(0, 3).map((course) => course.id), ["nodejs", "nextjs", "frontend-debugging"]);
+  assert.deepEqual(allCourses.slice(3).map((course) => course.id), [
+    "python",
+    "network",
+    "server-engineering",
+    "android",
+    "ai-application",
+    "ai-agent",
+    "ai-math"
+  ]);
 });

@@ -22,6 +22,7 @@ import { nextjsStageSevenDatabaseLessons } from "./lessons/nextjs/stage-07-datab
 import { nextjsStageEightTestingDeploymentLessons } from "./lessons/nextjs/stage-08-testing-deployment";
 import { nextjsStageNineArchitectureAdvancedLessons } from "./lessons/nextjs/stage-09-architecture";
 import { frontendDebuggingStageZeroLessons } from "./lessons/frontend-debugging/stage-00-console-stack";
+import { blueprintFirstStageLessons } from "./lessons/blueprint-first-stage";
 import { applyQuestionBank } from "./questions/apply-question-bank";
 import { nextjsP1QuestionBank } from "./questions/nextjs-p1-question-bank";
 import { nodejsP1QuestionBank } from "./questions/nodejs-p1-question-bank";
@@ -76,10 +77,32 @@ export function getNextjsLesson(id: string): LessonSpec | undefined {
 // ── Frontend debugging published lessons ───────────────────
 export const frontendDebuggingPublishedLessons = frontendDebuggingStageZeroLessons satisfies LessonSpec[];
 
+export const blueprintPreviewLessons = blueprintFirstStageLessons satisfies LessonSpec[];
+
+const blueprintPreviewLessonsByCourse = new Map<CourseId, LessonSpec[]>();
+
+for (const lesson of blueprintPreviewLessons) {
+  const courseId = lesson.id.split("-")[0] as CourseId;
+  const normalizedCourseId = lesson.id.startsWith("server-engineering-")
+    ? "server-engineering"
+    : lesson.id.startsWith("ai-application-")
+      ? "ai-application"
+      : lesson.id.startsWith("ai-agent-")
+        ? "ai-agent"
+        : lesson.id.startsWith("ai-math-")
+          ? "ai-math"
+          : courseId;
+  blueprintPreviewLessonsByCourse.set(normalizedCourseId, [
+    ...(blueprintPreviewLessonsByCourse.get(normalizedCourseId) ?? []),
+    lesson
+  ]);
+}
+
 // ── Course-based access ────────────────────────────────────
 export function getLessonsByCourse(courseId: CourseId): LessonSpec[] {
+  if (courseId === "nodejs") return publishedLessons;
   if (courseId === "nextjs") return nextjsPublishedLessons;
   if (courseId === "frontend-debugging") return frontendDebuggingPublishedLessons;
 
-  return publishedLessons;
+  return blueprintPreviewLessonsByCourse.get(courseId) ?? [];
 }

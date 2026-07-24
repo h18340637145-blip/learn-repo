@@ -2,9 +2,9 @@
 
 ## Snapshot
 
-NodePath 是一个 Next.js 16 App Router 多课程学习应用。`/` 是课程选择首页，`/nodejs`、`/nextjs` 和 `/frontend-debugging` 分别渲染独立学习工作台；课程数据、执行逻辑和进度存储已经从 UI 组件中拆出。
+NodePath 是一个 Next.js 16 App Router 多课程学习应用。`/` 是课程选择首页，`/nodejs`、`/nextjs` 和 `/frontend-debugging` 分别渲染独立学习工作台；`/{courseSlug}` 为蓝图路线提供数据驱动入口，有可玩课程时挂载共享学习工作台，无可玩课程时退回规划概览页。课程数据、执行逻辑和进度存储已经从 UI 组件中拆出。
 
-当前课程架构已经从 Node.js / Next.js 双路线扩展为多学院课程注册表。`content/curriculum-registry.ts` 以 8 个学院域组织路线，`CourseSpec` 通过 `domainId`、`slug`、`status` 和 `runtimeSurfaces` 描述课程所属学院、路由标识、发布状态和可用运行舱表面。
+当前课程架构已经从 Node.js / Next.js 双路线扩展为多学院课程注册表。`content/curriculum-registry.ts` 以 8 个学院域组织路线，`CourseSpec` 通过 `domainId`、`slug`、`status` 和 `runtimeSurfaces` 描述课程所属学院、路由标识、发布状态和可用运行舱表面。注册表现在包含 2 条已发布主线、1 条前端调试样板路线和 7 条蓝图首阶段预览路线；`lesson-registry` 按 `CourseId` 返回独立课程集合，避免误用 Node.js 题库。
 
 ```text
 app/layout.tsx
@@ -23,6 +23,11 @@ app/layout.tsx
   -> app/frontend-debugging/page.tsx
     -> app/frontend-debugging/learning-studio.tsx
       -> app/_components/learning-studio.tsx
+      -> content/curriculum-registry.ts
+      -> content/lesson-registry.ts
+  -> app/[courseSlug]/page.tsx
+    -> app/[courseSlug]/course-learning-studio.tsx
+    -> playable route or planned course overview
       -> content/curriculum-registry.ts
       -> content/lesson-registry.ts
 
@@ -47,7 +52,7 @@ app/globals.css
 - Tailwind CSS v4 via `@import "tailwindcss"`
 - ESLint flat config
 
-This project uses the App Router. `app/layout.tsx`, `app/page.tsx`, `app/nodejs/page.tsx`, `app/nextjs/page.tsx` and `app/frontend-debugging/page.tsx` are Server Components by default. `app/_components/learning-studio.tsx` and per-course `learning-studio.tsx` wrappers are Client Components because they use state, event handlers, animation control, and browser `localStorage`.
+This project uses the App Router. `app/layout.tsx`, `app/page.tsx`, `app/nodejs/page.tsx`, `app/nextjs/page.tsx`, `app/frontend-debugging/page.tsx` and `app/[courseSlug]/page.tsx` are Server Components by default. `app/_components/learning-studio.tsx` and per-course `learning-studio.tsx` wrappers are Client Components because they use state, event handlers, animation control, and browser `localStorage`.
 
 Before changing framework behavior, check the local docs under:
 
@@ -68,9 +73,14 @@ content/curriculum-frontend-debugging.ts
   -> 前端报错调试样板路线主目录；当前发布阶段 00“浏览器控制台与错误栈”，包含 8 个知识点和 1 个阶段项目
 
 content/curriculum-registry.ts
-  -> 多学院课程注册表，聚合 Node.js、Next.js 与前端报错调试 CourseSpec
-  -> 导出 courseDomains、allCourses、getCourse(courseId) 和 getCoursesByDomain(domainId)
-  -> CourseSpec 包含 domainId、slug、status 和 runtimeSurfaces，用于首页课程卡、路由包装和课程校验
+  -> 多学院课程注册表，聚合 Node.js、Next.js、前端报错调试和 7 条蓝图首阶段预览 CourseSpec
+  -> 导出 courseDomains、allCourses、getCourse(courseId)、getCourseBySlug(slug) 和 getCoursesByDomain(domainId)
+  -> CourseSpec 包含 domainId、slug、status 和 runtimeSurfaces，用于首页课程卡、路由包装、规划概览页和课程校验
+
+content/lessons/blueprint-first-stage.ts
+  -> 7 条蓝图路线的首阶段样板课程工厂
+  -> 当前为 Python、计算机网络、服务端工程、Android、AI 应用、AI Agent 和 AI 数学各生成 8 个知识点和 1 个阶段项目
+  -> 所有课程仍使用确定性 authored trace，不执行真实 Python、Android、AI 或网络请求
 
 content/legacy-lessons.ts
   -> 从原型迁移来的 4 个旧案例原始内容

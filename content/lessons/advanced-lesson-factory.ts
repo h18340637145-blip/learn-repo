@@ -96,7 +96,7 @@ export function createAdvancedLesson(input: AdvancedLessonInput): LessonSpec {
 }
 
 function stageMeta(stageId: StageId): { number: number; label: string } {
-  const meta: Record<StageId, { number: number; label: string }> = {
+  const meta: Partial<Record<StageId, { number: number; label: string }>> = {
     foundations: { number: 0, label: "基础训练营" },
     "runtime-cli": { number: 1, label: "运行时与命令行" },
     "modules-packages": { number: 2, label: "模块、包与 TypeScript" },
@@ -108,7 +108,7 @@ function stageMeta(stageId: StageId): { number: number; label: string } {
     realtime: { number: 8, label: "实时通信" },
     "testing-security": { number: 9, label: "测试与安全" },
     "diagnostics-production": { number: 10, label: "诊断与生产工程" },
-    // Next.js stages
+    // Next.js 阶段
     "nextjs-foundations": { number: 0, label: "Next.js 基础" },
     "nextjs-routing": { number: 1, label: "路由系统" },
     "nextjs-rendering": { number: 2, label: "渲染模式" },
@@ -119,9 +119,9 @@ function stageMeta(stageId: StageId): { number: number; label: string } {
     "nextjs-database": { number: 7, label: "数据库与 ORM" },
     "nextjs-testing-deployment": { number: 8, label: "测试与部署" },
     "nextjs-advanced-patterns": { number: 9, label: "高级模式" },
-    // Frontend debugging stages
+    // 前端调试阶段
     "frontend-debugging-console-stack": { number: 0, label: "浏览器控制台与错误栈" }
   };
 
-  return meta[stageId];
+  return meta[stageId] ?? { number: 0, label: "规划阶段" };
 }

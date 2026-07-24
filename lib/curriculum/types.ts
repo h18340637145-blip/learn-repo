@@ -8,7 +8,17 @@ export type CourseDomainId =
   | "ai-agent"
   | "ai-math";
 
-export type CourseId = "nodejs" | "nextjs" | "frontend-debugging";
+export type CourseId =
+  | "nodejs"
+  | "nextjs"
+  | "frontend-debugging"
+  | "python"
+  | "network"
+  | "server-engineering"
+  | "android"
+  | "ai-application"
+  | "ai-agent"
+  | "ai-math";
 
 export type CourseStatus = "published" | "preview" | "planned";
 
@@ -49,7 +59,36 @@ export type StageId =
   | "nextjs-testing-deployment"
   | "nextjs-advanced-patterns"
   // Frontend debugging stages
-  | "frontend-debugging-console-stack";
+  | "frontend-debugging-console-stack"
+  // Planned blueprint stages
+  | "python-foundations"
+  | "python-data-structures"
+  | "python-modules-testing"
+  | "python-async-services"
+  | "network-url-dns"
+  | "network-http-cache"
+  | "network-security-realtime"
+  | "network-gateway-debugging"
+  | "server-api-design"
+  | "server-database-cache"
+  | "server-queue-observability"
+  | "server-production-incidents"
+  | "android-app-foundations"
+  | "android-jetpack-compose"
+  | "android-framework-binder"
+  | "android-performance-native"
+  | "ai-app-prompt-rag"
+  | "ai-app-tools-workflows"
+  | "ai-app-multimodal-eval"
+  | "ai-app-safety-production"
+  | "ai-agent-loop-planning"
+  | "ai-agent-memory-tools"
+  | "ai-agent-multi-agent"
+  | "ai-agent-failure-recovery"
+  | "ai-math-linear-algebra"
+  | "ai-math-probability-calculus"
+  | "ai-math-optimization"
+  | "ai-math-transformer";
 
 export type LessonKind = "knowledge" | "stage-project" | "final-project";
 export type LessonStatus = "published" | "planned";

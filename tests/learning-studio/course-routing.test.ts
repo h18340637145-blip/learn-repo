@@ -7,10 +7,23 @@ import { allCourses } from "../../content/curriculum-registry";
 test("首页作为课程选择入口并链接到独立学习路径", () => {
   const source = readFileSync("app/page.tsx", "utf8");
 
-  assert.deepEqual(allCourses.map((course) => course.title), ["Node.js", "Next.js", "前端报错调试"]);
-  assert.match(source, /import \{ allCourses \} from "@\/content\/curriculum-registry"/);
+  assert.deepEqual(allCourses.map((course) => course.title), [
+    "Node.js",
+    "Next.js",
+    "前端报错调试",
+    "Python",
+    "计算机网络",
+    "服务端工程",
+    "Android 系统",
+    "AI 应用开发",
+    "AI Agent",
+    "AI 数学基础"
+  ]);
+  assert.match(source, /import \{ courseDomains, getCoursesByDomain \} from "@\/content\/curriculum-registry"/);
   assert.match(source, /import \{ getLessonsByCourse \} from "@\/content\/lesson-registry"/);
-  assert.match(source, /allCourses\.map/);
+  assert.match(source, /courseDomains\.map/);
+  assert.match(source, /const courses = getCoursesByDomain\(domain\.id\)/);
+  assert.match(source, /courses\.map/);
   assert.match(source, /href=\{`\/\$\{course\.slug\}`\}/);
   assert.match(source, /id=\{`course-\$\{course\.id\}`\}/);
   assert.match(source, /course\.icon/);
@@ -18,6 +31,7 @@ test("首页作为课程选择入口并链接到独立学习路径", () => {
   assert.match(source, /course\.description/);
   assert.match(source, /course\.stages\.length/);
   assert.match(source, /getLessonsByCourse\(course\.id\)\.length/);
+  assert.match(source, /course\.status === "planned"/);
 });
 
 test("Node.js 与 Next.js 路由都挂载共享学习工作台", () => {
