@@ -1,7 +1,7 @@
-import type { AnswerOption, AuthoredTraceExecution, LessonKind, LessonQuestion, LessonSpec, LessonSource, QuestionType, VisualizerSpec } from "../../lib/curriculum/types";
+import type { AnswerOption, AuthoredTraceExecution, DifficultyStars, LessonKind, LessonQuestion, LessonSpec, LessonSource, QuestionType, VisualizerSpec } from "../../lib/curriculum/types";
 import { getDefaultVisualizer } from "../../lib/curriculum/visualizers";
 
-export type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "nodeVersion" | "execution" | "kind" | "questions" | "sources"> & {
+export type LessonInput = Omit<LessonSpec, "difficulty" | "difficultyStars" | "durationMinutes" | "nodeVersion" | "execution" | "kind" | "questions" | "sources"> & {
   answer?: {
     type?: QuestionType;
     prompt: string;
@@ -16,6 +16,7 @@ export type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "n
   sources: Omit<LessonSource, "type" | "verifiedAt">[];
   durationMinutes?: number;
   difficulty?: LessonSpec["difficulty"];
+  difficultyStars?: DifficultyStars;
   kind?: LessonKind;
   nodeVersion?: string;
 
@@ -29,6 +30,8 @@ export type LessonInput = Omit<LessonSpec, "difficulty" | "durationMinutes" | "n
 export function createLessonSpec(input: LessonInput): LessonSpec {
   const kind = input.kind ?? "knowledge";
   const visualizer = input.execution?.visualizer ?? getDefaultVisualizer(input.stageId, kind);
+  const difficultyStars: DifficultyStars =
+    input.difficultyStars ?? (kind === "stage-project" ? 3 : 1);
 
   return {
     id: input.id,
@@ -38,6 +41,7 @@ export function createLessonSpec(input: LessonInput): LessonSpec {
     title: input.title,
     durationMinutes: input.durationMinutes ?? 9,
     difficulty: input.difficulty ?? "基础",
+    difficultyStars,
     nodeVersion: input.nodeVersion ?? "24.x LTS",
     objectives: input.objectives,
     prerequisites: input.prerequisites,

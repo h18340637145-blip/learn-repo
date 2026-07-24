@@ -56,7 +56,7 @@ test("getDefaultDifficultyTiers 按 4/4/剩余 分配 11 个阶段", () => {
 });
 
 test("getDefaultDifficultyTiers 少于 4 个阶段时全部归入入门", () => {
-  const stageIds = ["s0", "s1", "s2"] as StageId[];
+  const stageIds = ["s0", "s1", "s2"] as unknown as StageId[];
   const tiers = getDefaultDifficultyTiers(stageIds);
   assert.deepEqual(tiers.beginner, stageIds);
   assert.deepEqual(tiers.intermediate, []);

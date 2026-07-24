@@ -29,6 +29,7 @@ type AdvancedLessonInput = {
   visualizer?: VisualizerSpec;
   kind: LessonSpec["kind"];
   difficulty?: LessonSpec["difficulty"];
+  difficultyStars?: LessonSpec["difficultyStars"];
   durationMinutes?: number;
   steps?: LessonSpec["steps"];
 };
@@ -67,6 +68,7 @@ export function createAdvancedLesson(input: AdvancedLessonInput): LessonSpec {
     title: input.title,
     durationMinutes: input.durationMinutes ?? (input.kind === "stage-project" ? 18 : 10),
     difficulty: input.difficulty ?? (input.kind === "stage-project" ? "进阶" : "基础"),
+    difficultyStars: input.difficultyStars,
     objectives: input.objectives ?? [`理解${input.title}的核心运行边界`],
     prerequisites: input.prerequisites ?? [],
     concept: input.concept,
