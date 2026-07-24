@@ -964,8 +964,110 @@ const thirdStageCourseSeeds: BlueprintCourseSeed[] = [
   })
 ];
 
+const fourthStageCourseSeeds: BlueprintCourseSeed[] = [
+  createSecondStageCourse({
+    courseId: "python",
+    stageId: "python-async-services",
+    stageLabel: "Python 异步与服务开发",
+    runtimeLabel: "Python 3.13",
+    fileExtension: "py",
+    language: "py",
+    visualizerType: "memory-stack",
+    sourceTitle: "Python asyncio",
+    sourceUrl: "https://docs.python.org/3/library/asyncio.html",
+    lessonTitles: ["协程与事件循环", "await 挂起点", "并发请求", "任务取消", "超时与重试", "异步队列", "服务错误模型", "异步资源清理"],
+    projectTitle: "异步 API 聚合器",
+    projectConcept: "并发请求多个数据源，处理超时、取消和错误汇总，输出稳定的服务聚合结果。"
+  }),
+  createSecondStageCourse({
+    courseId: "network",
+    stageId: "network-gateway-debugging",
+    stageLabel: "代理、网关与联调故障",
+    runtimeLabel: "Browser Network",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "browser-network-debug",
+    sourceTitle: "MDN Web Docs: Proxy servers and tunneling",
+    sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling",
+    lessonTitles: ["反向代理", "网关超时", "路径重写", "Header 转发", "重试风暴", "链路追踪", "502 与 504", "灰度流量定位"],
+    projectTitle: "API 网关故障复盘",
+    projectConcept: "从浏览器请求、网关转发、服务超时和 Trace ID 定位一次 API 网关故障。"
+  }),
+  createSecondStageCourse({
+    courseId: "server-engineering",
+    stageId: "server-production-incidents",
+    stageLabel: "生产事故工程",
+    runtimeLabel: "Service Runtime",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "diagnostics-tower",
+    sourceTitle: "OpenTelemetry Documentation",
+    sourceUrl: "https://opentelemetry.io/docs/",
+    lessonTitles: ["限流保护", "超时预算", "服务降级", "熔断恢复", "告警分级", "事故指挥", "回滚策略", "事故复盘"],
+    projectTitle: "生产延迟事故恢复",
+    projectConcept: "观察 p95 延迟升高、告警触发、降级补丁、回滚和复盘摘要，建立生产事故恢复链路。"
+  }),
+  createSecondStageCourse({
+    courseId: "android",
+    stageId: "android-performance-native",
+    stageLabel: "性能、JNI 与 Native",
+    runtimeLabel: "Android Runtime",
+    fileExtension: "kt",
+    language: "kt",
+    visualizerType: "android-system-trace",
+    sourceTitle: "Android Developers: App performance",
+    sourceUrl: "https://developer.android.com/topic/performance",
+    lessonTitles: ["ANR 现场", "主线程阻塞", "内存泄漏", "启动优化", "JNI 边界", "Native 崩溃", "HAL 调用", "性能复盘"],
+    projectTitle: "卡顿事故复盘",
+    projectConcept: "从主线程阻塞、ANR 线索、JNI 调用和 Native 崩溃日志复盘一次 Android 卡顿事故。"
+  }),
+  createSecondStageCourse({
+    courseId: "ai-application",
+    stageId: "ai-app-safety-production",
+    stageLabel: "安全与生产化",
+    runtimeLabel: "AI App Trace",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "agent-trace",
+    sourceTitle: "OpenAI Docs: Safety best practices",
+    sourceUrl: "https://platform.openai.com/docs/guides/safety-best-practices",
+    lessonTitles: ["幻觉边界", "权限控制", "敏感信息过滤", "工具权限", "成本预算", "速率限制", "生产监控", "回归评测"],
+    projectTitle: "AI 应用安全复盘",
+    projectConcept: "把用户输入、模型输出、工具权限、成本和评测样本串成 AI 应用上线前的安全复盘。"
+  }),
+  createSecondStageCourse({
+    courseId: "ai-agent",
+    stageId: "ai-agent-failure-recovery",
+    stageLabel: "失败恢复与安全边界",
+    runtimeLabel: "Agent Trace",
+    fileExtension: "ts",
+    language: "ts",
+    visualizerType: "agent-trace",
+    sourceTitle: "OpenAI Docs: Agents",
+    sourceUrl: "https://platform.openai.com/docs/guides/agents",
+    lessonTitles: ["工具失败", "权限拒绝", "参数重构", "上下文压缩", "循环终止", "人工接管", "安全护栏", "恢复策略"],
+    projectTitle: "失败恢复演练",
+    projectConcept: "复盘 Agent 工具失败后的参数修正、权限处理、上下文压缩和人工接管策略。"
+  }),
+  createSecondStageCourse({
+    courseId: "ai-math",
+    stageId: "ai-math-transformer",
+    stageLabel: "Transformer 数学",
+    runtimeLabel: "Math Graph Lab",
+    fileExtension: "math",
+    language: "math",
+    visualizerType: "transformer-attention",
+    sourceTitle: "The Illustrated Transformer",
+    sourceUrl: "https://jalammar.github.io/illustrated-transformer/",
+    lessonTitles: ["Embedding", "位置编码", "Query Key Value", "Attention 权重", "Softmax", "多头注意力", "残差连接", "LayerNorm"],
+    projectTitle: "Attention 热力图实验",
+    projectConcept: "把 token、Q/K/V、Softmax 权重和多头输出画成热力图，解释注意力如何分配信息。"
+  })
+];
+
 export const blueprintFirstStageLessons = [
   ...courseSeeds.flatMap(createCourseLessons),
   ...secondStageCourseSeeds.flatMap(createCourseLessons),
-  ...thirdStageCourseSeeds.flatMap(createCourseLessons)
+  ...thirdStageCourseSeeds.flatMap(createCourseLessons),
+  ...fourthStageCourseSeeds.flatMap(createCourseLessons)
 ] satisfies LessonSpec[];

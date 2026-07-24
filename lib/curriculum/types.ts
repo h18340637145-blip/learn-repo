@@ -60,6 +60,9 @@ export type StageId =
   | "nextjs-advanced-patterns"
   // Frontend debugging stages
   | "frontend-debugging-console-stack"
+  | "frontend-debugging-network-requests"
+  | "frontend-debugging-react-render"
+  | "frontend-debugging-build-env"
   // Planned blueprint stages
   | "python-foundations"
   | "python-data-structures"

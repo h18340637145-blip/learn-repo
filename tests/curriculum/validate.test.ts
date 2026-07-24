@@ -312,7 +312,7 @@ test("不支持的运行舱类型返回具体错误", () => {
   const lesson = cloneLesson();
   const unsupportedVisualizerType = "unsupported-visualizer" as never;
 
-  lesson.execution.visualizer.type = unsupportedVisualizerType;
+  lesson.execution!.visualizer.type = unsupportedVisualizerType;
 
   assert.deepEqual(validateLessonSpec(lesson), [
     "课程 event-loop-order 使用了不支持的运行舱 unsupported-visualizer"

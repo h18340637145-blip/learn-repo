@@ -112,6 +112,13 @@ const stageFourPublishedIds = [
   "streams-readable",
   "streams-writable-transform",
   "stream-backpressure",
+  "files-glob-patterns",
+  "files-temp-workspace",
+  "buffer-binary-protocol",
+  "buffer-base64-json",
+  "streams-duplex",
+  "streams-error-handling",
+  "streams-line-parser",
   "project-cli-log-analyzer"
 ] as const;
 
@@ -121,7 +128,7 @@ const expectedPublishedLessonIds = stageZeroFoundationIds.concat(
   stageFiveToTenIds
 );
 
-test("注册表发布阶段 00 基础训练营、阶段 01-03、阶段 04 现有案例和阶段 05-10 全部课程", () => {
+test("注册表发布阶段 00 基础训练营、阶段 01-03、阶段 04 细化案例和阶段 05-10 全部课程", () => {
   assert.deepEqual(
     publishedLessons.map((lesson) => lesson.id),
     expectedPublishedLessonIds
@@ -131,14 +138,14 @@ test("注册表发布阶段 00 基础训练营、阶段 01-03、阶段 04 现有
 test("发布案例数量包含阶段 00 基础训练营和阶段 05-10 的完整新增案例", () => {
   assert.equal(stageZeroFoundationIds.length, 9);
   assert.equal(stageFiveToTenIds.length, 54);
-  assert.equal(expectedPublishedLessonIds.length, 99);
+  assert.equal(expectedPublishedLessonIds.length, 106);
   assert.equal(publishedLessons.length, expectedPublishedLessonIds.length);
 });
 
-test("前端报错调试路线聚合 9 个已发布案例并通过规格校验", () => {
+test("前端报错调试路线聚合 36 个已发布案例并通过规格校验", () => {
   const frontendDebuggingLessons = getLessonsByCourse("frontend-debugging");
 
-  assert.equal(frontendDebuggingLessons.length, 9);
+  assert.equal(frontendDebuggingLessons.length, 36);
   assert.deepEqual(frontendDebuggingLessons.flatMap(validateLessonSpec), []);
 });
 

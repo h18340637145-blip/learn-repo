@@ -9,7 +9,7 @@ test("课程目录包含 00 基础训练营和 10 个正式阶段", () => {
   assert.equal(curriculum[0].id, "foundations");
   assert.equal(curriculum[0].number, 0);
   assert.equal(curriculum[0].lessons.length, 8);
-  assert.equal(curriculum.flatMap((stage) => stage.lessons).length, 88);
+  assert.equal(curriculum.flatMap((stage) => stage.lessons).length, 95);
   assert.equal(curriculum.filter((stage) => stage.project.kind === "stage-project").length, 11);
   assert.deepEqual(validateCatalog(curriculum), []);
 });
@@ -36,15 +36,14 @@ test("阶段 01-03 在目录中全部标记为已发布", () => {
   }
 });
 
-test("阶段 04 保留当前两个已发布课程", () => {
+test("阶段 04 发布文件 Buffer Stream 主知识点和碎片知识点", () => {
   const stageFourPublished = curriculum[4].lessons.concat([curriculum[4].project])
     .filter((item) => item.status === "published")
     .map((item) => item.id);
 
-  assert.deepEqual(stageFourPublished, [
-    "stream-backpressure",
-    "project-cli-log-analyzer"
-  ]);
+  assert.equal(stageFourPublished.length, 16);
+  assert.equal(stageFourPublished[0], "files-path-url");
+  assert.equal(stageFourPublished.at(-1), "project-cli-log-analyzer");
 });
 
 test("阶段 05-10 在目录中全部标记为已发布", () => {

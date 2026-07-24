@@ -22,7 +22,8 @@ import { nextjsStageSevenDatabaseLessons } from "./lessons/nextjs/stage-07-datab
 import { nextjsStageEightTestingDeploymentLessons } from "./lessons/nextjs/stage-08-testing-deployment";
 import { nextjsStageNineArchitectureAdvancedLessons } from "./lessons/nextjs/stage-09-architecture";
 import { frontendDebuggingStageZeroLessons } from "./lessons/frontend-debugging/stage-00-console-stack";
-import { blueprintFirstStageLessons } from "./lessons/blueprint-first-stage";
+import { frontendDebuggingExpandedLessons } from "./lessons/frontend-debugging/expanded-stages";
+import { blueprintMultiStageLessons } from "./lessons/blueprint-multi-stage";
 import { applyQuestionBank } from "./questions/apply-question-bank";
 import { nextjsP1QuestionBank } from "./questions/nextjs-p1-question-bank";
 import { nodejsP1QuestionBank } from "./questions/nodejs-p1-question-bank";
@@ -75,9 +76,12 @@ export function getNextjsLesson(id: string): LessonSpec | undefined {
 }
 
 // ── Frontend debugging published lessons ───────────────────
-export const frontendDebuggingPublishedLessons = frontendDebuggingStageZeroLessons satisfies LessonSpec[];
+export const frontendDebuggingPublishedLessons = [
+  ...frontendDebuggingStageZeroLessons,
+  ...frontendDebuggingExpandedLessons
+] satisfies LessonSpec[];
 
-export const blueprintPreviewLessons = blueprintFirstStageLessons satisfies LessonSpec[];
+export const blueprintPreviewLessons = blueprintMultiStageLessons satisfies LessonSpec[];
 
 const blueprintPreviewLessonsByCourse = new Map<CourseId, LessonSpec[]>();
 

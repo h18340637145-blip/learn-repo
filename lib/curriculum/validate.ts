@@ -235,7 +235,10 @@ export function validateCourseCatalog(course: CourseSpec): string[] {
 
   course.stages.forEach((stage, index) => {
     if (stage.number !== index) errors.push(`课程 ${course.id} 阶段 ${stage.id} 的编号应为 ${index}`);
-    if (stage.lessons.length !== 8) errors.push(`课程 ${course.id} 阶段 ${stage.id} 应有 8 个知识点`);
+    const allowsExtendedFilesStage = course.id === "nodejs" && stage.id === "files-streams";
+    if (allowsExtendedFilesStage ? stage.lessons.length < 8 : stage.lessons.length !== 8) {
+      errors.push(`课程 ${course.id} 阶段 ${stage.id} 应有 ${allowsExtendedFilesStage ? "至少 8" : "8"} 个知识点`);
+    }
     for (const item of [...stage.lessons, stage.project]) {
       if (ids.has(item.id)) errors.push(`课程 ${course.id} ID 重复：${item.id}`);
       ids.add(item.id);
@@ -257,7 +260,10 @@ export function validateCatalog(stages: readonly CurriculumStage[]): string[] {
 
   stages.forEach((stage, index) => {
     if (stage.number !== index) errors.push(`阶段 ${stage.id} 的编号应为 ${index}`);
-    if (stage.lessons.length !== 8) errors.push(`阶段 ${stage.id} 应有 8 个知识点`);
+    const allowsExtendedFilesStage = stage.id === "files-streams";
+    if (allowsExtendedFilesStage ? stage.lessons.length < 8 : stage.lessons.length !== 8) {
+      errors.push(`阶段 ${stage.id} 应有 ${allowsExtendedFilesStage ? "至少 8" : "8"} 个知识点`);
+    }
     for (const item of [...stage.lessons, stage.project]) {
       if (ids.has(item.id)) errors.push(`课程 ID 重复：${item.id}`);
       ids.add(item.id);

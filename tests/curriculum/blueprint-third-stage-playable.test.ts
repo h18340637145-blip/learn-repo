@@ -27,9 +27,9 @@ test("蓝图路线阶段 00 到阶段 02 都可持续学习", () => {
     assert.equal(course.stages[1].lessons.every((lesson) => lesson.status === "published"), true);
     assert.equal(course.stages[2].lessons.every((lesson) => lesson.status === "published"), true);
     assert.equal(course.stages[2].project.status, "published");
-    assert.equal(course.stages[3].lessons.every((lesson) => lesson.status === "planned"), true);
-    assert.equal(course.stages[3].project.status, "planned");
-    assert.equal(lessons.length, 27, `${course.title} 应有三个阶段共 27 个可玩案例`);
+    assert.equal(course.stages[3].lessons.every((lesson) => lesson.status === "published"), true);
+    assert.equal(course.stages[3].project.status, "published");
+    assert.equal(lessons.length, 36, `${course.title} 应有四个阶段共 36 个可玩案例`);
     assert.deepEqual(lessons.flatMap(validateLessonSpec), []);
   }
 });

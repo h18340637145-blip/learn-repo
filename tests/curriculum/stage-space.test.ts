@@ -11,7 +11,7 @@ test("阶段空间只暴露阶段入口，不展开全局课程列表", () => {
 
   assert.equal(spaces.length, 11);
   assert.deepEqual(spaces.map((space) => space.number), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-  assert.ok(spaces.every((space) => space.nodes.length <= 9));
+  assert.ok(spaces.every((space) => space.id === "files-streams" ? space.nodes.length <= 16 : space.nodes.length <= 9));
 });
 
 test("阶段空间包含当前阶段课程和阶段项目节点", () => {

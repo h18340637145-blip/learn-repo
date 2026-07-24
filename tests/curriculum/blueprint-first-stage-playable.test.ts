@@ -41,7 +41,7 @@ test("蓝图首阶段课程具备真实学习闭环", () => {
     assert.ok(projectLessons.length >= 1);
 
     for (const lesson of knowledgeLessons) {
-      assert.ok(lesson.files.length >= 1, `${lesson.id} 应有案例文件`);
+      assert.ok(lesson.files!.length >= 1, `${lesson.id} 应有案例文件`);
       assert.ok(lesson.questions.length >= 1, `${lesson.id} 应至少有 1 道互动题`);
       assert.ok(lesson.execution, `${lesson.id} 应有 authored trace`);
       assert.ok(lesson.summary.length >= 2, `${lesson.id} 应有知识总结`);

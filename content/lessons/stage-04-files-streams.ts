@@ -9,6 +9,170 @@ const frames = (notes: [string, string, string], values: [string, string, string
   { activeLane: 2, laneValues: ["完成", "完成", values[2]], log, note: notes[2], delayMs: 720 }
 ];
 
+type MicroFileStreamSeed = {
+  id: string;
+  order: number;
+  title: string;
+  concept: string;
+  points: [string, string, string];
+  memoryHook: string;
+  fileName: string;
+  code: string;
+  prompt: string;
+  correct: string;
+  wrong: string;
+  output: string;
+  sourceTitle: string;
+  sourceUrl: string;
+};
+
+function createMicroFileStreamLesson(seed: MicroFileStreamSeed): LessonSpec {
+  return createLessonSpec({
+    id: seed.id,
+    stageId: "files-streams",
+    eyebrow: `04.${seed.order} · 文件、Buffer 与 Stream`,
+    title: seed.title,
+    objectives: [`掌握${seed.title}的真实使用边界`, "把碎片 API 放回文件处理链路中验证"],
+    prerequisites: ["files-promises", "buffer-encoding", "streams-readable"],
+    concept: seed.concept,
+    points: [...seed.points],
+    memoryHook: seed.memoryHook,
+    files: [{ name: seed.fileName, code: seed.code }],
+    entryFile: seed.fileName,
+    answer: {
+      type: seed.order % 2 === 0 ? "best-practice" : "prediction",
+      prompt: seed.prompt,
+      options: [
+        { id: "a", label: seed.wrong, detail: "忽略边界", feedback: "这个选择没有把文件、Buffer 或 Stream 的边界条件显式处理出来。" },
+        { id: "b", label: seed.correct, detail: "符合文件流模型", feedback: `正确：${seed.memoryHook}` }
+      ],
+      answerId: "b",
+      correctExplanation: seed.memoryHook
+    },
+    execution: {
+      lanes: ["输入", "处理", "输出"],
+      frames: frames(["读取输入", "应用细碎 API", "得到可观察输出"], [seed.title, seed.points[0], seed.output], [seed.output])
+    },
+    summary: [seed.memoryHook, ...seed.points],
+    sources: [source(seed.sourceTitle, seed.sourceUrl)]
+  });
+}
+
+const nodeStreamMicroLessons = [
+  createMicroFileStreamLesson({
+    id: "files-glob-patterns",
+    order: 9,
+    title: "glob 与批量文件匹配",
+    concept: "`fs.promises.glob` 可以按模式异步遍历文件路径，适合批量扫描日志、配置或测试夹具。它返回异步迭代结果，天然适合和 `for await...of` 组合。",
+    points: ["glob 按模式找文件", "异步迭代避免一次性加载", "排除规则防止扫入构建产物"],
+    memoryHook: "glob 是文件系统里的搜索雷达",
+    fileName: "glob-scan.mjs",
+    code: `import { glob } from "node:fs/promises";\n\nfor await (const file of glob("logs/**/*.log", { exclude: ["**/archive/**"] })) {\n  console.log(file.endsWith(".log"));\n}`,
+    prompt: "这段脚本最适合解决什么问题？",
+    correct: "按模式批量找到日志文件并逐个处理",
+    wrong: "一次性读取每个日志文件内容到内存",
+    output: "true",
+    sourceTitle: "Node.js fsPromises.glob",
+    sourceUrl: "https://nodejs.org/api/fs.html#fspromisesglobpattern-options"
+  }),
+  createMicroFileStreamLesson({
+    id: "files-temp-workspace",
+    order: 10,
+    title: "临时目录与工作区清理",
+    concept: "`mkdtemp` 创建隔离的临时目录，`rm(..., { recursive: true })` 可以在任务结束后清理。临时工作区能避免测试和 CLI 任务污染真实项目目录。",
+    points: ["mkdtemp 创建唯一目录", "finally 中清理资源", "不要把临时产物写进源码目录"],
+    memoryHook: "临时工作区像一次性实验舱，用完就回收",
+    fileName: "tmp-workspace.mjs",
+    code: `import { mkdtemp, rm } from "node:fs/promises";\nimport { tmpdir } from "node:os";\nimport { join } from "node:path";\n\nconst workspace = await mkdtemp(join(tmpdir(), "nodepath-"));\nconsole.log(workspace.includes("nodepath-"));\nawait rm(workspace, { recursive: true, force: true });`,
+    prompt: "为什么临时目录清理通常要放进 finally 或任务收尾逻辑？",
+    correct: "避免失败路径留下临时文件和污染状态",
+    wrong: "让文件写入变成同步阻塞操作",
+    output: "true",
+    sourceTitle: "Node.js fsPromises.mkdtemp",
+    sourceUrl: "https://nodejs.org/api/fs.html#fspromisesmkdtempprefix-options"
+  }),
+  createMicroFileStreamLesson({
+    id: "buffer-binary-protocol",
+    order: 11,
+    title: "Buffer 与二进制协议",
+    concept: "Buffer 可以按字节读写数字，例如 `writeUInt16BE` 和 `readUInt16BE` 常用于解析网络包、文件头和自定义二进制协议。",
+    points: ["Buffer 操作原始字节", "大小端影响数字解释", "读写偏移必须明确"],
+    memoryHook: "二进制协议先看字节顺序，再看字段偏移",
+    fileName: "binary-protocol.mjs",
+    code: `const packet = Buffer.alloc(2);\npacket.writeUInt16BE(513, 0);\nconsole.log(packet[0], packet[1]);\nconsole.log(packet.readUInt16BE(0));`,
+    prompt: "这段代码输出最能说明什么？",
+    correct: "大端写入 513 后字节为 2 和 1，读取还原为 513",
+    wrong: "Buffer 只能保存字符串，不能保存数字",
+    output: "2 1 / 513",
+    sourceTitle: "Node.js Buffer",
+    sourceUrl: "https://nodejs.org/api/buffer.html"
+  }),
+  createMicroFileStreamLesson({
+    id: "buffer-base64-json",
+    order: 12,
+    title: "Base64 与 JSON 载荷",
+    concept: "Base64 常用于把二进制数据塞进 JSON、Header 或文本协议。它不是加密，只是编码；解码后仍需要校验载荷来源和大小。",
+    points: ["Base64 是编码不是加密", "文本协议可承载二进制", "解码后要校验大小和类型"],
+    memoryHook: "Base64 像把字节装进文本信封",
+    fileName: "base64-json.mjs",
+    code: `const payload = { avatar: Buffer.from("NP").toString("base64") };\nconst decoded = Buffer.from(payload.avatar, "base64").toString("utf8");\nconsole.log(payload.avatar, decoded);`,
+    prompt: "看到 Base64 字符串时最重要的判断是什么？",
+    correct: "它只是可逆编码，解码后仍要验证内容",
+    wrong: "它已经完成安全加密，可以直接信任",
+    output: "TlA= NP",
+    sourceTitle: "Node.js Buffer encodings",
+    sourceUrl: "https://nodejs.org/api/buffer.html#buffers-and-character-encodings"
+  }),
+  createMicroFileStreamLesson({
+    id: "streams-duplex",
+    order: 13,
+    title: "Duplex Stream 双向通道",
+    concept: "Duplex 同时可读可写，网络 socket 就是典型例子。它既能接收输入，也会产生输出，需要分别理解读侧和写侧的背压。",
+    points: ["Duplex 同时可读可写", "Socket 是典型双工流", "读写两侧都有背压"],
+    memoryHook: "Duplex 像双向隧道，进出车道要分开看",
+    fileName: "duplex.mjs",
+    code: `import { Duplex } from "node:stream";\n\nconst channel = Duplex.from({ readable: ["pong"], writable: async function* (source) {\n  for await (const chunk of source) console.log(chunk.toString());\n}});\nchannel.write("ping");\nconsole.log(await channel[Symbol.asyncIterator]().next().then((x) => x.value));`,
+    prompt: "Duplex 和普通 Readable 最大的区别是什么？",
+    correct: "它既能消费写入，也能产出读取数据",
+    wrong: "它只能一次性读取完整文件",
+    output: "ping / pong",
+    sourceTitle: "Node.js Duplex streams",
+    sourceUrl: "https://nodejs.org/api/stream.html#duplex-streams"
+  }),
+  createMicroFileStreamLesson({
+    id: "streams-error-handling",
+    order: 14,
+    title: "Stream 错误处理",
+    concept: "手写 `pipe` 链容易漏掉中间流错误。`stream/promises.pipeline` 会把任意一段流错误转成 rejected Promise，更适合在 async 函数中统一处理。",
+    points: ["pipeline 传递错误", "try/catch 覆盖整条链", "手写 pipe 容易漏处理"],
+    memoryHook: "pipeline 是流管道的保险丝",
+    fileName: "pipeline-error.mjs",
+    code: `import { pipeline } from "node:stream/promises";\nimport { Readable, Transform } from "node:stream";\n\nconst boom = new Transform({ transform(chunk, enc, cb) { cb(new Error("bad chunk")); } });\ntry {\n  await pipeline(Readable.from(["x"]), boom);\n} catch (error) {\n  console.log(error.message);\n}`,
+    prompt: "为什么真实项目更推荐 pipeline 管理多段流？",
+    correct: "它能把中间流错误汇总到一个可捕获 Promise",
+    wrong: "它会让所有流同步执行并阻塞线程",
+    output: "bad chunk",
+    sourceTitle: "Node.js stream.pipeline",
+    sourceUrl: "https://nodejs.org/api/stream.html#streampipeline"
+  }),
+  createMicroFileStreamLesson({
+    id: "streams-line-parser",
+    order: 15,
+    title: "按行解析日志流",
+    concept: "`readline.createInterface` 可以把文件流切成行事件，适合日志分析、CSV 简析和 CLI 报表。它让大文件处理保持低内存，同时保持每行业务语义清晰。",
+    points: ["readline 将流切成行", "for await 逐行处理", "适合日志和报表"],
+    memoryHook: "日志流先切行，再聚合",
+    fileName: "line-parser.mjs",
+    code: `import { createInterface } from "node:readline";\nimport { Readable } from "node:stream";\n\nconst rl = createInterface({ input: Readable.from(["INFO ok\\nERROR bad"]) });\nfor await (const line of rl) {\n  console.log(line.split(" ")[0]);\n}`,
+    prompt: "这段代码为什么比 readFile 后 split 更适合大日志？",
+    correct: "它按行流式处理，不需要一次把整个文件放进内存",
+    wrong: "它会自动修复所有日志格式错误",
+    output: "INFO / ERROR",
+    sourceTitle: "Node.js readline",
+    sourceUrl: "https://nodejs.org/api/readline.html"
+  })
+];
+
 export const stageFourFilesStreamsLessons: LessonSpec[] = [
   createLessonSpec({
     id: "files-path-url",
@@ -234,6 +398,7 @@ export const stageFourFilesStreamsLessons: LessonSpec[] = [
     summary: ["背压平衡读写速度", "不要无视 false 的返回值", "尽量使用高级的 stream.pipeline 自动处理背压"],
     sources: [source("Backpressuring", "https://nodejs.org/en/learn/modules/backpressuring-in-streams")]
   }),
+  ...nodeStreamMicroLessons,
   createLessonSpec({
     id: "project-cli-log-analyzer",
     stageId: "files-streams",

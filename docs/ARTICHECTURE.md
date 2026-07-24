@@ -4,7 +4,7 @@
 
 NodePath 是一个 Next.js 16 App Router 多课程学习应用。`/` 是课程选择首页，`/nodejs`、`/nextjs` 和 `/frontend-debugging` 分别渲染独立学习工作台；`/{courseSlug}` 为蓝图路线提供数据驱动入口，有可玩课程时挂载共享学习工作台，无可玩课程时退回规划概览页。课程数据、执行逻辑和进度存储已经从 UI 组件中拆出。
 
-当前课程架构已经从 Node.js / Next.js 双路线扩展为多学院课程注册表。`content/curriculum-registry.ts` 以 8 个学院域组织路线，`CourseSpec` 通过 `domainId`、`slug`、`status` 和 `runtimeSurfaces` 描述课程所属学院、路由标识、发布状态和可用运行舱表面。注册表现在包含 2 条已发布主线、1 条前端调试样板路线和 7 条蓝图三阶段预览路线；`lesson-registry` 按 `CourseId` 返回独立课程集合，避免误用 Node.js 题库。
+当前课程架构已经从 Node.js / Next.js 双路线扩展为多学院课程注册表。`content/curriculum-registry.ts` 以 8 个学院域组织路线，`CourseSpec` 通过 `domainId`、`slug`、`status` 和 `runtimeSurfaces` 描述课程所属学院、路由标识、发布状态和可用运行舱表面。注册表现在包含 2 条已发布主线、1 条前端调试四阶段路线和 7 条蓝图四阶段预览路线；`lesson-registry` 按 `CourseId` 返回独立课程集合，避免误用 Node.js 题库。
 
 ```text
 app/layout.tsx
@@ -64,22 +64,22 @@ node_modules/next/dist/docs/
 
 ```text
 content/curriculum.ts
-  -> 00 基础训练营和 10 个正式阶段、88 个计划知识点、11 个阶段项目的课程主目录
+  -> 00 基础训练营和 10 个正式阶段、88 个主线知识点、11 个阶段项目的课程主目录；阶段 04 额外细化文件 / Buffer / Stream 微知识点
 
 content/curriculum-nextjs.ts
   -> Next.js 10 个阶段、80 个知识点、10 个阶段项目的课程主目录；当前 90 个节点均已发布
 
 content/curriculum-frontend-debugging.ts
-  -> 前端报错调试样板路线主目录；当前发布阶段 00“浏览器控制台与错误栈”，包含 8 个知识点和 1 个阶段项目
+  -> 前端报错调试路线主目录；当前发布 4 个阶段、32 个知识点和 4 个阶段项目，共 36 个可玩案例
 
 content/curriculum-registry.ts
-  -> 多学院课程注册表，聚合 Node.js、Next.js、前端报错调试和 7 条蓝图首阶段预览 CourseSpec
+  -> 多学院课程注册表，聚合 Node.js、Next.js、前端报错调试和 7 条蓝图四阶段预览 CourseSpec
   -> 导出 courseDomains、allCourses、getCourse(courseId)、getCourseBySlug(slug) 和 getCoursesByDomain(domainId)
   -> CourseSpec 包含 domainId、slug、status 和 runtimeSurfaces，用于首页课程卡、路由包装、规划概览页和课程校验
 
-content/lessons/blueprint-first-stage.ts
-  -> 7 条蓝图路线的三阶段样板课程工厂
-  -> 当前为 Python、计算机网络、服务端工程、Android、AI 应用、AI Agent 和 AI 数学各生成 24 个知识点和 3 个阶段项目
+content/lessons/blueprint-multi-stage.ts
+  -> 7 条蓝图路线的多阶段课程工厂导出入口，兼容复用历史 blueprint-first-stage 实现
+  -> 当前为 Python、计算机网络、服务端工程、Android、AI 应用、AI Agent 和 AI 数学各生成 32 个知识点和 4 个阶段项目
   -> 所有课程仍使用确定性 authored trace，不执行真实 Python、Android、AI 或网络请求
 
 lib/curriculum/course-availability.ts
@@ -113,6 +113,9 @@ content/lessons/stage-02-modules-packages.ts
 content/lessons/stage-03-async-events.ts
   -> 阶段 03：callback、Promise、async/await、异步错误、事件循环、nextTick、setImmediate、EventEmitter/Abort 和任务调度器
 
+content/lessons/stage-04-files-streams.ts
+  -> 阶段 04：路径、Promise 文件 API、目录 stat、watch、glob、临时目录、Buffer 编码、二进制协议、Base64、Readable、Writable / Transform、Duplex、错误处理、按行解析和 CLI 日志分析器
+
 content/lessons/stage-05-http-foundations.ts
   -> 阶段 05：HTTP 事务、服务器、请求响应、路由、请求体、流式传输和静态文件服务器
 
@@ -140,12 +143,15 @@ content/lessons/nextjs/stage-01-routing.ts ... stage-09-architecture.ts
 content/lessons/frontend-debugging/stage-00-console-stack.ts
   -> 前端报错调试阶段 00：浏览器控制台、错误栈、Source Map、结构化 console、数据与渲染边界、运行恢复和商品列表白屏事故项目
 
+content/lessons/frontend-debugging/expanded-stages.ts
+  -> 前端报错调试阶段 01–03：Network 请求排障、React 渲染问题、构建与环境问题，每阶段 8 个知识点和 1 个阶段项目
+
 content/lesson-registry.ts
   -> 已发布课程注册表
-  -> 聚合阶段 00–03、05–10 正式课程
-  -> 保留阶段 04 旧案例到 LessonSpec 的迁移适配
+  -> 聚合 Node.js 阶段 00–10 共 106 个可玩案例
   -> 聚合 Next.js 90 个已发布案例
-  -> 聚合前端报错调试 9 个样板案例
+  -> 聚合前端报错调试 36 个已发布案例
+  -> 聚合 7 条蓝图路线各 36 个预览案例
   -> 导出 Node.js 兼容别名 publishedLessons、nextjsPublishedLessons、frontendDebuggingPublishedLessons 和 getLessonsByCourse(courseId)
 
 content/questions/*
@@ -157,7 +163,7 @@ lib/curriculum/types.ts
   -> CourseDomainId、CourseId、CourseSpec、课程目录、题目、来源、运行帧、多运行舱表面和可视化类型
 
 lib/curriculum/validate.ts
-  -> 无副作用课程校验函数；Node.js 校验 11 个阶段，Next.js 校验 10 个阶段，每阶段 8 个知识点和 1 个阶段项目，并校验 P1 题型结构、题库引用、课程题量和阶段题型多样性
+  -> 无副作用课程校验函数；Node.js 校验 11 个阶段，Next.js 校验 10 个阶段，普通阶段至少 8 个知识点和 1 个阶段项目，并校验 P1 题型结构、题库引用、课程题量和阶段题型多样性
 
 lib/curriculum/view-model.ts
   -> 课程目录 + 进度 -> 侧边栏路线视图模型
@@ -238,7 +244,7 @@ app/frontend-debugging/page.tsx 与 app/frontend-debugging/learning-studio.tsx
 
 当前即将引入 Supabase 作为后端服务。之前没有后端 API、数据库、认证，现计划通过 Supabase 提供用户认证、跨设备进度同步和数据库支持。已发布课程虽然使用真实 Node.js 代码示例，但浏览器仍只播放课程作者编排好的运行帧和日志。
 
-沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId`、`lesson.kind` 和当前课程标题。它不写入学习进度，不执行学习者代码；课程切换由 App Router 链接 `/nodejs`、`/nextjs` 和 `/frontend-debugging` 处理。
+沉浸式视觉层只读取 `status`、`progressPercent`、`lesson.stageId`、`lesson.kind` 和当前课程标题。它不写入学习进度，不执行学习者代码；课程切换由 App Router 链接 `/nodejs`、`/nextjs`、`/frontend-debugging` 和 `/{courseSlug}` 处理。
 
 `ImmersiveBackdrop` 和 `CursorSparks` 是当前直接使用 Canvas 和 `window` 的沉浸式 Client Component：前者渲染学习空间背景，后者渲染鼠标火花。它们都支持 `prefers-reduced-motion` 降级；其他沉浸式组件保持展示职责，只消费上层传入的视觉状态。
 
@@ -287,13 +293,13 @@ app/frontend-debugging/page.tsx 与 app/frontend-debugging/learning-studio.tsx
 
 课程目录使用 `CurriculumStage`：
 
-- 每阶段 8 个 `CatalogLesson`。
+- 普通阶段至少 8 个 `CatalogLesson`；Node.js 阶段 04 允许额外细化文件 / Buffer / Stream 微知识点。
 - 每阶段 1 个 `stage-project`。
 - `status` 区分 `published` 与 `planned`。
 
 课程集合使用 `CourseSpec`：
 
-- `id`: 当前为 `nodejs`、`nextjs` 或 `frontend-debugging`。
+- `id`: 当前覆盖 `nodejs`、`nextjs`、`frontend-debugging`、`python`、`network`、`server-engineering`、`android`、`ai-application`、`ai-agent` 和 `ai-math`。
 - `domainId`: 所属学院域，当前覆盖语言基础、前端工程、计算机网络、服务器开发、Android、AI 应用、AI Agent 和 AI 数学等蓝图域。
 - `slug`: 路由标识，当前与课程路径片段保持一致。
 - `title`, `description`, `icon`: 课程选择与工作台展示元数据。

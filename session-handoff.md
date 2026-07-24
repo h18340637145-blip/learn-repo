@@ -10,18 +10,18 @@ Current branch:
 main
 ```
 
-当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs`、`/nextjs`、`/frontend-debugging`、`/python`、`/network`、`/server-engineering`、`/android`、`/ai-application`、`/ai-agent` 和 `/ai-math` 都可以进入学习路线；其中 7 条蓝图路线当前进入三阶段样板学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量落地 P1 开发与实施规范套件 (`docs/P1-DEVELOPMENT-GUIDE.md` 及 `docs/specs/*`)：已升级 `supabase-migration.sql` 规范建表 Schema 及 RLS 策略，全量实现离线优先智能合并算法 (`lib/progress/sync-strategy.ts`) 与 `useProgressSync` 挂载同步，并在 `spaced-repetition.ts` 及 `local-progress-repository.ts` 中完成了基于 SM-2 的艾宾浩斯复习与记忆衰减调度引擎。
+当前应用是带沉浸式视觉层的多课程学习原型。`/` 是课程选择首页，`/nodejs`、`/nextjs`、`/frontend-debugging`、`/python`、`/network`、`/server-engineering`、`/android`、`/ai-application`、`/ai-agent` 和 `/ai-math` 都可以进入学习路线；其中 7 条蓝图路线当前进入四阶段样板学习工作台。课程数据、课程结构、authored trace 执行、校验、进度存储、沉浸式视觉状态和 P1 题库补丁层已经拆成独立模块。已全量落地 P1 开发与实施规范套件 (`docs/P1-DEVELOPMENT-GUIDE.md` 及 `docs/specs/*`)：已升级 `supabase-migration.sql` 规范建表 Schema 及 RLS 策略，全量实现离线优先智能合并算法 (`lib/progress/sync-strategy.ts`) 与 `useProgressSync` 挂载同步，并在 `spaced-repetition.ts` 及 `local-progress-repository.ts` 中完成了基于 SM-2 的艾宾浩斯复习与记忆衰减调度引擎。
 
 ## 多课程架构改造
 
 - 蓝图规格已批准：NodePath 将从 Node.js / Next.js 双路线升级为多学院编程学习平台，长期学院蓝图包含语言基础、前端工程、计算机网络、服务器开发、Android、AI 应用、AI Agent 和 AI 数学。
 - 本轮已扩展课程类型和课程注册表，`CourseSpec` 现在携带 `domainId`、`slug`、`status` 和 `runtimeSurfaces`。
 - 已保留 `/nodejs` 与 `/nextjs` 两条既有路线，并新增 `/frontend-debugging` 前端报错调试样板路线。
-- 已补齐蓝图三阶段可玩性：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent 和 AI 数学都有首页入口、动态路线页和阶段 00–02 学习工作台。
-- 当前新增样板路线包括“前端报错调试”和 7 条蓝图首阶段路线；这些路线状态为 `preview`，不是全量发布。
-- `getLessonsByCourse` 对 7 条蓝图路线返回各自独立的 27 个前三阶段案例，避免误复用 Node.js 已发布课程。
-- 前端报错调试当前先发布阶段 00“浏览器控制台与错误栈”，包含 8 个知识点和 1 个阶段项目，共 9 个样板案例。
-- 当前已发布案例总数：387 个；Node.js 99 个，Next.js 90 个，前端报错调试 9 个，7 条蓝图路线各 27 个。
+- 已补齐蓝图四阶段可玩性：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent 和 AI 数学都有首页入口、动态路线页和阶段 00–03 学习工作台。
+- 当前新增路线包括“前端报错调试”和 7 条蓝图路线；蓝图路线状态为 `preview`，不是全量发布。
+- `getLessonsByCourse` 对 7 条蓝图路线返回各自独立的 36 个四阶段案例，避免误复用 Node.js 已发布课程。
+- 前端报错调试当前发布阶段 00–03，覆盖控制台错误栈、Network 请求排障、React 渲染问题、构建与环境问题，共 36 个可玩案例。
+- 当前已发布案例总数：484 个；Node.js 106 个，Next.js 90 个，前端报错调试 36 个，7 条蓝图路线各 36 个。
 - 当前验证要求：`npm run validate:curriculum`、`npm test`、`npm run lint`、`npm run build`、`git diff --check`。
 - 多课程架构改造计划已在本地 `main` 继续推进：当前完成蓝图路线可见性与规划概览页，后续开发建议优先为规划路线逐条填充真实课程、题库、阶段项目和运行可视化。
 
@@ -30,15 +30,15 @@ main
 Curriculum foundation:
 
 - 00 基础训练营和 10 个正式阶段。
-- 88 knowledge points.
+- 88 个 Node.js 主线知识点，阶段 04 额外细化 7 个文件 / Buffer / Stream 微知识点。
 - 11 stage projects.
-- 99 currently published Node.js playable cases.
+- 106 currently published Node.js playable cases.
 - Next.js 路线包含 10 个阶段、80 个计划知识点、10 个阶段项目。
 - Next.js 已发布 90 个 playable cases。
-- 前端报错调试路线当前发布 1 个样板阶段：浏览器控制台与错误栈，包含 8 个知识点和 1 个阶段项目。
-- 前端报错调试已发布 9 个 playable cases。
-- 当前总计 387 个已发布 playable cases。
-- 蓝图预览路线当前各发布前三个阶段 27 个样板案例：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent、AI 数学。
+- 前端报错调试路线当前发布 4 个阶段：浏览器控制台与错误栈、Network 请求排障、React 渲染问题、构建与环境问题。
+- 前端报错调试已发布 36 个 playable cases。
+- 当前总计 484 个已发布 playable cases。
+- 蓝图预览路线当前各发布阶段 00–03 四个阶段、36 个样板案例：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent、AI 数学。
 
 Published cases:
 
@@ -46,7 +46,7 @@ Published cases:
 - Stage 01: 8 runtime/CLI lessons plus the CLI system inspector project.
 - Stage 02: 8 modules/packages/TypeScript lessons plus the dependency inspector project.
 - Stage 03: 8 async/events lessons plus the task scheduler project.
-- Stage 04: Stream backpressure and the CLI log analyzer project.
+- Stage 04: 15 detailed File / Buffer / Stream lessons plus the CLI log analyzer project.
 - Stage 05: 8 HTTP lessons plus the static file server project.
 - Stage 06: 8 API/service design lessons plus the task REST API project.
 - Stage 07: 8 process/concurrency lessons plus the Worker report project.
@@ -56,10 +56,10 @@ Published cases:
 
 Core interaction:
 
-- `/` 展示 Node.js、Next.js 与前端报错调试课程卡片。
+- `/` 展示 Node.js、Next.js、前端报错调试和 7 条蓝图路线课程卡片。
 - 首页课程卡片下方现在有独立“知识点连接星链”底部展厅，知识核心球进一步放大铺满展厅空间且隐藏中心文字，知识点球保持当前尺寸并以内嵌文字环绕核心呈现。
 - `/nodejs`、`/nextjs` 与 `/frontend-debugging` 都复用 `app/_components/learning-studio.tsx` 共享工作台。
-- 学习工作台左侧已新增路线统计卡，动态展示已发布案例、互动题、知识点和阶段项目；Node.js 当前发布 99 个案例，Next.js 当前发布 90 个案例，前端报错调试当前发布 9 个样板案例。
+- 学习工作台左侧已新增路线统计卡，动态展示已发布案例、互动题、知识点和阶段项目；Node.js 当前发布 106 个案例，Next.js 当前发布 90 个案例，前端报错调试当前发布 36 个案例，7 条蓝图路线各发布 36 个案例。
 - Learner reads concept and code.
 - Learner chooses an answer.
 - 每次选择答案都会写入题目级本地记录，记录最近选择、尝试次数、首次是否答对、首次作答时间、最近作答时间和待复习状态。
@@ -114,10 +114,10 @@ Important product boundary:
 
 ## Important Files
 
-- `content/curriculum.ts`: 00 基础训练营 + 10-stage/88-point master curriculum catalog.
+- `content/curriculum.ts`: 00 基础训练营 + 10-stage/88-point master curriculum catalog；阶段 04 额外细化 7 个文件 / Buffer / Stream 微知识点。
 - `content/curriculum-nextjs.ts`: Next.js 10-stage/80-point catalog.
-- `content/curriculum-frontend-debugging.ts`: 前端报错调试样板路线目录，当前阶段为“浏览器控制台与错误栈”。
-- `content/curriculum-registry.ts`: 多学院 CourseSpec 注册表，聚合 Node.js、Next.js 与前端报错调试路线。
+- `content/curriculum-frontend-debugging.ts`: 前端报错调试路线目录，当前发布 4 个阶段、36 个可玩案例。
+- `content/curriculum-registry.ts`: 多学院 CourseSpec 注册表，聚合 Node.js、Next.js、前端报错调试和 7 条蓝图路线。
 - `content/legacy-lessons.ts`: migrated original 4 prototype cases.
 - `content/lessons/lesson-factory.ts`: helper for standard LessonSpec creation.
 - `content/lessons/stage-00-foundations.ts`: complete stage 00 foundations bootcamp content，`foundations-functions` 已包含首个 Node.js implementation 代码题。
@@ -135,7 +135,9 @@ Important product boundary:
 - `content/lessons/nextjs/nextjs-quick-lesson.ts`: Next.js 后续题库的轻量课程工厂。
 - `content/lessons/nextjs/stage-00-foundations.ts`: complete Next.js stage 00 foundations content，`nextjs-foundations-app-router` 已包含首个 App Router implementation 代码题。
 - `content/lessons/nextjs/stage-01-routing.ts` ... `stage-09-architecture.ts`: complete Next.js stages 01–09 content, including testing/deployment and advanced realtime dashboard project.
-- `content/lessons/frontend-debugging/stage-00-console-stack.ts`: 前端报错调试阶段 00 的 9 个样板 LessonSpec。
+- `content/lessons/frontend-debugging/stage-00-console-stack.ts`: 前端报错调试阶段 00 的 9 个 LessonSpec。
+- `content/lessons/frontend-debugging/expanded-stages.ts`: 前端报错调试阶段 01–03 的 27 个 LessonSpec。
+- `content/lessons/blueprint-multi-stage.ts`: 7 条蓝图路线四阶段课程工厂导出入口。
 - `content/lesson-registry.ts`: published lesson registry, Node.js aggregation, Next.js aggregation, and stage 04 migration metadata.
 - `content/questions/apply-question-bank.ts`: P1 题库补丁挂载工具。
 - `content/questions/p1-question-templates.ts`: 根据课程真实标题、概念、入口代码和阶段题型分配生成 P1 题的共享模板。
@@ -166,6 +168,24 @@ Important product boundary:
 - `docs/ARTICHECTURE.md`: architecture harness.
 
 ## Validation History
+
+Latest validation for the course-system large expansion work:
+
+```bash
+/Users/huo2wx/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node ./node_modules/tsx/dist/cli.mjs --test tests/curriculum/*.test.ts tests/learning-studio/course-routing.test.ts -> pass. 82 tests, 82 pass, 0 fail.
+/Users/huo2wx/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node ./node_modules/tsx/dist/cli.mjs scripts/validate-curriculum.ts -> pass. 输出包含：课程校验通过：Node.js 11 个阶段 106 个案例，Next.js 10 个阶段 90 个案例，前端报错调试 4 个阶段 36 个案例，7 条蓝图路线各 36 个案例，共 484 个已发布案例。题库覆盖：Node.js 238 道题，Next.js 200 道题，共 438 道题。
+/Users/huo2wx/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node ./node_modules/typescript/bin/tsc --noEmit -> pass.
+/Users/huo2wx/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node ./node_modules/eslint/bin/eslint.js -> pass.
+git diff --check -> pass. 无输出。
+next build -> 普通沙箱失败于 Turbopack CSS 处理的本地端口绑定 EPERM；提升权限重跑被系统额度限制拦截，未能完成本轮 build 验证。
+```
+
+Implementation notes:
+
+- Node.js 阶段 04 已从 2 个可玩案例扩展为 16 个可玩案例，新增 glob、临时目录、二进制协议、Base64、Duplex、错误处理和按行解析等细碎知识点。
+- 前端报错调试路线已从 1 个阶段扩展为 4 个阶段，新增 Network 请求排障、React 渲染问题、构建与环境问题。
+- 7 条蓝图路线已发布阶段 03：Python 异步服务、网络网关排障、服务端生产事故、Android 性能 Native、AI 应用安全生产化、Agent 失败恢复、Transformer 数学。
+- 新增内容仍保持确定性 authored trace，不做真实代码执行、不接外部服务。
 
 Latest validation for the multi-course architecture work:
 
