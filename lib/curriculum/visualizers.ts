@@ -17,7 +17,19 @@ const configuredStageVisualizers = {
   "nextjs-auth-middleware": { type: "nextjs-middleware-chain", title: "认证中间件链", nodes: ["Request", "Auth", "Session", "Guard", "Response"] },
   "nextjs-database": { type: "nextjs-data-flow", title: "全栈数据流", nodes: ["Action", "ORM", "Query", "Transaction", "Result"] },
   "nextjs-testing-deployment": { type: "nextjs-build-output", title: "测试与部署管线", nodes: ["Test", "Build", "Deploy", "Preview", "Production"] },
-  "nextjs-advanced-patterns": { type: "nextjs-render-pipeline", title: "高级渲染模式", nodes: ["Edge", "ISR", "Realtime", "i18n", "Performance"] }
+  "nextjs-advanced-patterns": { type: "nextjs-render-pipeline", title: "高级渲染模式", nodes: ["Edge", "ISR", "Realtime", "i18n", "Performance"] },
+  // Python stage visualizers
+  "python-foundations": { type: "python-runtime-model", title: "Python 解释执行模型", nodes: ["源码", "字节码", "栈帧", "对象", "输出"] },
+  "python-data-structures": { type: "python-collection-lens", title: "集合与迭代视图", nodes: ["list", "dict", "set", "iterator", "view"] },
+  "python-modules-testing": { type: "python-package-tree", title: "模块与包依赖树", nodes: ["import", "site-packages", "venv", "pytest", "cov"] },
+  "python-async-services": { type: "python-async-loop", title: "asyncio 事件循环", nodes: ["Task", "Loop", "Await", "IO", "Result"] },
+  "python-file-batch": { type: "python-file-pipeline", title: "文件批处理流水线", nodes: ["扫描", "读取", "转换", "落盘", "验证"] },
+  "python-regex-parsing": { type: "python-regex-engine", title: "正则回溯引擎", nodes: ["模式", "匹配", "捕获", "回溯", "结构"] },
+  "python-http-scraping": { type: "python-http-crawl", title: "HTTP 抓取管道", nodes: ["请求", "限流", "解析", "去重", "入库"] },
+  "python-cli-tools": { type: "python-cli-flow", title: "CLI 参数与配置流", nodes: ["Argv", "Parser", "Config", "Env", "Command"] },
+  "python-scheduling": { type: "python-scheduler-clock", title: "调度器时钟", nodes: ["Cron", "Trigger", "Job", "Retry", "Alert"] },
+  "python-ops-process": { type: "python-process-tree", title: "子进程编排树", nodes: ["Parent", "Signal", "Child", "IO", "Exit"] },
+  "python-automation-pipeline": { type: "python-pipeline-tower", title: "自动化流水线塔", nodes: ["采集", "清洗", "缓存", "通知", "观测"] }
 } satisfies Partial<Record<StageId, VisualizerSpec>>;
 
 const stageVisualizers: Partial<Record<StageId, VisualizerSpec>> = configuredStageVisualizers;

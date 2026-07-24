@@ -24,7 +24,11 @@ import { nextjsStageNineArchitectureAdvancedLessons } from "./lessons/nextjs/sta
 import { frontendDebuggingStageZeroLessons } from "./lessons/frontend-debugging/stage-00-console-stack";
 import { frontendDebuggingExpandedLessons } from "./lessons/frontend-debugging/expanded-stages";
 import { blueprintMultiStageLessons } from "./lessons/blueprint-multi-stage";
-// Python published lessons (stages 04-10)
+// Python published lessons (stages 00-10)
+import { pythonStageZeroFoundationsLessons } from "./lessons/python/stage-00-foundations";
+import { pythonStageOneDataStructuresLessons } from "./lessons/python/stage-01-data-structures";
+import { pythonStageTwoModulesTestingLessons } from "./lessons/python/stage-02-modules-testing";
+import { pythonStageThreeAsyncServicesLessons } from "./lessons/python/stage-03-async-services";
 import { pythonStageFourFileBatchLessons } from "./lessons/python/stage-04-file-batch";
 import { pythonStageFiveRegexParsingLessons } from "./lessons/python/stage-05-regex-parsing";
 import { pythonStageSixHttpScrapingLessons } from "./lessons/python/stage-06-http-scraping";
@@ -89,8 +93,12 @@ export const frontendDebuggingPublishedLessons = [
   ...frontendDebuggingExpandedLessons
 ] satisfies LessonSpec[];
 
-// ── Python published lessons (stages 04-10) ────────────────
+// ── Python published lessons (stages 00-10) ───────────────
 export const pythonPublishedLessons = [
+  pythonStageZeroFoundationsLessons,
+  pythonStageOneDataStructuresLessons,
+  pythonStageTwoModulesTestingLessons,
+  pythonStageThreeAsyncServicesLessons,
   pythonStageFourFileBatchLessons,
   pythonStageFiveRegexParsingLessons,
   pythonStageSixHttpScrapingLessons,
@@ -126,12 +134,7 @@ export function getLessonsByCourse(courseId: CourseId): LessonSpec[] {
   if (courseId === "nodejs") return publishedLessons;
   if (courseId === "nextjs") return nextjsPublishedLessons;
   if (courseId === "frontend-debugging") return frontendDebuggingPublishedLessons;
-  if (courseId === "python") {
-    return [
-      ...(blueprintPreviewLessonsByCourse.get("python") ?? []),
-      ...pythonPublishedLessons
-    ];
-  }
+  if (courseId === "python") return pythonPublishedLessons;
 
   return blueprintPreviewLessonsByCourse.get(courseId) ?? [];
 }

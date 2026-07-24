@@ -72,7 +72,18 @@ const supportedVisualizerTypes = new Set<VisualizerType>([
   "android-system-trace",
   "agent-trace",
   "math-graph-lab",
-  "transformer-attention"
+  "transformer-attention",
+  "python-runtime-model",
+  "python-collection-lens",
+  "python-package-tree",
+  "python-async-loop",
+  "python-file-pipeline",
+  "python-regex-engine",
+  "python-http-crawl",
+  "python-cli-flow",
+  "python-scheduler-clock",
+  "python-process-tree",
+  "python-pipeline-tower"
 ]);
 
 export function validateLessonSpec(lesson: LessonSpec): string[] {

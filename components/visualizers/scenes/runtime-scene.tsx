@@ -37,7 +37,19 @@ const colorByType: Record<VisualizerSpec["type"], string> = {
   "android-system-trace": "#b8ff85",
   "agent-trace": "#7c5cff",
   "math-graph-lab": "#ffd166",
-  "transformer-attention": "#ffad66"
+  "transformer-attention": "#ffad66",
+  // Python visualizers
+  "python-runtime-model": "#3776ab",
+  "python-collection-lens": "#ffd166",
+  "python-package-tree": "#9fe870",
+  "python-async-loop": "#7c5cff",
+  "python-file-pipeline": "#6ee7ff",
+  "python-regex-engine": "#ff6bcb",
+  "python-http-crawl": "#ffad66",
+  "python-cli-flow": "#b8ff85",
+  "python-scheduler-clock": "#6ee7ff",
+  "python-process-tree": "#ffd166",
+  "python-pipeline-tower": "#7c5cff"
 };
 
 function nodePosition(index: number, total: number): [number, number, number] {

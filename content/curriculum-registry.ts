@@ -2,6 +2,10 @@ import type { CourseDomainId, CourseId, CourseSpec, CurriculumStage, LessonSpec,
 import { curriculum } from "./curriculum";
 import { frontendDebuggingCurriculum } from "./curriculum-frontend-debugging";
 import { nextjsCurriculum } from "./curriculum-nextjs";
+import { pythonStageZeroFoundationsLessons } from "./lessons/python/stage-00-foundations";
+import { pythonStageOneDataStructuresLessons } from "./lessons/python/stage-01-data-structures";
+import { pythonStageTwoModulesTestingLessons } from "./lessons/python/stage-02-modules-testing";
+import { pythonStageThreeAsyncServicesLessons } from "./lessons/python/stage-03-async-services";
 import { pythonStageFourFileBatchLessons } from "./lessons/python/stage-04-file-batch";
 import { pythonStageFiveRegexParsingLessons } from "./lessons/python/stage-05-regex-parsing";
 import { pythonStageSixHttpScrapingLessons } from "./lessons/python/stage-06-http-scraping";
@@ -254,6 +258,10 @@ const pythonStageSeeds = [
 ] as const satisfies readonly PlannedStageSeed[];
 
 const pythonPublishedLessonsByStageId = new Map<StageId, readonly LessonSpec[]>([
+  ["python-foundations", pythonStageZeroFoundationsLessons],
+  ["python-data-structures", pythonStageOneDataStructuresLessons],
+  ["python-modules-testing", pythonStageTwoModulesTestingLessons],
+  ["python-async-services", pythonStageThreeAsyncServicesLessons],
   ["python-file-batch", pythonStageFourFileBatchLessons],
   ["python-regex-parsing", pythonStageFiveRegexParsingLessons],
   ["python-http-scraping", pythonStageSixHttpScrapingLessons],

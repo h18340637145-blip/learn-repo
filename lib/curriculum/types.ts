@@ -158,7 +158,19 @@ export type VisualizerType =
   | "android-system-trace"
   | "agent-trace"
   | "math-graph-lab"
-  | "transformer-attention";
+  | "transformer-attention"
+  // Python visualizers
+  | "python-runtime-model"
+  | "python-collection-lens"
+  | "python-package-tree"
+  | "python-async-loop"
+  | "python-file-pipeline"
+  | "python-regex-engine"
+  | "python-http-crawl"
+  | "python-cli-flow"
+  | "python-scheduler-clock"
+  | "python-process-tree"
+  | "python-pipeline-tower";
 
 export type VisualizerSpec = {
   type: VisualizerType;
