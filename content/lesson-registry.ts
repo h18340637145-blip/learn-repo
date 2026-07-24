@@ -39,6 +39,7 @@ import { pythonStageTenAutomationPipelineLessons } from "./lessons/python/stage-
 import { applyQuestionBank } from "./questions/apply-question-bank";
 import { nextjsP1QuestionBank } from "./questions/nextjs-p1-question-bank";
 import { nodejsP1QuestionBank } from "./questions/nodejs-p1-question-bank";
+import { pythonP1QuestionBank } from "./questions/python-p1-question-bank";
 
 const basePublishedLessons = [
   stageZeroFoundationsLessons,
@@ -94,7 +95,7 @@ export const frontendDebuggingPublishedLessons = [
 ] satisfies LessonSpec[];
 
 // ── Python published lessons (stages 00-10) ───────────────
-export const pythonPublishedLessons = [
+const basePythonPublishedLessons = [
   pythonStageZeroFoundationsLessons,
   pythonStageOneDataStructuresLessons,
   pythonStageTwoModulesTestingLessons,
@@ -107,6 +108,11 @@ export const pythonPublishedLessons = [
   pythonStageNineOpsProcessLessons,
   pythonStageTenAutomationPipelineLessons
 ].flat() satisfies LessonSpec[];
+
+export const pythonPublishedLessons = applyQuestionBank(
+  basePythonPublishedLessons,
+  pythonP1QuestionBank
+) satisfies LessonSpec[];
 
 export const blueprintPreviewLessons = blueprintMultiStageLessons satisfies LessonSpec[];
 

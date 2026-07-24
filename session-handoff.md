@@ -21,7 +21,7 @@ main
 - 当前新增路线包括“前端报错调试”和 7 条蓝图路线；蓝图路线状态为 `preview`，不是全量发布。
 - `getLessonsByCourse` 对 7 条蓝图路线返回各自独立的 36 个四阶段案例，避免误复用 Node.js 已发布课程。
 - 前端报错调试当前发布阶段 00–03，覆盖控制台错误栈、Network 请求排障、React 渲染问题、构建与环境问题，共 36 个可玩案例。
-- 当前已发布案例总数：547 个；Node.js 106 个，Next.js 90 个，前端报错调试 36 个，Python 99 个（阶段 00–03 蓝图 36 + 阶段 04–10 真实回填 63），其余6 条蓝图路线各 36 个。
+- 当前已发布案例总数：547 个；Node.js 106 个，Next.js 90 个，前端报错调试 36 个，Python 99 个（11 个阶段全部真实内容回填），其余6 条蓝图路线各 36 个。
 - 当前验证要求：`npm run validate:curriculum`、`npm test`、`npm run lint`、`npm run build`、`git diff --check`。
 - 多课程架构改造计划已在本地 `main` 继续推进：当前完成蓝图路线可见性与规划概览页，后续开发建议优先为规划路线逐条填充真实课程、题库、阶段项目和运行可视化。
 
@@ -38,8 +38,8 @@ Curriculum foundation:
 - 前端报错调试路线当前发布 4 个阶段：浏览器控制台与错误栈、Network 请求排障、React 渲染问题、构建与环境问题。
 - 前端报错调试已发布 36 个 playable cases。
 - 当前总计 547 个已发布 playable cases。
-- Python 路线完成阶段 04–10 真实内容回填：文件批处理、正则与结构化解析、HTTP 抓取与数据管道、CLI 与配置化脚本、任务调度、子进程运维、自动化流水线，共 63 个新案例（每阶段 8 知识 + 1 阶段项目）。
-- 蓝图预览路线当前各发布阶段 00–03 四个阶段、36 个样板案例：Python、计算机网络、服务器工程、Android、AI 应用、AI Agent、AI 数学。
+- Python 路线完成 11 个阶段真实内容回填：语法基础、数据结构、模块与测试、异步服务、文件批处理、正则与结构化解析、HTTP 抓取与数据管道、CLI 与配置化脚本、任务调度、子进程运维、自动化流水线，共 99 个案例（每阶段 8 知识 + 1 阶段项目）。已挂载 P1 题库补丁层，Python 每个知识点至少 2 题、阶段项目至少 3 题，总题量 220 道。
+- 蓝图预览路线当前各发布阶段 00–03 四个阶段、36 个样板案例：计算机网络、服务器工程、Android、AI 应用、AI Agent、AI 数学。
 
 Published cases:
 
@@ -144,6 +144,8 @@ Important product boundary:
 - `content/questions/p1-question-templates.ts`: 根据课程真实标题、概念、入口代码和阶段题型分配生成 P1 题的共享模板。
 - `content/questions/nodejs-p1-question-bank.ts`: Node.js 已发布案例的 P1 题库补丁。
 - `content/questions/nextjs-p1-question-bank.ts`: Next.js 90 个已发布案例的 P1 题库补丁。
+- `content/questions/python-p1-question-templates.ts`: Python 专属 P1 题库模板，代码材料使用 Python 语法（`print`、`raise`、`try/except`）。
+- `content/questions/python-p1-question-bank.ts`: Python 99 个已发布案例的 P1 题库补丁，按 11 阶段配置题型多样性。
 - `lib/curriculum/types.ts`: shared curriculum and lesson types.
 - `lib/curriculum/validate.ts`: catalog、lesson、P1 题型结构、题库引用和覆盖率 validators。
 - `lib/curriculum/view-model.ts`: roadmap view model.
@@ -169,6 +171,25 @@ Important product boundary:
 - `docs/ARTICHECTURE.md`: architecture harness.
 
 ## Validation History
+
+Latest validation for the Python question-bank & full-course upgrade work:
+
+```bash
+npm run validate:curriculum -> pass. 输出：Python 11 个阶段 99 个案例，共 547 个已发布案例。题库覆盖：Node.js 238 道题，Next.js 200 道题，Python 220 道题，共 658 道题。
+npm test -> pass. 202 tests, 202 pass, 0 fail（新增 tests/curriculum/python-complete.test.ts 4 例）。
+npm run lint -> pass.
+npm run build -> pass. 生成 `/python`、`/nodejs`、`/nextjs`、`/frontend-debugging` 等路由。
+```
+
+Implementation notes:
+
+- 新增 `content/questions/python-p1-question-templates.ts`，参考 Node.js/Next.js 模板但生成 Python 语法代码材料（`raise ValueError`、`try/except`、`print`），`materialLanguage` 恒为 `py`。
+- 新增 `content/questions/python-p1-question-bank.ts` 聚合 11 个 Python 阶段，配置阶段题型多样性（每阶段至少 3 种题型），共补丁 121 道题（99 知识 + 11 阶段项目额外 1 题；阶段项目自身在工厂中已含 2 题）。
+- `content/lesson-registry.ts` 通过 `applyQuestionBank` 挂载 Python 题库；`scripts/validate-curriculum.ts` 现在把 Python 纳入 `validateQuestionCoverage` 与题库覆盖率日志。
+- 新增 `tests/curriculum/python-complete.test.ts`：Python 11 阶段 99 案例结构、每题最小数量、材料语言为 py、目录节点对应题库四项断言。
+- Python 视觉可视化：`lib/curriculum/types.ts` 与 `visualizers.ts` 新增 11 个 `python-*` 可视化类型（`python-runtime-model`、`python-collection-lens` 等），`components/visualizers/scenes/runtime-scene.tsx` 补齐颜色映射，`lib/curriculum/validate.ts` 已把 python 可视化白名单化。
+
+
 
 Latest validation for the course-system large expansion work:
 

@@ -167,6 +167,8 @@ content/questions/*
   -> P1 题库补丁层
   -> 将 diagnosis、repair、completion、execution-order 追加到已发布课程
   -> 通过课程真实标题、概念、入口代码和阶段题型分配生成大规模题库条目
+  -> Node.js/Next.js 使用 `p1-question-templates.ts` (JS 语法代码材料)
+  -> Python 使用 `python-p1-question-templates.ts` (Python 语法代码材料，materialLanguage=py)
 
 lib/curriculum/types.ts
   -> CourseDomainId、CourseId、CourseSpec、课程目录、题目、来源、运行帧、多运行舱表面和可视化类型
