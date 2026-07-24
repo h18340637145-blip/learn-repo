@@ -29,7 +29,15 @@ const configuredStageVisualizers = {
   "python-cli-tools": { type: "python-cli-flow", title: "CLI 参数与配置流", nodes: ["Argv", "Parser", "Config", "Env", "Command"] },
   "python-scheduling": { type: "python-scheduler-clock", title: "调度器时钟", nodes: ["Cron", "Trigger", "Job", "Retry", "Alert"] },
   "python-ops-process": { type: "python-process-tree", title: "子进程编排树", nodes: ["Parent", "Signal", "Child", "IO", "Exit"] },
-  "python-automation-pipeline": { type: "python-pipeline-tower", title: "自动化流水线塔", nodes: ["采集", "清洗", "缓存", "通知", "观测"] }
+  "python-automation-pipeline": { type: "python-pipeline-tower", title: "自动化流水线塔", nodes: ["采集", "清洗", "缓存", "通知", "观测"] },
+  // AI Agent stage visualizers (04-10)
+  "ai-agent-tool-orchestration": { type: "agent-tool-orchestration", title: "工具编排调度台", nodes: ["Plan", "Tool", "Parallel", "Merge", "Result"] },
+  "ai-agent-long-memory": { type: "agent-memory-graph", title: "长期记忆向量图", nodes: ["Embed", "Vector", "Retrieval", "Rerank", "Context"] },
+  "ai-agent-evaluation-observability": { type: "agent-eval-dashboard", title: "评测与可观测大盘", nodes: ["Trace", "Metric", "Eval", "Baseline", "Regression"] },
+  "ai-agent-safety-alignment": { type: "agent-safety-shield", title: "安全对齐护盾", nodes: ["Input", "Policy", "Sandbox", "Audit", "Response"] },
+  "ai-agent-multimodal-execution": { type: "agent-multimodal-canvas", title: "多模态与执行画布", nodes: ["Vision", "Code", "File", "Browser", "Result"] },
+  "ai-agent-production-deploy": { type: "agent-production-console", title: "生产部署控制台", nodes: ["Route", "Quota", "Tenant", "Rollout", "SLO"] },
+  "ai-agent-platform-pipeline": { type: "agent-platform-pipeline", title: "Agent 平台端到端", nodes: ["Intake", "Plan", "Tools", "Memory", "Release"] }
 } satisfies Partial<Record<StageId, VisualizerSpec>>;
 
 const stageVisualizers: Partial<Record<StageId, VisualizerSpec>> = configuredStageVisualizers;

@@ -13,6 +13,14 @@ import { pythonStageSevenCliToolsLessons } from "./lessons/python/stage-07-cli-t
 import { pythonStageEightSchedulingLessons } from "./lessons/python/stage-08-scheduling";
 import { pythonStageNineOpsProcessLessons } from "./lessons/python/stage-09-ops-process";
 import { pythonStageTenAutomationPipelineLessons } from "./lessons/python/stage-10-automation-pipeline";
+// AI Agent real-content lessons (stages 04-10; stages 00-03 remain blueprint)
+import { aiAgentStageFourToolOrchestrationLessons } from "./lessons/ai-agent/stage-04-tool-orchestration";
+import { aiAgentStageFiveLongMemoryLessons } from "./lessons/ai-agent/stage-05-long-memory";
+import { aiAgentStageSixEvaluationObservabilityLessons } from "./lessons/ai-agent/stage-06-evaluation-observability";
+import { aiAgentStageSevenSafetyAlignmentLessons } from "./lessons/ai-agent/stage-07-safety-alignment";
+import { aiAgentStageEightMultimodalExecutionLessons } from "./lessons/ai-agent/stage-08-multimodal-execution";
+import { aiAgentStageNineProductionDeployLessons } from "./lessons/ai-agent/stage-09-production-deploy";
+import { aiAgentStageTenPlatformPipelineLessons } from "./lessons/ai-agent/stage-10-platform-pipeline";
 
 const defaultRuntimeSurfaces = ["console", "micro-browser", "runtime-timeline", "incident-hud"] as const;
 
@@ -477,51 +485,130 @@ export const aiApplicationCourse = createPlannedCourse({
   ]
 });
 
-export const aiAgentCourse = createPlannedCourse({
+const aiAgentStageSeeds = [
+  {
+    id: "ai-agent-loop-planning",
+    number: 0,
+    title: "观察-计划-行动循环",
+    summary: "Observe、Think、Act、Reflect 的基本闭环。",
+    lessons: ["观察建模", "任务计划", "行动执行", "反思修正"],
+    projectTitle: "Agent Trace 复盘"
+  },
+  {
+    id: "ai-agent-memory-tools",
+    number: 1,
+    title: "记忆与工具使用",
+    summary: "短期记忆、长期记忆、检索记忆和工具选择。",
+    lessons: ["短期记忆", "长期记忆", "工具选择", "参数构造"],
+    projectTitle: "记忆命中调试"
+  },
+  {
+    id: "ai-agent-multi-agent",
+    number: 2,
+    title: "多 Agent 协作",
+    summary: "Planner、Executor、Reviewer 的分工与冲突解决。",
+    lessons: ["角色分工", "任务树", "消息协议", "冲突解决"],
+    projectTitle: "多 Agent 协作复盘"
+  },
+  {
+    id: "ai-agent-failure-recovery",
+    number: 3,
+    title: "失败恢复与安全边界",
+    summary: "工具失败、权限拒绝、上下文压缩和恢复策略。",
+    lessons: ["工具失败", "权限拒绝", "上下文压缩", "恢复策略"],
+    projectTitle: "失败恢复演练"
+  },
+  {
+    id: "ai-agent-tool-orchestration",
+    number: 4,
+    title: "工具链与工具编排",
+    summary: "Function Calling、并行工具、工具组合、错误重试与 trace 归因。",
+    lessons: ["Function Calling 契约", "并行工具执行", "工具组合与依赖", "工具选择策略"],
+    projectTitle: "工具编排调度器"
+  },
+  {
+    id: "ai-agent-long-memory",
+    number: 5,
+    title: "长期记忆与向量检索",
+    summary: "Embedding、向量存储、记忆分层、压缩遗忘与污染防护。",
+    lessons: ["Embedding 生成", "向量存储检索", "记忆分层", "写入策略"],
+    projectTitle: "长期记忆检索增强系统"
+  },
+  {
+    id: "ai-agent-evaluation-observability",
+    number: 6,
+    title: "Agent 评测与可观测",
+    summary: "Trace、指标、评测数据集、A/B 对比与回归告警。",
+    lessons: ["结构化 Trace", "关键指标", "评测数据集", "离线批量评测"],
+    projectTitle: "Agent 评测流水线"
+  },
+  {
+    id: "ai-agent-safety-alignment",
+    number: 7,
+    title: "安全对齐与防护",
+    summary: "Prompt Injection、越狱、内容审核、权限沙箱与人在回路。",
+    lessons: ["Injection 检测", "越狱防御", "内容审核", "权限沙箱"],
+    projectTitle: "Agent 安全防线"
+  },
+  {
+    id: "ai-agent-multimodal-execution",
+    number: 8,
+    title: "多模态与代码执行",
+    summary: "视觉输入、音频转录、代码沙箱、Web/GUI 操作与反馈闭环。",
+    lessons: ["图像输入", "音频转录", "代码沙箱", "文件读写"],
+    projectTitle: "多模态执行 Agent"
+  },
+  {
+    id: "ai-agent-production-deploy",
+    number: 9,
+    title: "生产化部署",
+    summary: "模型路由、成本控制、限流、多租户、灰度与 SLO。",
+    lessons: ["模型路由与降级", "成本控制", "限流与背压", "多租户隔离"],
+    projectTitle: "生产化 Agent 服务"
+  },
+  {
+    id: "ai-agent-platform-pipeline",
+    number: 10,
+    title: "端到端 Agent 平台",
+    summary: "意图识别、任务规划、工具编排、记忆、评测、安全、部署与运营的完整平台。",
+    lessons: ["意图识别", "任务规划", "工具编排", "记忆集成"],
+    projectTitle: "端到端 Agent 平台"
+  }
+] as const satisfies readonly PlannedStageSeed[];
+
+const aiAgentPublishedLessonsByStageId = new Map<StageId, readonly LessonSpec[]>([
+  ["ai-agent-tool-orchestration", aiAgentStageFourToolOrchestrationLessons],
+  ["ai-agent-long-memory", aiAgentStageFiveLongMemoryLessons],
+  ["ai-agent-evaluation-observability", aiAgentStageSixEvaluationObservabilityLessons],
+  ["ai-agent-safety-alignment", aiAgentStageSevenSafetyAlignmentLessons],
+  ["ai-agent-multimodal-execution", aiAgentStageEightMultimodalExecutionLessons],
+  ["ai-agent-production-deploy", aiAgentStageNineProductionDeployLessons],
+  ["ai-agent-platform-pipeline", aiAgentStageTenPlatformPipelineLessons]
+]);
+
+// AI Agent 阶段 00-03 仍来自 blueprint-first-stage.ts；createPlannedStages 会
+// 为它们保留兼容的 lesson id (ai-agent-{stageId}-lesson-{n}) 与 published 状态。
+const aiAgentPlannedStages = createPlannedStages("ai-agent", aiAgentStageSeeds, 4);
+
+const aiAgentStages = aiAgentStageSeeds.map((seed) => {
+  const authored = aiAgentPublishedLessonsByStageId.get(seed.id);
+  if (authored) {
+    return buildPublishedStageFromLessons(seed, authored);
+  }
+  return aiAgentPlannedStages[seed.number];
+}) satisfies CurriculumStage[];
+
+export const aiAgentCourse = {
   id: "ai-agent",
   domainId: "ai-agent",
   slug: "ai-agent",
   title: "AI Agent",
-  description: "掌握 Observe、Plan、Act、Reflect、Memory、Tool Use 和多 Agent 协作。",
+  description: "从 Observe/Plan/Act/Reflect 循环到工具编排、长期记忆、评测、安全与生产化平台。",
   icon: "AGT",
   status: "preview",
-  publishedStageCount: 4,
   runtimeSurfaces: ["console", "agent-trace", "runtime-timeline"],
-  stages: [
-    {
-      id: "ai-agent-loop-planning",
-      number: 0,
-      title: "观察-计划-行动循环",
-      summary: "Observe、Think、Act、Reflect 的基本闭环。",
-      lessons: ["观察建模", "任务计划", "行动执行", "反思修正"],
-      projectTitle: "Agent Trace 复盘"
-    },
-    {
-      id: "ai-agent-memory-tools",
-      number: 1,
-      title: "记忆与工具使用",
-      summary: "短期记忆、长期记忆、检索记忆和工具选择。",
-      lessons: ["短期记忆", "长期记忆", "工具选择", "参数构造"],
-      projectTitle: "记忆命中调试"
-    },
-    {
-      id: "ai-agent-multi-agent",
-      number: 2,
-      title: "多 Agent 协作",
-      summary: "Planner、Executor、Reviewer 的分工与冲突解决。",
-      lessons: ["角色分工", "任务树", "消息协议", "冲突解决"],
-      projectTitle: "多 Agent 协作复盘"
-    },
-    {
-      id: "ai-agent-failure-recovery",
-      number: 3,
-      title: "失败恢复与安全边界",
-      summary: "工具失败、权限拒绝、上下文压缩和恢复策略。",
-      lessons: ["工具失败", "权限拒绝", "上下文压缩", "恢复策略"],
-      projectTitle: "失败恢复演练"
-    }
-  ]
-});
+  stages: aiAgentStages
+} as const satisfies CourseSpec;
 
 export const aiMathCourse = createPlannedCourse({
   id: "ai-math",

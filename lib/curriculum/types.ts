@@ -95,6 +95,13 @@ export type StageId =
   | "ai-agent-memory-tools"
   | "ai-agent-multi-agent"
   | "ai-agent-failure-recovery"
+  | "ai-agent-tool-orchestration"
+  | "ai-agent-long-memory"
+  | "ai-agent-evaluation-observability"
+  | "ai-agent-safety-alignment"
+  | "ai-agent-multimodal-execution"
+  | "ai-agent-production-deploy"
+  | "ai-agent-platform-pipeline"
   | "ai-math-linear-algebra"
   | "ai-math-probability-calculus"
   | "ai-math-optimization"
@@ -170,7 +177,15 @@ export type VisualizerType =
   | "python-cli-flow"
   | "python-scheduler-clock"
   | "python-process-tree"
-  | "python-pipeline-tower";
+  | "python-pipeline-tower"
+  // AI Agent visualizers
+  | "agent-tool-orchestration"
+  | "agent-memory-graph"
+  | "agent-eval-dashboard"
+  | "agent-safety-shield"
+  | "agent-multimodal-canvas"
+  | "agent-production-console"
+  | "agent-platform-pipeline";
 
 export type VisualizerSpec = {
   type: VisualizerType;

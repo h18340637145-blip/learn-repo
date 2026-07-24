@@ -83,7 +83,14 @@ const supportedVisualizerTypes = new Set<VisualizerType>([
   "python-cli-flow",
   "python-scheduler-clock",
   "python-process-tree",
-  "python-pipeline-tower"
+  "python-pipeline-tower",
+  "agent-tool-orchestration",
+  "agent-memory-graph",
+  "agent-eval-dashboard",
+  "agent-safety-shield",
+  "agent-multimodal-canvas",
+  "agent-production-console",
+  "agent-platform-pipeline"
 ]);
 
 export function validateLessonSpec(lesson: LessonSpec): string[] {

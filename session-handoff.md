@@ -21,7 +21,9 @@ main
 - 当前新增路线包括“前端报错调试”和 7 条蓝图路线；蓝图路线状态为 `preview`，不是全量发布。
 - `getLessonsByCourse` 对 7 条蓝图路线返回各自独立的 36 个四阶段案例，避免误复用 Node.js 已发布课程。
 - 前端报错调试当前发布阶段 00–03，覆盖控制台错误栈、Network 请求排障、React 渲染问题、构建与环境问题，共 36 个可玩案例。
-- 当前已发布案例总数：547 个；Node.js 106 个，Next.js 90 个，前端报错调试 36 个，Python 99 个（11 个阶段全部真实内容回填），其余6 条蓝图路线各 36 个。
+- 当前已发布案例总数：610 个；Node.js 106 个，Next.js 90 个，前端报错调试 36 个，Python 99 个（11 个阶段全部真实内容回填），AI Agent 99 个（阶段 00–03 蓝图 + 阶段 04–10 真实回填共 7 条新阶段 63 个真实案例），其余 5 条蓝图路线各 36 个。
+- P1 题库覆盖：Node.js 238 道 + Next.js 200 道 + Python 220 道 + AI Agent 220 道 = 878 道题。
+- AI Agent 04–10 阶段专属可视化：`agent-tool-orchestration`、`agent-memory-graph`、`agent-eval-dashboard`、`agent-safety-shield`、`agent-multimodal-canvas`、`agent-production-console`、`agent-platform-pipeline`，均已接入 `supportedVisualizerTypes` 与 `RuntimeScene` 色板。
 - 当前验证要求：`npm run validate:curriculum`、`npm test`、`npm run lint`、`npm run build`、`git diff --check`。
 - 多课程架构改造计划已在本地 `main` 继续推进：当前完成蓝图路线可见性与规划概览页，后续开发建议优先为规划路线逐条填充真实课程、题库、阶段项目和运行可视化。
 

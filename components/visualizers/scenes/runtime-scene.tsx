@@ -49,7 +49,15 @@ const colorByType: Record<VisualizerSpec["type"], string> = {
   "python-cli-flow": "#b8ff85",
   "python-scheduler-clock": "#6ee7ff",
   "python-process-tree": "#ffd166",
-  "python-pipeline-tower": "#7c5cff"
+  "python-pipeline-tower": "#7c5cff",
+  // AI Agent visualizers
+  "agent-tool-orchestration": "#ffad66",
+  "agent-memory-graph": "#7c5cff",
+  "agent-eval-dashboard": "#6ee7ff",
+  "agent-safety-shield": "#b8ff85",
+  "agent-multimodal-canvas": "#ff6bcb",
+  "agent-production-console": "#ffd166",
+  "agent-platform-pipeline": "#9fe870"
 };
 
 function nodePosition(index: number, total: number): [number, number, number] {
